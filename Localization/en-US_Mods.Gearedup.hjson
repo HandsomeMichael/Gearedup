@@ -1,0 +1,150 @@
+# This file will automatically update with entries for new content after a build and reload.
+
+Items: {
+	TestWeapon: {
+		DisplayName: Test Weapon
+		Tooltip:
+			'''
+			Template of an item
+			Replacing this tooltip is duty 
+			It's snowing on Mt.Fuji
+			'''
+	}
+
+	ExamplePerk: {
+		DisplayName: Example Perk
+		Tooltip: ""
+	}
+
+	AmmoPack: {
+		Tooltip: ""
+		DisplayName: Ammo Pack
+	}
+
+	WhiteStar: {
+		DisplayName: White Star
+		Tooltip:
+			'''
+			Have a chance to drop from fallen star
+			Used for special crafting
+			'''
+	}
+}
+
+Stat: {
+	# item
+	damage: "{0}% Damage"
+	crit: "{0}% Critical chance"
+	critdam: "{0}% Critical damage"
+	speed: "{0}% Attack speed"
+	armorPen: "{0} Armor penetration"
+	trueDamage: "{0} True damage"
+	defenseUsage: "{0} Defense when attacking"
+	# player
+	weight: "{0} Direct weight"
+	weightUsage: "{0} Weight when used"
+	weightRemover: Remove any weight when held
+	moveSpeed: "{0} Movement speed"
+	standingDefense: "{0} Defense when standing still"
+	standingSpeed: "{0} Attack speed when standing still"
+	standingDamage: "{0} Damage when standing still"
+	#custom
+	debuff: "{0} Damage on most debuffed entity"
+	wet: "{0} Damage on submerged entity"
+	team: "{0} Damage on player with opposing team"
+	nokb: No knockback
+	unicorn: Scale damage on speed
+	corrosive: Grant Poison on user and enemy on hit
+	boiling: Grant On Fire on user and enemy on hit
+	baneArthropod: "{0} Damage to arthropods"
+	baneSkeletal: "{0} Damage to skeletal undead"
+	baneHumanoid: "{0} Damage to humanoid"
+	baneCarnivore: "{0} Damage to most carnivores"
+	execute: "{0} Damage to low health entities"
+	# melee custom
+	flight: Increase flight time on successful hit
+	wornout: Unsuccessful hit reduces {0} attack speed
+	unflask: "{0} Damage when not using flask"
+	# ranged custom
+	ammoUse: "{0} Chance not to consume ammo"
+	jammed: "{0} Chance to jam"
+	backfire: "{0} Chance to backfire user"
+	overheat: Builds up jamming heat when used
+	# mining
+	mining: "{0} Mining speed"
+	range: "{0} Mining range"
+	digger: "{0} Mining speed on stone and dirt"
+	doubleMining: "{0} Chance to double ore drops"
+	void: Clear dropped dirt , stone , clay and sands
+}
+
+Configs: {
+	GearClientConfig: {
+		DisplayName: Gear Client Config
+		Headers.GearDye: Gear Dye Header
+
+		DyeProjectileDust: {
+			Label: Dye Projectile Dust
+			Tooltip: ""
+		}
+
+		DyeItemPlayerShader: {
+			Label: Dye Item Player Shader
+			Tooltip: ""
+		}
+
+		DyeOverlapItemLayer: {
+			Label: Dye Overlap Item Layer
+			Tooltip: ""
+		}
+
+		DyeItemName: {
+			Label: Dye Item Name
+			Tooltip: ""
+		}
+
+		DyeItemPrefix: {
+			Label: Dye Item Prefix
+			Tooltip: ""
+		}
+
+		DyeRenderTargets: {
+			Label: Dye Render Targets
+			Tooltip: ""
+		}
+	}
+
+	GearServerConfig: {
+		DisplayName: Gear Server Config
+
+		Headers: {
+			Content: Content Header
+			DyeGears: Dye Gears Header
+		}
+
+		AllowAmmoPack: {
+			Label: Allow Ammo Pack
+			Tooltip: ""
+		}
+
+		AllowEndlessThrowables: {
+			Label: Allow Endless Throwables
+			Tooltip: ""
+		}
+
+		AllowLunarBugNet: {
+			Label: Allow Lunar Bug Net
+			Tooltip: ""
+		}
+
+		AllowWeaponDye: {
+			Label: Allow Weapon Dye
+			Tooltip: ""
+		}
+
+		WaterRemoveDye: {
+			Label: Water Remove Dye
+			Tooltip: ""
+		}
+	}
+}

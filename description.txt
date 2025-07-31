@@ -1,0 +1,25 @@
+
+[ Better Gears ]
+
+This mod adds cool tools and modular perks to gears in the game
+Also adds endless ammo , endless throwing weapons , dyeable weapons and much more
+
+It should capable with almost every mod
+Based on dynamic gear advancement mod
+
+Planned on :
+
+- Modular weapons perks
+- Customizable ammo packs
+- Customizable and reforgable consumable weapons
+- Customizable weapons ( name , dyes , lore )
+- Perks progressions
+
+Not important stuff that i would import on :
+- Lunar Net, endgame item that allows it to catch any npcs when learned 100%
+- Cosmic Void, endgame item that could suck up projectiles and turn them into an item
+- Void Spreader, endgame item that could shoot any catched projectiles
+- Colored Myst, hardmode item that dye your projecties
+- Bytech Dye, Any dye at any time
+- Phase Plate, allows player to fall faster on platform. can be activated and deactivated on inventory
+- Teleportic Potion, allows player to teleport into already discovered place in the map
