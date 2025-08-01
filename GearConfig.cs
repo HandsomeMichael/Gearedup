@@ -38,6 +38,9 @@ namespace Gearedup
 		[DefaultValue(true)] 
 		public bool AllowWeaponDye;
 
+		[DefaultValue(false)] 
+		public bool AllowDyeConsumed;
+
 		[DefaultValue(true)] 
 		public bool WaterRemoveDye;
 	}
@@ -53,8 +56,33 @@ namespace Gearedup
 		[Header("GearDye")]
 
 		[DefaultValue(false)]
-		[ReloadRequired] 
-		public bool DyeRenderTargets;
+		public bool DyeRenderTargetsAll;
+
+		[DefaultValue(false)]
+		public bool DyeRenderTargetsModded;
+
+		public List<ItemDefinition> DyeRenderTargetItemsList = new List<ItemDefinition>();
+		public void AddItemRT(Item item)
+		{
+			DyeRenderTargetItemsList.Add(new ItemDefinition(item.type));
+		}
+		public bool IsItemRT(Item item)
+		{
+			if (DyeRenderTargetItemsList == null) return false;
+			if (DyeRenderTargetItemsList.Count <= 0) return false;
+			if (item is null || item.IsAir) return false;
+
+			foreach (var rt in DyeRenderTargetItemsList)
+			{
+				if (rt != null && item.type == rt.Type)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+
 
 		[DefaultValue(true)] 
 		[ReloadRequired]
@@ -66,13 +94,10 @@ namespace Gearedup
 		[DefaultValue(false)] 
 		public bool DyeOverlapItemLayer;
 
-		// [DefaultValue(true)] 
-		// public bool DyeItemDyeDye;
+		[DefaultValue(true)] 
+		public bool DyeItemDyeDye;
 
 		[DefaultValue(true)] 
 		public bool DyeItemName;
-
-		[DefaultValue(true)] 
-		public bool DyeItemPrefix;
 	}
 }

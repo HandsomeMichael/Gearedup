@@ -112,6 +112,26 @@ Configs: {
 			Label: Dye Render Targets
 			Tooltip: ""
 		}
+
+		DyeRenderTargetsAll: {
+			Label: Dye Render Targets All
+			Tooltip: ""
+		}
+
+		DyeRenderTargetsModded: {
+			Label: Dye Render Targets Modded
+			Tooltip: ""
+		}
+
+		DyeRenderTargetItemsList: {
+			Label: Dye Render Target Items List
+			Tooltip: ""
+		}
+
+		DyeItemDyeDye: {
+			Label: Dye Item Dye Dye
+			Tooltip: ""
+		}
 	}
 
 	GearServerConfig: {
@@ -144,6 +164,11 @@ Configs: {
 
 		WaterRemoveDye: {
 			Label: Water Remove Dye
+			Tooltip: ""
+		}
+
+		AllowDyeConsumed: {
+			Label: Allow Dye Consumed
 			Tooltip: ""
 		}
 	}

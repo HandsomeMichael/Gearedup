@@ -36,6 +36,10 @@ namespace Gearedup
 
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         {
+            if (dye.id is int dyeID)
+            {
+                tooltips.Add(new TooltipLine(Mod, "DyeImbue",$"Imbued with {ContentSamples.ItemsByType[dyeID].Name} [i:{dyeID}]"));
+            }
             if (!hasStats) return;
             foreach (var stat in stats)
             {
@@ -63,7 +67,8 @@ namespace Gearedup
         {
             if (hasStats && line.Name.Contains("GearStat_"))
             {
-                yOffset += 4;
+                line.BaseScale /= 2f;
+                // yOffset += 4;
                 // Utils.DrawInvBG(Main.spriteBatch, new Rectangle(
                 //     line.X,
                 //     line.Y - 2,
@@ -120,7 +125,6 @@ namespace Gearedup
         public override void SaveData(Item item, TagCompound tag)
         {
             dye.Save(tag);
-            dye.ValidateAsItem();
 
             if (!hasStats) return;
             tag["statNames"] = stats.Keys.ToList();
@@ -130,6 +134,7 @@ namespace Gearedup
         public override void LoadData(Item item, TagCompound tag)
         {
             dye.Load(tag);
+            dye.ValidateAsItem();
 
             if (tag.ContainsKey("statNames") && tag.ContainsKey("statValues"))
             {

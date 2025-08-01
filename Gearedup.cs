@@ -111,11 +111,10 @@ namespace Gearedup
 				if (projectile != null && projectile.active && projectile.timeLeft >= 1)
 				{
 					var gp = projectile.GetGlobalProjectile<GearProjectile>();
-					if (gp.dye > 0 && gp.dye <= ContentSamples.ItemsByType.Count)
+					if (gp.dye > 0)
 					{
 						// Main.dust[i].shader = GameShaders.Armor.GetSecondaryShader(gp.dye, Main.LocalPlayer);
-						int dyeValue = ContentSamples.ItemsByType[gp.dye].dye;
-						Main.dust[i].shader = GameShaders.Armor.GetSecondaryShader(dyeValue, Main.LocalPlayer);
+						Main.dust[i].shader = GameShaders.Armor.GetSecondaryShader(gp.dye, Main.LocalPlayer);
 					}
 				}
 			}
@@ -185,6 +184,15 @@ namespace Gearedup
 					{
 						// Main.NewText("success applied " + dyedItem.dye);
 						globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
+						
+						if (GearClientConfig.Get.IsItemRT(itemSource.Item))
+						{
+							globalProj.useRenderTarget = true;
+						}
+						else if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
+						{
+							globalProj.useRenderTarget = true;
+						}
 					}
 				}
 			}
@@ -209,6 +217,11 @@ namespace Gearedup
 						if (parentDyedProjectile.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile GearProjectile))
 						{
 							GearProjectile.dye = parentDyedProjectile.dye;
+							// if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
+							if (parentDyedProjectile.ShouldRenderTarget())
+							{
+								GearProjectile.useRenderTarget = true;
+							}
 						}
 
 					}
@@ -241,9 +254,10 @@ namespace Gearedup
 			//         }
 			//     }
 			// }
-			if (!GearClientConfig.Get.DyeRenderTargets && proj.active && proj.TryGetGlobalProjectile<GearProjectile>(out GearProjectile dyedProjectile))
+			if (proj.active && proj.TryGetGlobalProjectile<GearProjectile>(out GearProjectile dyedProjectile))
 			{
-				if (dyedProjectile.dye > 0)
+				// Dont use shader again if it tried to use render target methods
+				if (dyedProjectile.dye > 0 && !dyedProjectile.ShouldRenderTarget())
 				{
 					return dyedProjectile.dye;
 				}

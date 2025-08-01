@@ -11,6 +11,8 @@ using System;
 using Microsoft.Xna.Framework.Graphics;
 using static Terraria.ModLoader.Core.TmodFile;
 using Gearedup.Utils;
+using Terraria.ID;
+using Terraria.DataStructures;
 
 namespace Gearedup
 {
@@ -40,15 +42,26 @@ namespace Gearedup
     }
     public class DyeRenderer : ModSystem
     {
-        // Loads render targets
-        public override bool IsLoadingEnabled(Mod mod)
+        // Render Target System will always be loaded now
+
+        // public override bool IsLoadingEnabled(Mod mod)
+        // {
+        //     return GearClientConfig.Get.DyeRenderTargets;
+        // }
+
+        public static bool IsCustomDrawed(Projectile projectile)
         {
-            return GearClientConfig.Get.DyeRenderTargets;
+            if (GearClientConfig.Get.DyeRenderTargetsAll) return true;
+            if (!GearClientConfig.Get.DyeRenderTargetsModded) return false;
+            return customDrawedProjectiles.Contains(projectile.type);
         }
 
-        public Dictionary<short, ProjRenderer> renders;
+        public static bool isRendering;
 
-        public void AddRender(Projectile projectile, short dye)
+        public static Dictionary<short, ProjRenderer> renders;
+        public static List<int> customDrawedProjectiles;
+
+        public static void AddRender(Projectile projectile, short dye)
         {
             if (renders.ContainsKey(dye))
             {
@@ -59,8 +72,10 @@ namespace Gearedup
                 renders.Add(dye, new ProjRenderer(projectile));
             }
 
-            Main.NewText("Add New Render Packets " +dye);
+            Main.NewText("Add New Render Packets " + dye);
         }
+
+
 
         public override void Load()
         {
@@ -68,6 +83,53 @@ namespace Gearedup
             Terraria.On_Main.CheckMonoliths += DrawToTarget;
             // Terraria.On_Main.DrawDust += DrawDust;
             Terraria.On_Main.DrawProjectiles += DrawProjectilesPatch;
+            customDrawedProjectiles = new List<int>();
+        }
+        
+        public override void Unload()
+        {
+            renders = null;
+            customDrawedProjectiles = null;
+        }
+
+        public override void PostSetupContent()
+        {
+            // automatically add potential rendertarget2D required projectiles.
+            foreach (var item in ContentSamples.ProjectilesByType)
+            {
+                if (item.Value.ModProjectile == null) continue;
+
+                Type type = item.Value.ModProjectile.GetType();
+                MethodInfo method = type.GetMethod("PreDraw", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (method?.IsVirtual == true && !method.IsFinal && method.GetBaseDefinition().DeclaringType != type)
+                {
+                    customDrawedProjectiles.Add(item.Key);
+                    Mod.Logger.Info($"Projectile of [{item.Value.Name}/{item.Value.type}/{type.FullName}] added to custom draw");
+                }
+            }
+            // for (int i = ProjectileID.Count; i < ContentSamples.ProjectilesByType.Count; i++)
+            // {
+
+            // }
+        }
+
+        // WHERE DOES TERRARIA EVEN DRAW PROJECTILES IF THIS DOESNT WORK
+        private void DrawProjDirect(On_Main.orig_DrawProjDirect orig, Main self)
+        {
+            return;
+            // if (!isRendering)
+            // {
+            //     if (Main.projectile[i].TryGetGlobalProjectile<GearProjectile>(out GearProjectile gp))
+            //     {
+            //         if (gp.dye > 0)
+            //         {
+            //             Main.NewText("Not drawing this "+Main.projectile[i].Name);
+            //             return;
+            //         }
+            //     }
+            // }
+            // orig(self, i);
         }
 
         private void DrawProjectilesPatch(On_Main.orig_DrawProjectiles orig, Main self)
@@ -80,11 +142,6 @@ namespace Gearedup
         {
             DrawRenderTargets();
             orig(self);
-        }
-
-        public override void Unload()
-        {
-            renders = null;
         }
 
         public void DrawRenderTargets()
@@ -100,7 +157,14 @@ namespace Gearedup
                 if (item.Value.IsActive())
                 {
                     Main.NewText("Drawed projectile renders shader "+item.Key);
-                    spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer);
+                    // DrawData data = new DrawData
+                    // {
+                    //     position = Vector2.Zero,
+                    //     scale = Vector2.One,
+                    //     sourceRect = null,
+                    //     texture = item.Value.renderTarget
+                    // };
+                    spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
                     spriteBatch.Draw(item.Value.renderTarget, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
                     spriteBatch.End();
                     item.Value.Clear();
@@ -131,6 +195,8 @@ namespace Gearedup
             int RTwidth = Main.screenWidth;
             int RTheight = Main.screenHeight;
 
+            isRendering = true;
+
             foreach (var tuple in renders)
             {
                 RenderTarget2D rt = tuple.Value.renderTarget;
@@ -140,6 +206,9 @@ namespace Gearedup
                     renderer.renderTarget = new RenderTarget2D(graphics, RTwidth, RTheight, default, default, default, default, RenderTargetUsage.PreserveContents);
                     renders[tuple.Key] = renderer;
                 }
+
+                // skip unused renderer
+                if (!tuple.Value.IsActive()) continue;
 
                 Main.NewText("Preparing render " + tuple.Key);
 
@@ -159,6 +228,8 @@ namespace Gearedup
 
                 graphics.SetRenderTarget(null);
             }
+
+            isRendering = false;
 
         }
     }
