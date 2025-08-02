@@ -16,8 +16,8 @@ namespace Gearedup
 		public override ConfigScope Mode => ConfigScope.ServerSide;
 		public static GearServerConfig Get => ModContent.GetInstance<GearServerConfig>();
 
-        // save the config , this requires reflection though.
-        public static void SaveConfig() => typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[1] { Get });
+		// save the config , this requires reflection though.
+		public static void SaveConfig() => typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[1] { Get });
 
 		[Header("Content")]
 
@@ -26,23 +26,58 @@ namespace Gearedup
 		public bool AllowAmmoPack;
 
 		[DefaultValue(true)]
-		[ReloadRequired] 
+		[ReloadRequired]
 		public bool AllowEndlessThrowables;
 
 		[DefaultValue(true)]
-		[ReloadRequired] 
-		public bool AllowLunarBugNet;
- 
+		[ReloadRequired]
+		public bool AllowSuperBugNet;
+
+		[DefaultValue(true)]
+		[ReloadRequired]
+		public bool AllowSuperBugNet_Projectile;
+
+		[DefaultValue(true)]
+		[ReloadRequired]
+		public bool AllowSuperBugNet_NPCs;
+
+		[DefaultValue(true)]
+		[ReloadRequired]
+		public bool AllowSuperBugNet_Bosses;
+
+		[DefaultValue(false)]
+		[ReloadRequired]
+		public bool AllowSuperBugNet_FullyUnlocked;
+
+		[DefaultValue(true)]
+		[ReloadRequired]
+		public bool AllowDeveloGun;
+
+		[DefaultValue(true)]
+		[ReloadRequired]
+		public bool AllowDeveloGun_Brainwash;
+
 		[Header("DyeGears")]
 
-		[DefaultValue(true)] 
+		[DefaultValue(true)]
 		public bool AllowWeaponDye;
 
-		[DefaultValue(false)] 
+		[DefaultValue(false)]
 		public bool AllowDyeConsumed;
 
-		[DefaultValue(true)] 
+		[DefaultValue(true)]
 		public bool WaterRemoveDye;
+
+		[Header("CatchedEntities")]
+
+		[DefaultValue(false)]
+		public bool CatchNPCStats;
+
+		[DefaultValue(false)]
+		public bool CatchProjectileStats;
+
+		[DefaultValue(true)]
+		public bool CatchProjectileAmmo;
 	}
 
 	public class GearClientConfig : ModConfig
@@ -60,6 +95,9 @@ namespace Gearedup
 
 		[DefaultValue(false)]
 		public bool DyeRenderTargetsModded;
+
+		[DefaultValue(true)]
+		public bool DyeRenderTargetsToggle;
 
 		public List<ItemDefinition> DyeRenderTargetItemsList = new List<ItemDefinition>();
 		public void AddItemRT(Item item)

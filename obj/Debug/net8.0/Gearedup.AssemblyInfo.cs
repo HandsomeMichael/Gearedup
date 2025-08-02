@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Gearedup")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3a269127a90457c971cd3db72e547c6d0bfca527")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ae9e610a537b77befa23e847cdfd8cf80f22f2c4")]
 [assembly: System.Reflection.AssemblyProductAttribute("Gearedup")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Gearedup")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -5,7 +5,7 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace Gearedup.Utils
+namespace Gearedup.Helper
 {
 
     /// <summary>

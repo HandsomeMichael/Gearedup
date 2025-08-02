@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using static Terraria.ModLoader.Core.TmodFile;
-using Gearedup.Utils;
+using Gearedup.Helper;
 using Terraria.ID;
 using Terraria.DataStructures;
 
@@ -164,7 +164,11 @@ namespace Gearedup
                     //     sourceRect = null,
                     //     texture = item.Value.renderTarget
                     // };
-                    spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
+                    //
+
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, null, null, null,Main.GameViewMatrix.EffectMatrix);
+                    GameShaders.Armor.Apply(item.Key, null, null);
+                    // spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
                     spriteBatch.Draw(item.Value.renderTarget, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
                     spriteBatch.End();
                     item.Value.Clear();
@@ -200,10 +204,13 @@ namespace Gearedup
             foreach (var tuple in renders)
             {
                 RenderTarget2D rt = tuple.Value.renderTarget;
+                // Vector2 screenRes = new Vector2(RTwidth,RTheight) * Main.GameViewMatrix.Zoom;
                 if (rt is null || rt.Size() != new Vector2(RTwidth, RTheight))
+                // if (rt is null || rt.Size() != screenRes)
                 {
                     var renderer = tuple.Value;
                     renderer.renderTarget = new RenderTarget2D(graphics, RTwidth, RTheight, default, default, default, default, RenderTargetUsage.PreserveContents);
+                    // renderer.renderTarget = new RenderTarget2D(graphics, (int)screenRes.X, (int)screenRes.Y, default, default, default, default, RenderTargetUsage.PreserveContents);
                     renders[tuple.Key] = renderer;
                 }
 
@@ -213,10 +220,12 @@ namespace Gearedup
                 Main.NewText("Preparing render " + tuple.Key);
 
                 graphics.SetRenderTarget(tuple.Value.renderTarget);
-
                 graphics.Clear(Color.Transparent);
+
                 // Main.spriteBatch.Begin(default, BlendState.Additive, default, default, default, default);
+
                 Main.spriteBatch.BeginNormal();
+                //Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.ZoomMatrix);
 
                 foreach (var projectiles in tuple.Value.projectiles)
                 {

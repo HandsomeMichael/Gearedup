@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria.Graphics.Shaders;
 using Terraria.DataStructures;
 
-namespace Gearedup.Utils
+namespace Gearedup.Helper
 {
 	/// <summary>
 	/// Old ass funkin Utilities from the dead dead legacy 1.3 mods

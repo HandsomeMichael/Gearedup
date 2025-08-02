@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Gearedup.Utils;
+using Gearedup.Helper;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -38,7 +38,8 @@ namespace Gearedup
         {
             if (dye.id is int dyeID)
             {
-                tooltips.Add(new TooltipLine(Mod, "DyeImbue",$"Imbued with {ContentSamples.ItemsByType[dyeID].Name} [i:{dyeID}]"));
+                tooltips.Add(new TooltipLine(Mod, "DyeImbue", $"Imbued with {ContentSamples.ItemsByType[dyeID].Name} [i:{dyeID}]"));
+                tooltips.Add(new TooltipLine(Mod, "DyeTips",$"Press anything"));
             }
             if (!hasStats) return;
             foreach (var stat in stats)
@@ -218,6 +219,12 @@ namespace Gearedup
         {
             // THE AMOUNT OF SHIT THIS THING CAUSE TO BUG OUT THE GAME IS HUGE
             return entity.dye > 0 && entity.type != ItemID.ColorOnlyDye;
+        }
+
+        // If not you know
+        public override bool ConsumeItem(Item item, Player player)
+        {
+            return !GearServerConfig.Get.AllowDyeConsumed;
         }
         
         // Apply Dyes

@@ -14,7 +14,7 @@ using Terraria.ModLoader.IO;
 using Terraria.UI.Chat;
 using Terraria.Utilities;
 
-namespace Gearedup.Utils
+namespace Gearedup.Helper
 {
     public static class Helpme
     {

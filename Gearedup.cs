@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gearedup.Content.Catched;
 using Gearedup.Content.Items;
 using Gearedup.Content.Perks;
 using Microsoft.Xna.Framework;
@@ -165,7 +166,8 @@ namespace Gearedup
 				}
 			}
 		}
-
+		
+		// TO DO : Move this to OnSpawn Hook
 		private int ProjPatch(On_Projectile.orig_NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float orig,
 		IEntitySource spawnSource, float X, float Y, float SpeedX, float SpeedY, int Type, int Damage, float KnockBack, int Owner, float ai0, float ai1, float ai2)
 		{
@@ -184,7 +186,7 @@ namespace Gearedup
 					{
 						// Main.NewText("success applied " + dyedItem.dye);
 						globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
-						
+
 						if (GearClientConfig.Get.IsItemRT(itemSource.Item))
 						{
 							globalProj.useRenderTarget = true;
@@ -205,6 +207,14 @@ namespace Gearedup
 			//     {
 			//     }
 			// }
+			if (hasil >= 0 && spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
+			{
+				if (ammoSource.AmmoItemIdUsed == ModContent.ItemType<CatchedProjectile>())
+				{
+					Main.projectile[hasil].hostile = false;
+					Main.projectile[hasil].friendly = true;
+				}
+			}
 
 			// get from parents
 			if (hasil >= 0 && spawnSource is EntitySource_Parent entitySource)
@@ -228,16 +238,25 @@ namespace Gearedup
 				}
 				// NPC TO DO :
 
-				// else if (entitySource.Entity is NPC npcSource) 
-				// {
-				//     if (npcSource.TryGetGlobalNPC<DyedNPC>(out DyedNPC dyedNPC))
-				//     {
-				//         if (dyedNPC.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile GearProjectile)) 
-				//         {
-				//             GearProjectile.dye = dyedNPC.dye;
-				//         }
-				//     }
-				// }
+				else if (entitySource.Entity is NPC npcSource)
+				{
+					if (npcSource.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC bw))
+					{
+						if (bw.ownedBy != -1 && Main.projectile[hasil].TryGetGlobalProjectile<BrainWashedProj>(out BrainWashedProj bwr))
+						{
+							bwr.ownedBy = bw.ownedBy;
+							Main.projectile[hasil].hostile = true;
+							Main.projectile[hasil].friendly = true;
+						}
+					}
+					// if (npcSource.TryGetGlobalNPC<DyedNPC>(out DyedNPC dyedNPC))
+					// {
+					//     if (dyedNPC.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile GearProjectile)) 
+					//     {
+					//         GearProjectile.dye = dyedNPC.dye;
+					//     }
+					// }
+				}
 			}
 			return hasil;
 		}

@@ -29,6 +29,26 @@ Items: {
 			Used for special crafting
 			'''
 	}
+
+	CatchedNPC: {
+		DisplayName: Catched N P C
+		Tooltip: ""
+	}
+
+	CatchedProjectile: {
+		DisplayName: Catched Projectile
+		Tooltip: ""
+	}
+
+	DeveloGun: {
+		DisplayName: Develo Gun
+		Tooltip: ""
+	}
+
+	SuperBugNet: {
+		DisplayName: Super Bug Net
+		Tooltip: ""
+	}
 }
 
 Stat: {
@@ -132,6 +152,11 @@ Configs: {
 			Label: Dye Item Dye Dye
 			Tooltip: ""
 		}
+
+		DyeRenderTargetsToggle: {
+			Label: Dye Render Targets Toggle
+			Tooltip: ""
+		}
 	}
 
 	GearServerConfig: {
@@ -140,6 +165,7 @@ Configs: {
 		Headers: {
 			Content: Content Header
 			DyeGears: Dye Gears Header
+			CatchedEntities: Catched Entities Header
 		}
 
 		AllowAmmoPack: {
@@ -171,5 +197,60 @@ Configs: {
 			Label: Allow Dye Consumed
 			Tooltip: ""
 		}
+
+		AllowSuperBugNet: {
+			Label: Allow Super Bug Net
+			Tooltip: ""
+		}
+
+		AllowSuperBugNet_Projectile: {
+			Label: Allow Super Bug Net_ Projectile
+			Tooltip: ""
+		}
+
+		AllowSuperBugNet_NPCs: {
+			Label: Allow Super Bug Net_ N P Cs
+			Tooltip: ""
+		}
+
+		AllowSuperBugNet_Bosses: {
+			Label: Allow Super Bug Net_ Bosses
+			Tooltip: ""
+		}
+
+		AllowSuperBugNet_FullyUnlocked: {
+			Label: Allow Super Bug Net_ Fully Unlocked
+			Tooltip: ""
+		}
+
+		AllowDeveloGun: {
+			Label: Allow Develo Gun
+			Tooltip: ""
+		}
+
+		AllowDeveloGun_Brainwash: {
+			Label: Allow Develo Gun_ Brainwash
+			Tooltip: ""
+		}
+
+		CatchNPCStats: {
+			Label: Catch N P C Stats
+			Tooltip: ""
+		}
+
+		CatchProjectileStats: {
+			Label: Catch Projectile Stats
+			Tooltip: ""
+		}
+
+		CatchProjectileAmmo: {
+			Label: Catch Projectile Ammo
+			Tooltip: ""
+		}
 	}
+}
+
+Projectiles: {
+	DeveloGunProj.DisplayName: Develo Gun Proj
+	SuperBugNetProj.DisplayName: Super Bug Net Proj
 }
