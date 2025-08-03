@@ -151,12 +151,12 @@ namespace Gearedup.Content.Items
         {
             if (target.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC bw))
             {
-                if (bw.ownedBy == ownedBy)
+                if (bw.ownedBy != - 1 && bw.ownedBy == ownedBy)
                 {
                     return false;
                 }
             }
-            return base.CanHitNPC(projectile, target);
+            return null;
         }
     }
 

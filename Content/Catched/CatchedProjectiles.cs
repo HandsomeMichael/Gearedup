@@ -25,6 +25,7 @@ namespace Gearedup.Content.Catched
         public void ReloadTypes(Projectile projectile = null)
         {
             Item.SetNameOverride(Lang.GetProjectileName(catchType.id.Value).Value);
+
             if (projectile != null)
             {
                 Item.shoot = projectile.type;
@@ -33,6 +34,7 @@ namespace Gearedup.Content.Catched
                 Item.DamageType = projectile.DamageType;
             }
         }
+
         public override void NetSend(BinaryWriter writer)
         {
             catchType.NetSend(writer);
@@ -52,29 +54,30 @@ namespace Gearedup.Content.Catched
         {
             catchType.Save(tag);
             // we need to save this chud
+
             tag.Add("damage", Item.damage);
-            for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
-            {
-                var dmg = DamageClassLoader.GetDamageClass(i);
-                tag.Add("damageType", dmg.DisplayName.Value);
-            }
-            // I Gave up saving damage type because its fucking hardcoded fuck you
-            // tag.Add("damageType", Item.DamageType);
+            // For some reason this crashes the game
+            // for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
+            // {
+            //     var dmg = DamageClassLoader.GetDamageClass(i);
+            //     tag.Add("saveDamageType", dmg.DisplayName.Value);
+            // }
         }
         public override void LoadData(TagCompound tag)
         {
             catchType.Load(tag);
-            Item.damage = tag.GetInt("damage");
 
-            string text = tag.GetString("damageType");
-            for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
-            {
-                var dmg = DamageClassLoader.GetDamageClass(i);
-                if (dmg.DisplayName.Value == text)
-                {
-                    Item.DamageType = dmg;
-                }
-            }
+            // if you change language i guess you fucked up
+            Item.damage = tag.GetInt("damage");
+            // string text = tag.GetString("saveDamageType");
+            // for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
+            // {
+            //     var dmg = DamageClassLoader.GetDamageClass(i);
+            //     if (dmg.DisplayName.Value == text)
+            //     {
+            //         Item.DamageType = dmg;
+            //     }
+            // }
 
             if (catchType.ValidateAsProjectile())
             {
@@ -103,7 +106,7 @@ namespace Gearedup.Content.Catched
             Item.useTurn = true;
             Item.useAnimation = 15;
             Item.useTime = 15;
-            Item.maxStack = 999;
+            Item.maxStack = 100;
             Item.consumable = true;
             Item.width = 12;
             Item.height = 12;
@@ -118,11 +121,36 @@ namespace Gearedup.Content.Catched
             {
                 tooltips.Add(new TooltipLine(Mod, "Intented", "Might not be intended to catch") { OverrideColor = Color.LightYellow });
             }
+            else
+            {
+                if (Item.stack == Item.maxStack)
+                {
+                    tooltips.Add(new TooltipLine(Mod, "Infinite", "Infinite, will not be consumed") { OverrideColor = Main.DiscoColor });
+                }
+                else
+                {
+                    tooltips.Add(new TooltipLine(Mod, "Finite", "Upon getting 100 stack, will become infinite") { OverrideColor = Color.HotPink });
+                }
+            }
+
+            if (catchType.id == null || catchType.id.Value <= 0)
+            {
+                tooltips.Add(new TooltipLine(Mod, "Penis", "If it shows a penis then you fucked up the mod, dont worry it wont break the game gng") { OverrideColor = Color.Pink });
+            }
 
             // if (catchType.unloaded)
             // {
             // 	tooltips.Add(new TooltipLine(Mod,"Unloaded","This item didnt loaded properly \n"+$"ID : ({catchType.Id})   [{catchType._mod} : {catchType._name}] ") {OverrideColor = Color.Red});
             // }
+        }
+
+        public override bool ConsumeItem(Player player)
+        {
+            if (Item.stack == Item.maxStack)
+            {
+                return false;
+            }
+            return base.ConsumeItem(player);
         }
 
         public override void UpdateInventory(Player player)
@@ -136,6 +164,15 @@ namespace Gearedup.Content.Catched
                 && player.HeldItem.useAmmo > 0)
                 {
                     Item.ammo = player.HeldItem.useAmmo;
+                }
+
+                if (Item.maxStack == Item.stack)
+                {
+                    Item.consumable = false;
+                }
+                else
+                {
+                    Item.consumable = true;
                 }
             }
 
@@ -189,5 +226,176 @@ namespace Gearedup.Content.Catched
             return true;
         }
     }
+
+    // public class EndlessCatchedProjectile : ModItem
+    // {
+    //     public override string Texture => "Gearedup/Content/Endless/AmmoPack";
+    //     public TypeID catchType;
+    //     public bool notIntended;
+
+    //     public bool IsNotIntended(Projectile projectile)
+    //     {
+    //         return projectile.ownerHitCheck || projectile.isAPreviewDummy || projectile.minion;
+    //     }
+    //     public void ReloadTypes(Projectile projectile = null)
+    //     {
+    //         Item.SetNameOverride(Lang.GetProjectileName(catchType.id.Value).Value);
+    //         if (projectile != null)
+    //         {
+    //             Item.shoot = projectile.type;
+    //             // reduce damage overtime
+    //             Item.damage = projectile.damage;// / 2;
+    //             Item.DamageType = projectile.DamageType;
+    //         }
+    //     }
+    //     public override void NetSend(BinaryWriter writer)
+    //     {
+    //         catchType.NetSend(writer);
+    //         writer.Write(Item.damage);
+    //         // writer.Write(Item.DamageType);
+    //     }
+    //     public override void NetReceive(BinaryReader reader)
+    //     {
+    //         catchType.NetReceive(reader);
+    //         Item.damage = reader.ReadInt32();
+    //         if (catchType.ValidateAsProjectile())
+    //         {
+    //             ReloadTypes();
+    //         }
+    //     }
+    //     public override void SaveData(TagCompound tag)
+    //     {
+    //         catchType.Save(tag);
+    //         // we need to save this chud
+
+    //         tag.Add("damage", Item.damage);
+    //         // For some reason this crashes the game
+    //         // for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
+    //         // {
+    //         //     var dmg = DamageClassLoader.GetDamageClass(i);
+    //         //     tag.Add("saveDamageType", dmg.DisplayName.Value);
+    //         // }
+    //     }
+    //     public override void LoadData(TagCompound tag)
+    //     {
+    //         catchType.Load(tag);
+
+    //         // if you change language i guess you fucked up
+    //         Item.damage = tag.GetInt("damage");
+    //         // string text = tag.GetString("saveDamageType");
+    //         // for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
+    //         // {
+    //         //     var dmg = DamageClassLoader.GetDamageClass(i);
+    //         //     if (dmg.DisplayName.Value == text)
+    //         //     {
+    //         //         Item.DamageType = dmg;
+    //         //     }
+    //         // }
+
+    //         if (catchType.ValidateAsProjectile())
+    //         {
+    //             ReloadTypes();
+    //         }
+    //     }
+
+    //     // Stacking
+    //     public override bool CanStack(Item source)
+    //     {
+    //         if (source.ModItem != null && source.ModItem is CatchedProjectile target)
+    //         {
+    //             if (target.catchType.id == catchType.id)
+    //             {
+    //                 return true;
+    //             }
+    //         }
+    //         return false;
+    //     }
+
+    //     public override void SetDefaults()
+    //     {
+    //         Item.damage = 1;
+    //         Item.useStyle = ItemUseStyleID.Swing;
+    //         Item.autoReuse = true;
+    //         Item.useTurn = true;
+    //         Item.useAnimation = 15;
+    //         Item.useTime = 15;
+    //         Item.maxStack = 1;
+    //         Item.consumable = false;
+    //         Item.width = 12;
+    //         Item.height = 12;
+    //         Item.noUseGraphic = true;
+    //         // Item.shoot = proj;
+    //         Item.shootSpeed = 11f;
+    //     }
+
+    //     public override void ModifyTooltips(List<TooltipLine> tooltips)
+    //     {
+    //         if (notIntended)
+    //         {
+    //             tooltips.Add(new TooltipLine(Mod, "Intented", "Might not be intended to catch") { OverrideColor = Color.LightYellow });
+    //         }
+
+    //         // if (catchType.unloaded)
+    //         // {
+    //         // 	tooltips.Add(new TooltipLine(Mod,"Unloaded","This item didnt loaded properly \n"+$"ID : ({catchType.Id})   [{catchType._mod} : {catchType._name}] ") {OverrideColor = Color.Red});
+    //         // }
+    //     }
+
+    //     public override void UpdateInventory(Player player)
+    //     {
+    //         if (catchType.id is int validID)
+    //         {
+    //             Item.shoot = validID;
+    //             if (GearServerConfig.Get.CatchProjectileAmmo &&
+    //             player.HeldItem != null &&
+    //             player.HeldItem.type != ModContent.ItemType<DeveloGun>()
+    //             && player.HeldItem.useAmmo > 0)
+    //             {
+    //                 Item.ammo = player.HeldItem.useAmmo;
+    //             }
+    //         }
+
+    //     }
+
+    //     public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+    //     {
+    //         var projectile = Projectile.NewProjectileDirect(source, position, velocity, type, damage, knockback, player.whoAmI);
+    //         projectile.hostile = false;
+    //         projectile.friendly = true;
+    //         return false;
+    //     }
+
+    //     public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
+    //     {
+
+    //         if (catchType.id is int validID)
+    //         {
+    //             // Check texture
+    //             Main.instance.LoadProjectile(validID);
+    //             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[validID].Value;
+    //             if (texture == null) return;
+
+    //             int frameCount = Main.projFrames[validID];
+
+    //             Helpme.DrawInventory(spriteBatch, Item.Center - Main.screenPosition, lightColor, texture, frameCount);
+    //         }
+    //     }
+
+    //     public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+    //     {
+    //         // Check id
+    //         if (catchType.id is int validID)
+    //         {
+    //             // Check texture
+    //             Main.instance.LoadProjectile(validID);
+    //             Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[validID].Value;
+    //             if (texture == null) return;
+
+    //             int frameCount = Main.projFrames[validID];
+
+    //             Helpme.DrawInventory(spriteBatch, position, drawColor, texture, frameCount);
+    //         }
+    //     }
+    // }
 
 }

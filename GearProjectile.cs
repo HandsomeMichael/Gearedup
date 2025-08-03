@@ -32,10 +32,13 @@ namespace Gearedup
             // very safe shit
             if (projectile.owner != 255 && projectile.TryGetOwner(out Player owner))
             {
-                // if (owner.TryGetModPlayer<DyePlayer>(out DyePlayer dyePlayer)) 
-                // {
-                //     if (dyePlayer.dye != 0) {dye = dyePlayer.dye;}
-                // }
+                if (owner.TryGetModPlayer<GearPlayer>(out GearPlayer gearPlayer)) 
+                {
+                    if (gearPlayer.universalDye != 0)
+                    {
+                        dye = gearPlayer.universalDye;
+                    }
+                }
             }
 
             if (dye > 0 && ShouldRenderTarget() && !Main.dedServ)

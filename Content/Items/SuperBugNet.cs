@@ -8,6 +8,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -66,17 +67,29 @@ namespace Gearedup.Content.Items
 			int i = Projectile.NewProjectile(source, position, velocity, type, damage, knockback, Main.myPlayer, attackType);
 			if (Main.projectile[i].TryGetGlobalProjectile<GearProjectile>(out GearProjectile gr))
 			{
-				gr.dye = (short)ContentSamples.ItemsByType[ItemID.TwilightDye].dye;
+				// gr.dye = (short)ContentSamples.ItemsByType[ItemID.TwilightDye].dye;
+				gr.dye = (short)GameShaders.Armor.GetShaderIdFromItemId(ItemID.TwilightDye);
 			}
 			return false; // return false to prevent original projectile from being shot
 		}
 
-		public override void AddRecipes() {
-			CreateRecipe()
-				.AddIngredient(ItemID.BugNet)
-				.AddIngredient(ItemID.FallenStar,3)
-				.AddTile(TileID.WorkBenches)
-				.Register();
+		public override void AddRecipes()
+		{
+			var recipe = Recipe.Create(Type);
+			recipe.AddIngredient(ItemID.BugNet);
+			recipe.AddIngredient(ItemID.GoldenBugNet);
+			recipe.AddIngredient(ItemID.FireproofBugNet);
+			recipe.AddIngredient(ItemID.LunarBar, 5);
+			recipe.AddIngredient(ItemID.FragmentSolar, 3);
+			recipe.AddIngredient(ItemID.FragmentNebula, 3);
+			recipe.AddIngredient(ItemID.FragmentStardust, 3);
+			recipe.AddIngredient(ItemID.FragmentVortex, 3);
+
+			recipe.AddModIngredient(Gearedup.Get.calamityMod, "ShadowspecBar",3);
+			recipe.AddModIngredient(Gearedup.Get.fargoSoul, "EternalEnergy ",5);
+
+			recipe.AddTile(TileID.MythrilAnvil);
+			recipe.Register();
 		}
 	}
 
@@ -287,7 +300,7 @@ namespace Gearedup.Content.Items
 			if (item.ModItem != null && item.ModItem is CatchedProjectile boeingplane)
 			{
 				boeingplane.catchType.SetTo(projectile);
-				boeingplane.catchType.ValidateAsNPC();
+				boeingplane.catchType.ValidateAsProjectile();
 				boeingplane.ReloadTypes(projectile);
 				boeingplane.notIntended = boeingplane.IsNotIntended(projectile);
 				// boeingplane.isin

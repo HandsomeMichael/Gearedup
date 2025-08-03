@@ -46,8 +46,33 @@ Items: {
 	}
 
 	SuperBugNet: {
-		DisplayName: Super Bug Net
+		DisplayName: Cosmical Bug Net
 		Tooltip: ""
+	}
+
+	OgreFeet: {
+		DisplayName: Ogre Feet
+		Tooltip:
+			'''
+			Heavily reduce movement
+			Inflict any debuff you had
+			Have 1% chance to extend enemy debuff
+			'''
+	}
+
+	UniversalDyer: {
+		DisplayName: Universal Dyer
+		Tooltip: Dye any projectiles or npcs you own
+	}
+
+	BucketOfCatPiss: {
+		DisplayName: Bucket Of Cat Piss
+		Tooltip: Its a filled bucket
+	}
+
+	PhasingDevice: {
+		DisplayName: Phasing Device
+		Tooltip: Allow player to fall faster throught platform
 	}
 }
 

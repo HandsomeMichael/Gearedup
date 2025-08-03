@@ -17,26 +17,37 @@ using Terraria.DataStructures;
 namespace Gearedup
 {
 
-    public struct ProjRenderer
+    public struct RenderTManager
     {
-        public ProjRenderer(Projectile proj)
+        // TO DO : HOW THE FUCK DO I OPTIMIZE THIS B
+        public RenderTManager(Projectile proj)
         {
             renderTarget = null;
-            projectiles = new List<Projectile>(){proj};
+            entityIndexes = new List<int>() { proj.whoAmI };
+        }
+
+        public RenderTManager(NPC npc)
+        {
+            renderTarget = null;
+            entityIndexes = new List<int>() { npc.whoAmI };
         }
 
         public RenderTarget2D renderTarget;
-        public List<Projectile> projectiles;
-
+        public List<int> entityIndexes;
         public void Add(Projectile proj)
         {
-            projectiles.Add(proj);
+            entityIndexes.Add(proj.whoAmI);
         }
 
-        public bool IsActive() => projectiles.Count > 0;
+        public void Add(NPC npc)
+        {
+            entityIndexes.Add(npc.whoAmI);
+        }
+
+        public bool IsActive() => entityIndexes.Count > 0;
         public void Clear()
         {
-            projectiles.Clear();
+            entityIndexes.Clear();
         }
 
     }
@@ -57,8 +68,10 @@ namespace Gearedup
         }
 
         public static bool isRendering;
+        public static bool isRenderingNPC;
 
-        public static Dictionary<short, ProjRenderer> renders;
+        public static Dictionary<short, RenderTManager> renders;
+        public static Dictionary<short, RenderTManager> rendersNPC;
         public static List<int> customDrawedProjectiles;
 
         public static void AddRender(Projectile projectile, short dye)
@@ -69,26 +82,78 @@ namespace Gearedup
             }
             else
             {
-                renders.Add(dye, new ProjRenderer(projectile));
+                renders.Add(dye, new RenderTManager(projectile));
             }
 
             Main.NewText("Add New Render Packets " + dye);
+        }
+
+        public static void AddRender(NPC npc, short dye)
+        {
+            if (rendersNPC.ContainsKey(dye))
+            {
+                rendersNPC[dye].Add(npc);
+            }
+            else
+            {
+                rendersNPC.Add(dye, new RenderTManager(npc));
+            }
+
+            Main.NewText("Add New NPC Render Packets " + dye);
         }
 
 
 
         public override void Load()
         {
-            renders = new Dictionary<short, ProjRenderer>();
+            renders = new Dictionary<short, RenderTManager>();
+            rendersNPC = new Dictionary<short, RenderTManager>();
             Terraria.On_Main.CheckMonoliths += DrawToTarget;
             // Terraria.On_Main.DrawDust += DrawDust;
             Terraria.On_Main.DrawProjectiles += DrawProjectilesPatch;
+            Terraria.On_Main.DrawNPCs += DrawNPCsPatch;
             customDrawedProjectiles = new List<int>();
         }
-        
+
+        private void DrawNPCsPatch(On_Main.orig_DrawNPCs orig, Main self, bool behindTiles)
+        {
+            orig(self, behindTiles);
+
+            GraphicsDevice gD = Main.graphics.GraphicsDevice;
+            SpriteBatch spriteBatch = Main.spriteBatch;
+
+            if (Main.dedServ || spriteBatch == null || gD == null || !HasRenderTaskNPC())
+                return;
+
+            foreach (var item in rendersNPC)
+            {
+                if (item.Value.IsActive())
+                {
+                    Main.NewText("Drawed npcs renders shader " + item.Key);
+                    // DrawData data = new DrawData
+                    // {
+                    //     position = Vector2.Zero,
+                    //     scale = Vector2.One,
+                    //     sourceRect = null,
+                    //     texture = item.Value.renderTarget
+                    // };
+                    //
+                    spriteBatch.End();
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, null, null, null, Main.GameViewMatrix.EffectMatrix);
+                    GameShaders.Armor.Apply(item.Key, null, null);
+                    // spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
+                    spriteBatch.Draw(item.Value.renderTarget, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
+                    spriteBatch.End();
+                    spriteBatch.Begin(default, default, default, default, default, default, Main.GameViewMatrix.TransformationMatrix);
+                    item.Value.Clear();
+                }
+            }
+        }
+
         public override void Unload()
         {
             renders = null;
+            rendersNPC = null;
             customDrawedProjectiles = null;
         }
 
@@ -156,7 +221,7 @@ namespace Gearedup
             {
                 if (item.Value.IsActive())
                 {
-                    Main.NewText("Drawed projectile renders shader "+item.Key);
+                    Main.NewText("Drawed projectile renders shader " + item.Key);
                     // DrawData data = new DrawData
                     // {
                     //     position = Vector2.Zero,
@@ -166,7 +231,7 @@ namespace Gearedup
                     // };
                     //
 
-                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, null, null, null,Main.GameViewMatrix.EffectMatrix);
+                    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, null, null, null, Main.GameViewMatrix.EffectMatrix);
                     GameShaders.Armor.Apply(item.Key, null, null);
                     // spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
                     spriteBatch.Draw(item.Value.renderTarget, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
@@ -188,57 +253,121 @@ namespace Gearedup
             return false;
         }
 
+        private bool HasRenderTaskNPC()
+        {
+            foreach (var item in rendersNPC)
+            {
+                if (item.Value.IsActive())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private void DrawToTarget(Terraria.On_Main.orig_CheckMonoliths orig)
         {
             orig();
+            if (Main.gameMenu) return;
 
-            if (Main.gameMenu || !HasRenderTask()) return;
 
             var graphics = Main.graphics.GraphicsDevice;
 
             int RTwidth = Main.screenWidth;
             int RTheight = Main.screenHeight;
 
-            isRendering = true;
-
-            foreach (var tuple in renders)
+            if (HasRenderTask())
             {
-                RenderTarget2D rt = tuple.Value.renderTarget;
-                // Vector2 screenRes = new Vector2(RTwidth,RTheight) * Main.GameViewMatrix.Zoom;
-                if (rt is null || rt.Size() != new Vector2(RTwidth, RTheight))
-                // if (rt is null || rt.Size() != screenRes)
+                isRendering = true;
+
+                foreach (var tuple in renders)
                 {
-                    var renderer = tuple.Value;
-                    renderer.renderTarget = new RenderTarget2D(graphics, RTwidth, RTheight, default, default, default, default, RenderTargetUsage.PreserveContents);
-                    // renderer.renderTarget = new RenderTarget2D(graphics, (int)screenRes.X, (int)screenRes.Y, default, default, default, default, RenderTargetUsage.PreserveContents);
-                    renders[tuple.Key] = renderer;
+                    RenderTarget2D rt = tuple.Value.renderTarget;
+                    if (rt is null || rt.Size() != new Vector2(RTwidth, RTheight))
+                    {
+                        var renderer = tuple.Value;
+                        renderer.renderTarget = new RenderTarget2D(graphics, RTwidth, RTheight, default, default, default, default, RenderTargetUsage.PreserveContents);
+                        renders[tuple.Key] = renderer;
+                    }
+
+                    // skip unused renderer
+                    if (!tuple.Value.IsActive()) continue;
+
+                    Main.NewText("Preparing render " + tuple.Key);
+
+                    graphics.SetRenderTarget(tuple.Value.renderTarget);
+                    graphics.Clear(Color.Transparent);
+
+                    // Main.spriteBatch.Begin(default, BlendState.Additive, default, default, default, default);
+
+                    Main.spriteBatch.BeginNormal();
+                    //Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.ZoomMatrix);
+
+                    foreach (var i in tuple.Value.entityIndexes)
+                    {
+                        Main.NewText("-- Simulating " + Main.projectile[i].Name);
+                        Main.instance.DrawProj(i);
+                    }
+
+                    Main.spriteBatch.End();
+
+                    graphics.SetRenderTarget(null);
                 }
 
-                // skip unused renderer
-                if (!tuple.Value.IsActive()) continue;
-
-                Main.NewText("Preparing render " + tuple.Key);
-
-                graphics.SetRenderTarget(tuple.Value.renderTarget);
-                graphics.Clear(Color.Transparent);
-
-                // Main.spriteBatch.Begin(default, BlendState.Additive, default, default, default, default);
-
-                Main.spriteBatch.BeginNormal();
-                //Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.ZoomMatrix);
-
-                foreach (var projectiles in tuple.Value.projectiles)
-                {
-                    Main.NewText("-- Simulating " + projectiles.Name);
-                    Main.instance.DrawProj(projectiles.whoAmI);
-                }
-
-                Main.spriteBatch.End();
-
-                graphics.SetRenderTarget(null);
+                isRendering = false;
             }
 
-            isRendering = false;
+            if (HasRenderTaskNPC())
+            {
+                isRenderingNPC = true;
+                foreach (var tuple in rendersNPC)
+                {
+                    RenderTarget2D rt = tuple.Value.renderTarget;
+                    if (rt is null || rt.Size() != new Vector2(RTwidth, RTheight))
+                    {
+                        var renderer = tuple.Value;
+                        renderer.renderTarget = new RenderTarget2D(graphics, RTwidth, RTheight, default, default, default, default, RenderTargetUsage.PreserveContents);
+                        rendersNPC[tuple.Key] = renderer;
+                    }
+
+                    // skip unused renderer
+                    if (!tuple.Value.IsActive()) continue;
+
+                    Main.NewText("Preparing render npc " + tuple.Key);
+
+                    graphics.SetRenderTarget(tuple.Value.renderTarget);
+                    graphics.Clear(Color.Transparent);
+
+                    // Main.spriteBatch.Begin(default, BlendState.Additive, default, default, default, default);
+
+                    Main.spriteBatch.BeginNormal();
+                    //Main.spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Main.GameViewMatrix.ZoomMatrix);
+
+                    foreach (var i in tuple.Value.entityIndexes)
+                    {
+                        var npc = Main.npc[i];
+                        Main.NewText("-- Simulating NPC Draws " + npc.FullName);
+
+                        // ripped straight throught heaven
+                        if (npc.ModNPC != null && npc.ModNPC is ModNPC modNPC)
+                        {
+                            if (modNPC.PreDraw(Main.spriteBatch, Main.screenPosition, npc.GetAlpha(Color.White)))
+                                Main.instance.DrawNPC(i, false);
+
+                            modNPC.PostDraw(Main.spriteBatch, Main.screenPosition, npc.GetAlpha(Color.White));
+                        }
+                        else
+                        {
+                            Main.instance.DrawNPC(i, false);
+                        }
+                    }
+
+                    Main.spriteBatch.End();
+
+                    graphics.SetRenderTarget(null);
+                }
+                isRenderingNPC = false;
+            }
 
         }
     }

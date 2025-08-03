@@ -17,7 +17,12 @@ namespace Gearedup
 {
 	public class Gearedup : Mod
 	{
+		public static Gearedup Get => ModContent.GetInstance<Gearedup>();
 		public List<string> errors;
+
+		// cross mod ig
+		public Mod calamityMod;
+		public Mod fargoSoul;
 
 		public void AddError(string context)
 		{
@@ -53,6 +58,21 @@ namespace Gearedup
 			Terraria.DataStructures.On_PlayerDrawLayers.DrawPlayer_27_HeldItem += ShittyPatch;
 
 			if (GearClientConfig.Get.DyeProjectileDust) { Terraria.On_Dust.NewDust += DustPatch; }
+
+			calamityMod = LoadMod("CalamityMod", "Recipes, npcs , projectiles patches");
+			fargoSoul = LoadMod("CalamityMod", "Recipes patches i guess idk");
+			
+			// thoriumMod = ModLoader.GetMod("ThoriumMod"); 
+		}
+
+		public Mod LoadMod(string name, string fuck)
+		{
+			if (ModLoader.TryGetMod(name, out Mod res))
+			{
+				Logger.Info("Adding crossmod shit to "+name+" for "+fuck);
+				return res;
+			}
+			return null;
 		}
 
 		public override void Unload()
@@ -142,7 +162,7 @@ namespace Gearedup
 			{
 				if (gi.dye.id is int dyeID)
 				{
-					int shader = ContentSamples.ItemsByType[dyeID].dye;
+					int shader = GameShaders.Armor.GetShaderIdFromItemId(dyeID);
 					if (shader <= 0)
 					{
 						Main.NewText("Error, shader is zero");
@@ -185,7 +205,8 @@ namespace Gearedup
 					if (globalItem.dye.id is int dyeID && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
 					{
 						// Main.NewText("success applied " + dyedItem.dye);
-						globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
+						// globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
+						globalProj.dye = (short)GameShaders.Armor.GetShaderIdFromItemId(dyeID);
 
 						if (GearClientConfig.Get.IsItemRT(itemSource.Item))
 						{
@@ -249,13 +270,18 @@ namespace Gearedup
 							Main.projectile[hasil].friendly = true;
 						}
 					}
-					// if (npcSource.TryGetGlobalNPC<DyedNPC>(out DyedNPC dyedNPC))
-					// {
-					//     if (dyedNPC.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile GearProjectile)) 
-					//     {
-					//         GearProjectile.dye = dyedNPC.dye;
-					//     }
-					// }
+					// inherit projectile
+					if (npcSource.TryGetGlobalNPC<GearNPCs>(out GearNPCs gearNPCs))
+					{
+						if (gearNPCs.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
+						{
+							globalProj.dye = gearNPCs.dye;
+							if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
+							{
+								globalProj.useRenderTarget = true;
+							}
+						}
+					}
 				}
 			}
 			return hasil;

@@ -13,32 +13,32 @@ using Terraria.ModLoader.IO;
 
 namespace Gearedup.Content.Endless
 {
-    public class AmmoPack : ModItem
+    public class EndlessThrowable : ModItem
     {
         // i didnt come up with the name, its from my cat kayy
-        internal TypeID ammoType;
+        internal TypeID throwType;
 
         public override void SaveData(TagCompound tag)
         {
-            ammoType.Save(tag);
+            throwType.Save(tag);
         }
 
         public override void LoadData(TagCompound tag)
         {
-            ammoType.Load(tag);
-            ammoType.ValidateAsItem();
-            if (ammoType.id.HasValue)
+            throwType.Load(tag);
+            throwType.ValidateAsItem();
+            if (throwType.id.HasValue)
             {
                 ReloadDefaults();
                 return;
             }
-            Mod.Call("Error",$"Missing item for {ammoType.mod}:{ammoType.name} ");
+            Mod.Call("Error",$"Missing item for {throwType.mod}:{throwType.name} ");
         }
 
         public override ModItem Clone(Item newEntity)
         {
-            AmmoPack obj = (AmmoPack)base.Clone(newEntity);
-            obj.ammoType = ammoType;
+            EndlessThrowable obj = (EndlessThrowable)base.Clone(newEntity);
+            obj.throwType = throwType;
             return obj;
         }
 
@@ -51,7 +51,7 @@ namespace Gearedup.Content.Endless
 
         public void ReloadDefaults()
         {
-            if (ammoType.id is int id)
+            if (throwType.id is int id)
             {
                 Item.CloneDefaults(id);
                 Item.maxStack = 1;
@@ -59,13 +59,13 @@ namespace Gearedup.Content.Endless
             }
             else
             {
-                Mod.Call("Error", $"Failed to reload defaults for ammo type: {ammoType.mod}.{ammoType.name}");
+                Mod.Call("Error", $"Failed to reload defaults for ammo type: {throwType.mod}.{throwType.name}");
             }
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            if (ammoType.id is int id)
+            if (throwType.id is int id)
             {
                 foreach (TooltipLine tt in tooltips)
                 {
@@ -100,7 +100,7 @@ namespace Gearedup.Content.Endless
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             Item.color = ItemRarity.GetColor(Item.rare);
-            if (ammoType.id is int id)
+            if (throwType.id is int id)
             {
                 Main.instance.LoadItem(id);
                 var texture = Terraria.GameContent.TextureAssets.Item[id].Value;
