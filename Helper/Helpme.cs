@@ -23,8 +23,30 @@ namespace Gearedup.Helper
             return item.GetGlobalItem<GearItem>();
         }
 
+		/// <summary>
+		/// Uhhhhh
+		/// </summary>
+		/// <param name="text"></param>
+		/// <returns></returns>
+		public static bool IsNullOrEmpty(this string text)
+		{
+			return text == null || text == "";
+		}
+
+		public static bool AnyNullOrEmpty(params string[] text)
+		{
+			foreach (var item in text)
+			{
+				if (item.IsNullOrEmpty())
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
         // I got 2 word warping method for no reason at all
-		public static List<string> WordWrap( string text, int maxLineLength )
+		public static List<string> WordWrap(string text, int maxLineLength)
 		{
 			var list = new List<string>();
 
@@ -33,12 +55,12 @@ namespace Gearedup.Helper
 			var whitespace = new[] { ' ', '\r', '\n', '\t' };
 			do
 			{
-				currentIndex = lastWrap + maxLineLength > text.Length ? text.Length : (text.LastIndexOfAny( new[] { ' ', ',', '.', '?', '!', ':', ';', '-', '\n', '\r', '\t' }, Math.Min( text.Length - 1, lastWrap + maxLineLength)  ) + 1);
-				if( currentIndex <= lastWrap )
-					currentIndex = Math.Min( lastWrap + maxLineLength, text.Length );
-				list.Add( text.Substring( lastWrap, currentIndex - lastWrap ).Trim( whitespace ) );
+				currentIndex = lastWrap + maxLineLength > text.Length ? text.Length : (text.LastIndexOfAny(new[] { ' ', ',', '.', '?', '!', ':', ';', '-', '\n', '\r', '\t' }, Math.Min(text.Length - 1, lastWrap + maxLineLength)) + 1);
+				if (currentIndex <= lastWrap)
+					currentIndex = Math.Min(lastWrap + maxLineLength, text.Length);
+				list.Add(text.Substring(lastWrap, currentIndex - lastWrap).Trim(whitespace));
 				lastWrap = currentIndex;
-			} while( currentIndex < text.Length );
+			} while (currentIndex < text.Length);
 
 			return list;
 		}

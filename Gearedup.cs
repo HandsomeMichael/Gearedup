@@ -15,7 +15,7 @@ using Terraria.UI;
 
 namespace Gearedup
 {
-	public class Gearedup : Mod
+	public partial class Gearedup : Mod
 	{
 		public static Gearedup Get => ModContent.GetInstance<Gearedup>();
 		public List<string> errors;
@@ -60,7 +60,7 @@ namespace Gearedup
 			if (GearClientConfig.Get.DyeProjectileDust) { Terraria.On_Dust.NewDust += DustPatch; }
 
 			calamityMod = LoadMod("CalamityMod", "Recipes, npcs , projectiles patches");
-			fargoSoul = LoadMod("CalamityMod", "Recipes patches i guess idk");
+			fargoSoul = LoadMod("Fargowiltasoul", "Recipes patches i guess idk");
 			
 			// thoriumMod = ModLoader.GetMod("ThoriumMod"); 
 		}

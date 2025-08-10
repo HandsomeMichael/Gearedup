@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Gearedup.Content.Items;
 using Gearedup.Helper;
 using Microsoft.Xna.Framework;
@@ -10,6 +11,7 @@ using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
 
 namespace Gearedup.Content.Endless
 {
@@ -17,10 +19,91 @@ namespace Gearedup.Content.Endless
     {
         // i didnt come up with the name, its from my cat kayy
         internal TypeID throwType;
+        public override string Texture => "Gearedup/Content/Placeholder";
+
+        public override void SetStaticDefaults()
+        {
+            ItemID.Sets.CanGetPrefixes[Type] = true;
+        }
+
+        // protected override bool CloneNewInstances => true;
+
+        public override void UpdateInventory(Player player)
+        {
+
+            if (throwType.id is int validID)
+            {
+                var clone = ContentSamples.ItemsByType[validID];
+                ItemLoader.UpdateInventory(clone, player);
+            }
+        }
+
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
+        {
+            if (throwType.id is int validID)
+            {
+                var clone = ContentSamples.ItemsByType[validID];
+                return ItemLoader.Shoot(clone, player, source, position, velocity, type, damage, knockback);
+            }
+            return base.Shoot(player, source, position, velocity, type, damage, knockback);
+        }
+
+        public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback)
+        {
+            if (throwType.id is int validID)
+            {
+                var clone = ContentSamples.ItemsByType[validID];
+                ItemLoader.ModifyShootStats(clone, player, ref position, ref velocity, ref type, ref damage, ref knockback);
+            }
+        }
+
+        public override void HoldItem(Player player)
+        {
+            if (throwType.id is int validID)
+            {
+                var clone = ContentSamples.ItemsByType[validID];
+                ItemLoader.HoldItem(clone, player);
+            }
+        }
+
+        public override bool AltFunctionUse(Player player)
+        {
+            if (throwType.id is int validID)
+            {
+                var clone = ContentSamples.ItemsByType[validID];
+                return ItemLoader.AltFunctionUse(clone, player);
+            }
+            return base.AltFunctionUse(player);
+        }
+
+        // try reloading defaults if shit happen
+        public override void UseAnimation(Player player)
+        {
+            if (!(throwType.id is int) && (throwType.mod == null || throwType.mod != "") && (throwType.name == null || throwType.name != ""))
+            {
+                ReloadDefaults();
+            }
+        }
 
         public override void SaveData(TagCompound tag)
         {
             throwType.Save(tag);
+        }
+
+        public override void NetSend(BinaryWriter writer)
+        {
+            throwType.NetSend(writer);
+        }
+
+        public override void NetReceive(BinaryReader reader)
+        {
+            throwType.NetReceive(reader);
+            throwType.ValidateAsItem();
+            if (throwType.id.HasValue)
+            {
+                ReloadDefaults();
+                return;
+            }
         }
 
         public override void LoadData(TagCompound tag)
@@ -32,13 +115,14 @@ namespace Gearedup.Content.Endless
                 ReloadDefaults();
                 return;
             }
-            Mod.Call("Error",$"Missing item for {throwType.mod}:{throwType.name} ");
+            Mod.Call("Error", $"Missing item for {throwType.mod}:{throwType.name} ");
         }
 
         public override ModItem Clone(Item newEntity)
         {
             EndlessThrowable obj = (EndlessThrowable)base.Clone(newEntity);
             obj.throwType = throwType;
+            // obj.ReloadDefaults();
             return obj;
         }
 
@@ -47,6 +131,22 @@ namespace Gearedup.Content.Endless
             // i should do stuff but idk too lazy
             Item.width = 10;
             Item.height = 10;
+            Item.damage = 10;
+            Item.shoot = ProjectileID.Seed;
+
+            Item.useAnimation = 20;
+            Item.useTime = 20;
+            Item.useStyle = ItemUseStyleID.Swing;
+            Item.noUseGraphic = true;
+
+            if (throwType.id is int id && id > 0)
+            {
+                ReloadDefaults();
+            }
+            else
+            {
+                Item.DamageType = DamageClass.Ranged;
+            }
         }
 
         public void ReloadDefaults()
@@ -59,7 +159,7 @@ namespace Gearedup.Content.Endless
             }
             else
             {
-                Mod.Call("Error", $"Failed to reload defaults for ammo type: {throwType.mod}.{throwType.name}");
+                Mod.Call("Error", $"Failed to reload defaults for throwable type: {throwType.mod}.{throwType.name}");
             }
         }
 
@@ -71,7 +171,8 @@ namespace Gearedup.Content.Endless
                 {
                     if (tt.Mod == "Terraria" && tt.Name == "ItemName")
                     {
-                        tt.Text = "Magical " + ContentSamples.ItemsByType[id].Name + " Pack";
+                        var item = ContentSamples.ItemsByType[id];
+                        tt.Text = $"Endless {item.AffixName()} {item.Name}";
                         break;
                     }
                 }
@@ -82,13 +183,12 @@ namespace Gearedup.Content.Endless
                 {
                     if (tt.Mod == "Terraria" && tt.Name == "ItemName")
                     {
-                        tt.Text = "Empty Magical Pack";
+                        tt.Text = "Unloaded Endless Throwables";
                         break;
                     }
                 }
 
-                tooltips.Insert(1, new TooltipLine(Mod, "tips", "Does nothing on its own..."));
-                //tooltips.Add(new TooltipLine(Mod, "tips", "Does nothing on its own..."));
+                tooltips.Insert(1, new TooltipLine(Mod, "tips", $"Unloaded item ( gone wrong ) ( gone sexual ) \n {throwType.mod}:{throwType.name}"));
             }
         }
 
@@ -97,27 +197,57 @@ namespace Gearedup.Content.Endless
         //     return base.PreDrawInInventory(spriteBatch, position, frame, drawColor, itemColor, origin, scale);
         // }
 
-        public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            Item.color = ItemRarity.GetColor(Item.rare);
             if (throwType.id is int id)
             {
-                Main.instance.LoadItem(id);
-                var texture = Terraria.GameContent.TextureAssets.Item[id].Value;
-                if (texture == null) return;
+                var drawItem = ContentSamples.ItemsByType[id];
+                float sinWave = (float)Math.Sin(Main.GameUpdateCount * 0.1);
+                // The magic numbers 3.5f and 3f are used to keep the scale positive and within a visually pleasing range as the sine wave oscillates.
+                // Note : stfu
+                ItemSlot.DrawItemIcon(drawItem, 31, spriteBatch, position, (sinWave + 3.5f) / 3f, 32f, Main.DiscoColor * 0.4f);
+                ItemSlot.DrawItemIcon(drawItem, 31, spriteBatch, position, drawItem.scale, 32f, Color.White);
+                return false;
+            }
+            return true;
+        }
 
-                // if it did have some sort of animation
-                if (Main.itemAnimations[id] != null)
+        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI)
+        {
+            if (throwType.id is int id)
+            {
+                var drawItem = ContentSamples.ItemsByType[id];
+                Main.DrawItemIcon(spriteBatch, drawItem, Item.position, lightColor, drawItem.scale);
+                return false;
+            }
+            return true;
+        }
+
+        public override void Load()
+        {
+            On_Main.MouseText_DrawItemTooltip_GetLinesInfo += PatchTooltip;
+        }
+
+        private void PatchTooltip(On_Main.orig_MouseText_DrawItemTooltip_GetLinesInfo orig, Item item, ref int yoyoLogo, ref int researchLine, float oldKB, ref int numLines, string[] toolTipLine, bool[] preFixLine, bool[] badPreFixLine, string[] toolTipNames, out int prefixlineIndex)
+        {
+            int resetNetID = 0;
+            if (item.ModItem != null)
+            {
+                if (item.ModItem is EndlessThrowable throwable)
                 {
-                    // i found no other drawanimation 
-                    if (Main.itemAnimations[id] is DrawAnimationVertical vertical)
+                    if (throwable.throwType.id is int id)
                     {
-                        Helpme.DrawInventory(spriteBatch, position, drawColor, texture, vertical.FrameCount, scale);
-                        return;
+                        resetNetID = item.netID;
+                        item.netID = id;
                     }
                 }
+            }
 
-                Helpme.DrawInventory(spriteBatch, position, drawColor, texture, 0, scale);
+            orig(item, ref yoyoLogo, ref researchLine, oldKB, ref numLines, toolTipLine, preFixLine, badPreFixLine, toolTipNames, out prefixlineIndex);
+
+            if (resetNetID != 0)
+            {
+                item.netID = resetNetID;
             }
         }
     }

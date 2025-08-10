@@ -120,9 +120,10 @@ namespace Gearedup.Content.Catched
             if (npcType.id is int npcID)
             {
                 var npc = ContentSamples.NpcsByNetId[npcID];
-                tooltips.Add(new TooltipLine(Mod, "info_damage",$"{npc.damage} damage"));
-                tooltips.Add(new TooltipLine(Mod, "info_damage",$"{npc.lifeMax} life"));
-                tooltips.Add(new TooltipLine(Mod, "info_damage",$"{npc.defense} defense"));
+                tooltips.Add(new TooltipLine(Mod, "info_damage", $"{npc.damage} [i:{ItemID.IronShortsword}] damage"));
+                tooltips.Add(new TooltipLine(Mod, "info_life", $"{npc.lifeMax} [i:{ItemID.Heart}] life"));
+                tooltips.Add(new TooltipLine(Mod, "info_defense", $"{npc.defense} [i:{ItemID.PaladinsShield}] defense"));
+                // tooltips.Add(new TooltipLine(Mod, "info_damage", $"{npc.releaseOwner} [i:{ItemID.PaladinsShield}] defense"));
 
                 // now this is the tricky part , idk if the npc will find its entry correctly without shooting itself
                 var bestiaryEntry = Main.BestiaryDB.FindEntryByNPCID(npcID);
@@ -175,7 +176,16 @@ namespace Gearedup.Content.Catched
             }
             else
             {
-                tooltips.Add(new TooltipLine(Mod, "Unloaded", "This item didnt loaded properly \n" + $"ID : [{npcType.mod} : {npcType.name}] ") { OverrideColor = Color.Red });
+                if ((npcType.mod == null || npcType.mod == "") && (npcType.name == null || npcType.name == ""))
+                {
+                    tooltips.Add(new TooltipLine(Mod, "ModsReviewer",
+                    " You need to actually catch npc using the special bug net instead of using some cheat ahh mod for this gng "+
+                    "\nSame with the endless ammo need to be crafted and all the other suspiciously cannon shaped item") { OverrideColor = Color.Red });
+                }
+                else
+                {
+                    tooltips.Add(new TooltipLine(Mod, "Unloaded", "This item didnt loaded properly \n" + $"ID : [{npcType.mod} : {npcType.name}] ") { OverrideColor = Color.Red });
+                }
             }
         }
 

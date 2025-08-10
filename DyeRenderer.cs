@@ -13,6 +13,7 @@ using static Terraria.ModLoader.Core.TmodFile;
 using Gearedup.Helper;
 using Terraria.ID;
 using Terraria.DataStructures;
+using rail;
 
 namespace Gearedup
 {
@@ -48,6 +49,12 @@ namespace Gearedup
         public void Clear()
         {
             entityIndexes.Clear();
+        }
+
+        public void Unload()
+        {
+            renderTarget.Dispose();
+            renderTarget = null;
         }
 
     }
@@ -113,6 +120,21 @@ namespace Gearedup
             Terraria.On_Main.DrawProjectiles += DrawProjectilesPatch;
             Terraria.On_Main.DrawNPCs += DrawNPCsPatch;
             customDrawedProjectiles = new List<int>();
+        }
+
+        // free up memory
+        public override void OnWorldUnload()
+        {
+            foreach (var item in renders)
+            {
+                item.Value.Unload();
+            }
+            foreach (var item in rendersNPC)
+            {
+                item.Value.Unload();
+            }
+            renders = new Dictionary<short, RenderTManager>();
+            rendersNPC = new Dictionary<short, RenderTManager>();
         }
 
         private void DrawNPCsPatch(On_Main.orig_DrawNPCs orig, Main self, bool behindTiles)

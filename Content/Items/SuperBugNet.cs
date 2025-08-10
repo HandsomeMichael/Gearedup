@@ -11,16 +11,23 @@ using Terraria.GameContent;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace Gearedup.Content.Items
 {
 
 	public class SuperBugNet : ModItem
 	{
+		public const byte ModeNPC = 0;
+		public const byte ModeProj = 1;
+		public const byte ModeBoth = 2;
+
 		public int altCoolDown = 0;
 
-		public override void SetDefaults() 
-        {
+		public byte bugMode = 0;
+
+		public override void SetDefaults()
+		{
 			// Common Properties
 			Item.width = 46;
 			Item.height = 48;
@@ -64,12 +71,10 @@ namespace Gearedup.Content.Items
 				attackType = 1;
 				altCoolDown = 60 * 3;
 			}
+			
 			int i = Projectile.NewProjectile(source, position, velocity, type, damage, knockback, Main.myPlayer, attackType);
-			if (Main.projectile[i].TryGetGlobalProjectile<GearProjectile>(out GearProjectile gr))
-			{
-				// gr.dye = (short)ContentSamples.ItemsByType[ItemID.TwilightDye].dye;
-				gr.dye = (short)GameShaders.Armor.GetShaderIdFromItemId(ItemID.TwilightDye);
-			}
+			((SuperBugNetProj)Main.projectile[i].ModProjectile).bugMode = bugMode;
+
 			return false; // return false to prevent original projectile from being shot
 		}
 
@@ -195,14 +200,18 @@ namespace Gearedup.Content.Items
 			}
 		}
 
-		public override void SendExtraAI(BinaryWriter writer) {
+		public byte bugMode;
+		public override void SendExtraAI(BinaryWriter writer)
+		{
 			// Projectile.spriteDirection for this projectile is derived from the mouse position of the owner in OnSpawn, as such it needs to be synced. spriteDirection is not one of the fields automatically synced over the network. All Projectile.ai slots are used already, so we will sync it manually. 
 			writer.Write((sbyte)Projectile.spriteDirection);
+			writer.Write((byte)bugMode);
 		}
 
-		public override void ReceiveExtraAI(BinaryReader reader) 
+		public override void ReceiveExtraAI(BinaryReader reader)
 		{
 			Projectile.spriteDirection = reader.ReadSByte();
+			bugMode = reader.ReadByte();
 		}
 
 		void CatchNPC(NPC npc, int who = -1)

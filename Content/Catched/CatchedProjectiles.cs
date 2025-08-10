@@ -30,8 +30,11 @@ namespace Gearedup.Content.Catched
             {
                 Item.shoot = projectile.type;
                 // reduce damage overtime
-                Item.damage = projectile.damage;// / 2;
-                Item.DamageType = projectile.DamageType;
+                if (GearServerConfig.Get.CatchProjectileDamage)
+                {
+                    Item.damage = projectile.damage;// / 2;
+                    Item.DamageType = projectile.DamageType;
+                }
             }
         }
 
@@ -135,7 +138,7 @@ namespace Gearedup.Content.Catched
 
             if (catchType.id == null || catchType.id.Value <= 0)
             {
-                tooltips.Add(new TooltipLine(Mod, "Penis", "If it shows a penis then you fucked up the mod, dont worry it wont break the game gng") { OverrideColor = Color.Pink });
+                tooltips.Add(new TooltipLine(Mod, "Penis", $"This item didnt load properly gng 💔 \n item id : {catchType.mod} / {catchType.name}") { OverrideColor = Color.Red });
             }
 
             // if (catchType.unloaded)
@@ -205,6 +208,7 @@ namespace Gearedup.Content.Catched
             // Helpme.DrawInvalid(spriteBatch, Item.Center - Main.screenPosition, rotation);
             return true;
         }
+        
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             // Check id
@@ -212,18 +216,52 @@ namespace Gearedup.Content.Catched
             {
                 // Check texture
                 Main.instance.LoadProjectile(validID);
-                Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[validID].Value;
-                if (texture == null) return true;
+                var proj = ContentSamples.ProjectilesByType[validID];
+                if (proj.ModProjectile != null)
+                {
 
-                int frameCount = Main.projFrames[validID];
-
-                Helpme.DrawInventory(spriteBatch, position, drawColor, texture, frameCount);
+                    var lightColor = Color.White;
+                    float origScale = proj.scale;
+                    Vector2 origPos = proj.Center;
+                    proj.scale = 0.4f;
+                    proj.Center = position + Main.screenPosition;
+                    if (proj.ModProjectile.PreDraw(ref lightColor))
+                    {
+                        if (!DrawNormally(validID, spriteBatch, position, drawColor))
+                        {
+                            proj.ModProjectile.PostDraw(lightColor);
+                            proj.scale = origScale;
+                            proj.Center = origPos;
+                        }
+                        else
+                        {
+                            proj.scale = origScale;
+                            proj.Center = origPos;
+                            return false;
+                        }
+                    }
+                    proj.scale = origScale;
+                    proj.Center = origPos;
+                }
+                else
+                {
+                    return DrawNormally(validID, spriteBatch, position, drawColor);
+                }
                 return false;
             }
 
             // Helpme.DrawInvalid(spriteBatch, position, 0f);
 
             return true;
+        }
+
+        bool DrawNormally(int validID,SpriteBatch spriteBatch,Vector2 position,Color drawColor)
+        {
+            Texture2D texture = Terraria.GameContent.TextureAssets.Projectile[validID].Value;
+            if (texture == null) return true;
+            int frameCount = Main.projFrames[validID];
+            Helpme.DrawInventory(spriteBatch, position, drawColor, texture, frameCount);
+            return false;
         }
     }
 

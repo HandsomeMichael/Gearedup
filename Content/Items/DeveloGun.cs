@@ -14,6 +14,8 @@ using Terraria.ModLoader;
 
 namespace Gearedup.Content.Items
 {
+    
+    // TO DO : Change this into Staff of Deitic
     public class DeveloGun : ModItem
     {
         int selectedType = 0;
@@ -39,7 +41,7 @@ namespace Gearedup.Content.Items
             // && source.AmmoItemIdUsed == ModContent.ItemType<CatchedNPC>()
             if (selectedType != 0)
             {
-                Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<DeveloGunProj>(), damage, knockback, player.whoAmI, 0,0,selectedType);
+                Projectile.NewProjectile(source, position, velocity, ModContent.ProjectileType<DeveloGunProj>(), damage, knockback, player.whoAmI, 0, 0, selectedType);
             }
             return false;
         }

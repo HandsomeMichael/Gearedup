@@ -47,7 +47,7 @@ namespace Gearedup
 
 		[DefaultValue(false)]
 		[ReloadRequired]
-		public bool AllowSuperBugNet_FullyUnlocked;
+		public bool AllowSuperBugNet_BossesProjectile;
 
 		[DefaultValue(true)]
 		[ReloadRequired]
@@ -74,7 +74,11 @@ namespace Gearedup
 		public bool CatchNPCStats;
 
 		[DefaultValue(false)]
-		public bool CatchProjectileStats;
+		public bool CatchProjectileDamage;
+
+		[DefaultValue(100f)]
+		[Range(0f, 100f)]
+		public float CatchProjectileDamageScale;
 
 		[DefaultValue(true)]
 		public bool CatchProjectileAmmo;

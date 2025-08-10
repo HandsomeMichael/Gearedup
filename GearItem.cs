@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Gearedup.Content.Endless;
 using Gearedup.Helper;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,7 +30,8 @@ namespace Gearedup
 
         public static bool CanGeared(Item item)
         {
-            return item.maxStack == 1 && item.damage > 0 && item.useTime > 0 && item.useAnimation > 0;
+            return (item.maxStack == 1 && item.damage > 0 && item.useTime > 0 && item.useAnimation > 0) ||
+            item.type == ModContent.GetInstance<EndlessThrowable>().Type; // endlless throwable can be geared up
         }
 
         public override bool AppliesToEntity(Item item, bool lateInstantiation) => CanGeared(item);
@@ -39,7 +41,7 @@ namespace Gearedup
             if (dye.id is int dyeID)
             {
                 tooltips.Add(new TooltipLine(Mod, "DyeImbue", $"Imbued with {ContentSamples.ItemsByType[dyeID].Name} [i:{dyeID}]"));
-                tooltips.Add(new TooltipLine(Mod, "DyeTips",$"Press anything"));
+                // tooltips.Add(new TooltipLine(Mod, "DyeTips",$"Press anything"));
             }
             if (!hasStats) return;
             foreach (var stat in stats)
@@ -224,7 +226,7 @@ namespace Gearedup
         // If not you know
         public override bool ConsumeItem(Item item, Player player)
         {
-            return !GearServerConfig.Get.AllowDyeConsumed;
+            return GearServerConfig.Get.AllowDyeConsumed;
         }
         
         // Apply Dyes

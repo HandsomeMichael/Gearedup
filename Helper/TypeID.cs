@@ -163,8 +163,8 @@ namespace Gearedup.Helper
 
         public void NetSend(BinaryWriter writer)
         {
-            writer.Write(mod);
-            writer.Write(name);
+            writer.Write(mod == null ? "errorMod" : mod);
+            writer.Write(name == null ? "errorName" : name);
         }
 
         public void NetReceive(BinaryReader reader)

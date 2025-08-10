@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gearedup.Content.Catched;
 using Gearedup.Content.Items;
 using Gearedup.Helper;
 using Microsoft.Xna.Framework;
@@ -19,17 +20,15 @@ namespace Gearedup.Content.Endless
         {
             foreach (Item item in ContentSamples.ItemsByType.Values)
             {
-                if (item.damage > 0 && item.consumable)
+                if (item.damage > 0 && item.consumable &&
+                // No Infinite Coins For U
+                 item.type != ItemID.GoldCoin && item.type != ItemID.SilverCoin &&
+                  item.type != ItemID.PlatinumCoin && item.type != ItemID.CopperCoin &&
+                // Catched Projectile already had infinite variant
+                  item.type != ModContent.GetInstance<CatchedProjectile>().Type
+                  )
                 {
-                    if (item.useTime > 0)
-                    {
-                        Recipe rec = Recipe.Create(ModContent.ItemType<EndlessThrowable>());
-                        // bit more fair aint it
-                        rec.AddIngredient(item.type, Math.Min(item.maxStack, 3996) / 2);
-                        rec.AddTile(TileID.Anvils);
-                        rec.Register(); 
-                    }
-                    else if (item.ammo > 0 && !item.notAmmo)
+                    if (item.ammo > 0 && !item.notAmmo)
                     {
                         Recipe rec = Recipe.Create(ModContent.ItemType<AmmoPack>());
 
@@ -54,6 +53,20 @@ namespace Gearedup.Content.Endless
                         ampack.ReloadDefaults();
 
                         rec.Register();
+                    }
+                    else if (item.useTime > 0)
+                    {
+                        Recipe rec = Recipe.Create(ModContent.ItemType<EndlessThrowable>());
+                        // bit more fair aint it
+                        rec.AddIngredient(item.type, Math.Min(item.maxStack, 3996) / 2);
+                        rec.AddTile(TileID.Anvils);
+
+                        // we do shit before registering i think idk
+                        var throwable = rec.createItem.ModItem as EndlessThrowable;
+                        throwable.throwType = new TypeID(item);
+                        throwable.ReloadDefaults();
+
+                        rec.Register(); 
                     }
                 }
             }

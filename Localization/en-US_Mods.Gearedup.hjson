@@ -1,5 +1,11 @@
 # This file will automatically update with entries for new content after a build and reload.
 
+Generic:
+{
+	ItemEnable:"[ Effect Enabled ]"
+	ItemDisable:"[ Effect Disabled ]"
+}
+
 Items: {
 	TestWeapon: {
 		DisplayName: Test Weapon
@@ -26,12 +32,12 @@ Items: {
 		Tooltip:
 			'''
 			Have a chance to drop from fallen star
-			Used for special crafting
+			Cannot be used as ammo
 			'''
 	}
 
 	CatchedNPC: {
-		DisplayName: Catched N P C
+		DisplayName: Catched Npc
 		Tooltip: ""
 	}
 
@@ -40,29 +46,113 @@ Items: {
 		Tooltip: ""
 	}
 
-	DeveloGun: {
-		DisplayName: Develo Gun
-		Tooltip: ""
+	DeiticStaff: {
+		DisplayName: Staff of Deitic
+		Tooltip: 
+		'''
+		Shoots a regular petal that deals lunarian damage
+		Right - click to spawn catched npcs
+		'''
+		Brainwash:
+		'''
+		Spawned npcs will 
+		'''
 	}
 
 	SuperBugNet: {
 		DisplayName: Cosmical Bug Net
-		Tooltip: ""
+		CatchProj:
+			'''
+			Can catch most projectiles
+			Catched projectiles can be used as any ammo
+			'''
+		CatchNPC: Can catch most npcs
+		CatchNoBoss: Bosses are immune to this net
+		CatchNoBossProj: Bosses and its projectile are immune to this net
+
+		ModeBoth: "[ Catch Mode : Projectile & NPC ]"
+		ModeBoth: "[ Catch Mode : Projectile Only ]"
+		ModeBoth: "[ Catch Mode : NPC Only ]"
+		
+		TooltipReal: 
+		'''
+		Right - click to do a fullspin ( grant immune frame )
+		Right - click in the inventory to change mode
+		'Gotta catch em all'
+		'''
 	}
 
-	OgreFeet: {
-		DisplayName: Ogre Feet
-		Tooltip:
-			'''
-			Heavily reduce movement
-			Inflict any debuff you had
-			Have 1% chance to extend enemy debuff
-			'''
-	}
+	// OgreFeet: {
+	// 	DisplayName: Ogre Boots
+	// 	Tooltip:
+	// 		'''
+	// 		Increased movement speed based on mana amount
+	// 		Increased flight time based on max mana
+	// 		Horizontal movement require and drains mana
+	// 		Mana sickness heavily reduce horizontal movement
+	// 		'''
+	// }
+
+	// BagOSick: {
+	// 	DisplayName: Bag O' Sick
+	// 	Tooltip:
+	// 		'''
+	// 		Getting hit reduces most debuff time 
+	// 		Critical hit may extend enemy debuff
+	// 		Increased critical damage on debuffed enemy
+	// 		Inflict any debuff you had
+	// 		'''
+	// }
+
+	// HonorMedal: {
+	// 	DisplayName: Medal of True Honor
+	// 	Tooltip:
+	// 		'''
+	// 		Set player life to 1
+	// 		Reduces player hitbox
+	// 		Turns defense into damage increase
+	// 		Grant huge life regen on nearby teammates
+	// 		If no teammates are nearby grant movement speed
+	// 		'Pure Determination'
+	// 		'''
+	// }
+
+	// WingInjection: {
+	// 	DisplayName: Wings Injector
+	// 	Tooltip:
+	// 		'''
+	// 		Increases flight time by 50%
+	// 		Increases wing size ( works in vanity )
+	// 		Increases damage during flight
+	// 		Flight push away nearby projectiles
+	// 		Disables fall damage immunity
+	// 		Disables most gliding feature
+	// 		'Fly high'
+	// 		'''
+	// }
+
+	// ArtifactOfMartian: {
+	// 	DisplayName: Artifact Of Martian
+	// 	Tooltip:
+	// 		'''
+	// 		Critical hit reduces enemy max life
+	// 		Critical hit reduces enemy defense
+	// 		You inflict huge contact damage ( 1m Cooldown )
+	// 		Turns 10% damage into 20% critical hit chance
+	// 		'A Manhunter Tools'
+	// 		'''
+	// }
 
 	UniversalDyer: {
 		DisplayName: Universal Dyer
-		Tooltip: Dye any projectiles or npcs you own
+		Imbue: Imbued with {0}
+		ImbueNon: Not imbued to any dye
+		Tooltip:
+			'''
+			Dye any projectiles or npcs you own
+			Hold a dye and right click this item to apply its dye
+			Works in vanity slot
+			'''
 	}
 
 	BucketOfCatPiss: {
@@ -72,7 +162,30 @@ Items: {
 
 	PhasingDevice: {
 		DisplayName: Phasing Device
-		Tooltip: Allow player to fall faster throught platform
+		Tooltip:
+			'''
+			Allow player to fall faster throught platform
+			Works in player inventory only
+			'''
+	}
+
+	HeavyAmplifier: {
+		DisplayName: Heavy Amplifier
+		Tooltip:
+			'''
+			Allow player to fall faster
+			Works in player inventory only
+			'''
+	}
+
+	EndlessThrowable: {
+		DisplayName: Endless Throwable
+		Tooltip: ""
+	}
+
+	NightThing: {
+		Tooltip: ""
+		DisplayName: Night Thing
 	}
 }
 
@@ -96,7 +209,8 @@ Stat: {
 	#custom
 	debuff: "{0} Damage on most debuffed entity"
 	wet: "{0} Damage on submerged entity"
-	team: "{0} Damage on player with opposing team"
+	team: "{0} Damage on opposing team"
+	friendlyFire: "Grant friendly fire"
 	nokb: No knockback
 	unicorn: Scale damage on speed
 	corrosive: Grant Poison on user and enemy on hit
@@ -278,4 +392,5 @@ Configs: {
 Projectiles: {
 	DeveloGunProj.DisplayName: Develo Gun Proj
 	SuperBugNetProj.DisplayName: Super Bug Net Proj
+	NightThingProj.DisplayName: Night Thing Proj
 }

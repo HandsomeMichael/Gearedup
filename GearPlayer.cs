@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Gearedup.Content.Items;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -10,17 +12,48 @@ namespace Gearedup
     public class GearPlayer : ModPlayer
     {
         public short universalDye;
-        public bool ogreFeet;
         public bool phasingDevice;
 
         public List<Vector2> platform = new List<Vector2>();
 
         public override void ResetEffects()
         {
-            ogreFeet = false;
             phasingDevice = false;
             universalDye = 0;
         }
+
+        // public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
+        // {
+        //     ModPacket packet = Mod.GetPacket();
+        //     packet.Write((byte)Gearedup.MessageType.GearPlayerSync);
+        //     packet.Write((byte)Player.whoAmI);
+
+        //     SendPlayerSync(packet);
+
+        //     packet.Send(toWho, fromWho);
+        // }
+
+        // public void SendPlayerSync(ModPacket packet)
+        // {
+        //     packet.Write((byte)lunarDamage);
+        // }
+        
+        // public void ReceivePlayerSync(BinaryReader reader)
+        // {
+        //     lunarDamage = reader.ReadByte();
+        // }
+
+        // public override void CopyClientState(ModPlayer targetCopy) {
+        // 	GearPlayer clone = (GearPlayer)targetCopy;
+        // 	clone.lunarDamage = lunarDamage;
+        // }
+
+        // public override void SendClientChanges(ModPlayer clientPlayer) {
+        // 	GearPlayer clone = (GearPlayer)clientPlayer;
+
+        // 	if (lunarDamage != clone.lunarDamage)
+        // 		SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
+        // }
 
         public override void PostUpdateMiscEffects()
         {
@@ -85,30 +118,11 @@ namespace Gearedup
 
         public override void PostUpdate()
         {
-            foreach (var pos in platform) {
-                var tile = Framing.GetTileSafely((int)(pos.X / 16), (int)(pos.Y / 16));
-                tile.IsActuated = false;
-            }
+            // foreach (var pos in platform) {
+            //     var tile = Framing.GetTileSafely((int)(pos.X / 16), (int)(pos.Y / 16));
+            //     tile.IsActuated = false;
+            // }
             platform.Clear();
-        }
-
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            for (int i = 0; i < Player.buffTime.Length; i++)
-            {
-                if (Player.buffTime[i] > 0)
-                {
-                    target.AddBuff(Player.buffType[i], Player.buffTime[i] * 2);
-                }
-            }
-        }
-
-        public override void PreUpdateMovement()
-        {
-            if (ogreFeet && Player.immuneTime <= 0)
-            {
-                Player.velocity.X *= 0.8f;
-            }
         }
     }
 }

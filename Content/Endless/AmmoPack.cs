@@ -35,10 +35,12 @@ namespace Gearedup.Content.Endless
             Mod.Call("Error",$"Missing item for {ammoType.mod}:{ammoType.name} ");
         }
 
+        // protected override bool CloneNewInstances => true;
         public override ModItem Clone(Item newEntity)
         {
             AmmoPack obj = (AmmoPack)base.Clone(newEntity);
             obj.ammoType = ammoType;
+            obj.ReloadDefaults();
             return obj;
         }
 
