@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Gearedup.Content.Endless;
+using Gearedup.Content.Items;
 using Gearedup.Helper;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -241,6 +242,11 @@ namespace Gearedup
 
                     SoundEngine.PlaySound(SoundID.Splash);
                 }
+                else if (Main.mouseItem.ModItem != null && Main.mouseItem.ModItem is UniversalDyer uniDye)
+                {
+                    uniDye.CopyDyes(item);
+                    SoundEngine.PlaySound(SoundID.Splash);
+                }
             }
         }
 
@@ -252,7 +258,7 @@ namespace Gearedup
 
         public override bool CanRightClick(Item item)
         {
-			if (Main.mouseItem != null && GearItem.CanGeared(Main.mouseItem))
+			if (Main.mouseItem != null && (GearItem.CanGeared(Main.mouseItem) || Main.mouseItem.ModItem is UniversalDyer))
             {
 				return true;
 			}

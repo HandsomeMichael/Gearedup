@@ -144,7 +144,7 @@ Items: {
 			'''
 			Dye any projectiles or npcs you own
 			Can also be used to duplicate dye properties
-			Hold a dye and right click this item to apply its dye
+			Hold this item and right click a dye to copy its property
 			Works in vanity slot
 			'''
 	}
@@ -184,7 +184,12 @@ Items: {
 
 	AmmoBag: {
 		DisplayName: Ammo Bag
-		Tooltip: ""
+		Tooltip:
+			'''
+			Can store infinite amount of ammo
+			Chain ammo types each ammo used
+			Hold a valid ammo and right-click this item to store in it
+			'''
 	}
 
 	DeveloGun: {
@@ -314,6 +319,7 @@ Configs: {
 			Content: Content Header
 			DyeGears: Dye Gears Header
 			CatchedEntities: Catched Entities Header
+			Debug: Debug Header
 		}
 
 		AllowAmmoPack: {
@@ -408,6 +414,11 @@ Configs: {
 
 		CatchProjectileDamageScale: {
 			Label: Catch Projectile Damage Scale
+			Tooltip: ""
+		}
+
+		DebugMode: {
+			Label: Debug Mode
 			Tooltip: ""
 		}
 	}

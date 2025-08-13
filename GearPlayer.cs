@@ -72,16 +72,17 @@ namespace Gearedup
                 for (int i = -width; i <= width; i++)
                 {
                     Vector2 pos = Player.Center;
-                    pos.X += width * 16;
+                    pos.X += i * 16;
                     pos.Y += Player.height / 2;
                     pos.Y += 8;
 
                     // foreach (var item in offset) { pos += item(Player, i); }
 
                     Tile tile = Framing.GetTileSafely((int)(pos.X / 16), (int)(pos.Y / 16));
+
                     if (!tile.IsActuated && IsPlatform(tile.TileType))
                     {
-                        Main.NewText("Actuated");
+                        // Main.NewText("Actuated");
                         tile.IsActuated = true;
                         platform.Add(pos);
                     }
@@ -118,10 +119,10 @@ namespace Gearedup
 
         public override void PostUpdate()
         {
-            // foreach (var pos in platform) {
-            //     var tile = Framing.GetTileSafely((int)(pos.X / 16), (int)(pos.Y / 16));
-            //     tile.IsActuated = false;
-            // }
+            foreach (var pos in platform) {
+                var tile = Framing.GetTileSafely((int)(pos.X / 16), (int)(pos.Y / 16));
+                tile.IsActuated = false;
+            }
             platform.Clear();
         }
     }

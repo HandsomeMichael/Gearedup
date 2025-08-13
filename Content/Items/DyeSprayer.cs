@@ -42,9 +42,9 @@ namespace Gearedup.Content.Items
 			itemDye = 0;
 			foreach (var i in player.inventory)
 			{
-				if (i != null && i.dye > 0)
+				if (i != null && !(i.ModItem is UniversalDyer) && i.dye > 0)
                 {
-					itemDye = i.dye;
+					itemDye = i.type;
 					return;
 				}
 			}

@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
+using Gearedup.Helper;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -19,6 +22,7 @@ namespace Gearedup.Content.Items
 			Item.accessory = true;
 			Item.rare = ItemRarityID.LightRed;
 			Item.dye = 0;
+			Item.consumable = false;
 		}
 
         public override void SaveData(TagCompound tag)
@@ -59,19 +63,36 @@ namespace Gearedup.Content.Items
 			}
         }
 
-		public override void RightClick(Player player)
+		// public override void RightClick(Player player)
+		// {
+		// 	if (Main.mouseItem != null && Main.mouseItem.dye > 0)
+		// 	{
+		// 		dyeItemID = Main.mouseItem.type;
+		// 		Item.dye = Main.mouseItem.dye;
+		// 		unloaded = false;
+		// 	}
+		// }
+		public void CopyDyes(Item dye)
 		{
-			if (Main.mouseItem != null && Main.mouseItem.dye > 0)
-			{
-				dyeItemID = Main.mouseItem.type;
-				Item.dye = Main.mouseItem.dye;
-				unloaded = false;
-			}
+			dyeItemID = dye.type;
+			Item.dye = dye.dye;
+			unloaded = false;
 		}
+
+        public override bool ConsumeItem(Player player)
+        {
+			return false;
+        }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
 		{
-			if (unloaded)
+			if (dyeItemID == 0)
+			{
+				var tt = new TooltipLine(Mod, "DyedNone", "Currently not imbued with any dyes");
+				tt.OverrideColor = Color.LightPink;
+				tooltips.Add(tt);
+			}
+			else if (unloaded)
 			{
 				tooltips.Add(new TooltipLine(Mod, "Dyed", "Imbued dye didnt properly load, please replace it with another one"));
 			}
@@ -81,11 +102,12 @@ namespace Gearedup.Content.Items
 				tooltips.Add(new TooltipLine(Mod, "Dyed", $"Imbued with {sample.Name} [i:{dyeItemID}]"));
 			}
 		}
+		
 
         public override void UpdateVanity(Player player)
-        {
-			UpdateAccessory(player,true);
-        }
+		{
+			UpdateAccessory(player, true);
+		}
 		
 		public override void UpdateAccessory(Player player, bool hideVisual)
 		{
@@ -96,13 +118,26 @@ namespace Gearedup.Content.Items
 			modPlayer.universalDye = (short)Item.dye;
 		}
 
-        public override void AddRecipes()
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            CreateRecipe()
-				.AddIngredient(ItemID.IronBar,10)
-				.AddIngredient(ItemID.Star,4)
+			Texture2D tex = ModContent.Request<Texture2D>(Texture).Value;
+
+			spriteBatch.BeginDyeShader(Item.dye,Item,true,true);
+			spriteBatch.Draw(tex,position,frame,drawColor,0f,origin,scale, SpriteEffects.None, 0f);
+			spriteBatch.BeginNormal(true,true);
+			
+			return false;
+        }
+
+        public override void AddRecipes()
+		{
+			CreateRecipe()
+				.AddIngredient(ItemID.BlackDye, 1)
+				.AddIngredient(ItemID.SoulofNight, 10)
+				.AddIngredient(ItemID.SoulofLight, 10)
+				.AddIngredient(ItemID.Star, 5)
 				.AddTile(TileID.DyeVat)
 				.Register();
-        }
+		}
     }
 }

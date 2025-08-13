@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using Gearedup.Helper;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.ID;
 
 namespace Gearedup.Content.Endless
 {
@@ -49,6 +51,8 @@ namespace Gearedup.Content.Endless
                     ammo.Add(tag.Get<Item>("Ammo_" + i));
                 }
             }
+
+            UpdatePrice();
         }
 
         public override void SetDefaults()
@@ -58,12 +62,15 @@ namespace Gearedup.Content.Endless
             Item.consumable = false;
         }
 
+        public override bool CanRightClick() => true;
+
         public override void RightClick(Player player)
         {
-            if (Main.mouseItem != null && Main.mouseItem.ammo > 0)
+            if (Main.mouseItem != null && Main.mouseItem.type > ItemID.None && Main.mouseItem.ammo > 0)
             {
                 var cloned = Main.mouseItem.Clone();
-                if (cloned.maxStack > 1)
+
+                if (cloned.maxStack > 1 && ammo.Count > 0)
                 {
                     bool haveStack = false;
                     foreach (var ammoItem in ammo)
@@ -84,12 +91,48 @@ namespace Gearedup.Content.Endless
                 {
                     ammo.Add(cloned);
                 }
+                CombatText.NewText(player.Hitbox, Color.White, "Ammo added !");
                 Main.mouseItem.TurnToAir();
             }
+            else
+            {
+                if (ammo.Count > 0)
+                {
+                    foreach (var i in ammo)
+                    {
+                        player.QuickSpawnItem(Item.GetSource_FromThis(), i, i.stack);
+                    }
+                    ammo.Clear();
+                    CombatText.NewText(player.Hitbox, Color.White, "Ammo cleared !");
+                }
+            }
+
+            UpdatePrice();
+        }
+
+        public void UpdatePrice()
+        {
+            Item.value = 0;
+            if (ammo.Count > 0)
+            {
+                foreach (var i in ammo)
+                {
+                    Item.value = i.value * i.stack;
+                }
+            }
+        }
+
+        public override bool CanBeConsumedAsAmmo(Item weapon, Player player)
+        {
+            ChainAmmo(weapon,player);
+            return false;
         }
 
         public override void UpdateInventory(Player player)
         {
+            // do nothin if its empty
+            if (ammo.Count <= 0) return;
+
             // just in case
             if (selectedAmmo > ammo.Count)
             {
@@ -109,11 +152,14 @@ namespace Gearedup.Content.Endless
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             string ammoLeft = "";
-            foreach (var item in ammo)
+            if (ammo.Count > 0)
             {
-                if (item != null)
+                foreach (var item in ammo)
                 {
-                    ammoLeft += $"[i:{item.type}]";
+                    if (item != null)
+                    {
+                        ammoLeft += $"[i/s{item.stack}:{item.type}] ";
+                    }
                 }
             }
 
@@ -130,8 +176,10 @@ namespace Gearedup.Content.Endless
 
         public override bool ConsumeItem(Player player) => false;
 
-        public override void OnConsumedAsAmmo(Item weapon, Player player)
+        public void ChainAmmo(Item weapon, Player player)
         {
+            // do nothin if its empty
+            if (ammo.Count <= 0) return;
 
             // try decreasing stack
             if (ammo[selectedAmmo] != null)
@@ -140,6 +188,8 @@ namespace Gearedup.Content.Endless
                 if (ammo[selectedAmmo].consumable && ItemLoader.ConsumeItem(ammo[selectedAmmo], player))
                 {
                     ammo[selectedAmmo].stack--;
+                    ItemLoader.OnConsumeAmmo(weapon,ammo[selectedAmmo],player);
+
                     if (ammo[selectedAmmo].stack <= 0)
                     {
                         // delete

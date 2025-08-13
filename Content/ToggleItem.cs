@@ -40,7 +40,7 @@ namespace Gearedup.Content.Items
         }
         public override void SaveData(TagCompound tag)
         {
-            tag.Add("enable", enabled);
+            tag.Add("enabled", enabled);
         }
         public override void LoadData(TagCompound tag)
         {
@@ -64,6 +64,7 @@ namespace Gearedup.Content.Items
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+            tooltips.Insert(1, new TooltipLine(Mod, "pre", enabled ? "Enabled": "Disabled"));
             if (enabled)
             {
                 tooltips.Add(new TooltipLine(Mod, "enable", "Right-Click to disable effect"));

@@ -82,6 +82,10 @@ namespace Gearedup
 
 		[DefaultValue(true)]
 		public bool CatchProjectileAmmo;
+
+		[Header("Debug")]
+		[DefaultValue(false)]
+		public bool DebugMode;
 	}
 
 	public class GearClientConfig : ModConfig

@@ -1,444 +1,441 @@
-// using System.Collections.Generic;
-// using Microsoft.Xna.Framework;
-// using Microsoft.Xna.Framework.Graphics;
-// using Terraria;
-// using Terraria.ModLoader;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
+using Terraria.Graphics.Shaders;
+using Terraria.ModLoader;
 
-// namespace Gearedup.Helper.WIP
-// {
-//     /// <summary>
-//     /// Very W.I.P RenderTarget performance improvement for my very fucking low vram
-//     /// I would appreciate everyone that want to continue this, pls pls pls
-//     /// </summary>
-//     public class TargetInstance
-//     {
+namespace Gearedup.Helper.WIP
+{
+    /// <summary>
+    /// RenderTarget2D Wrapper
+    /// </summary>
+    public class TargetInstance
+    {
 
-//         /// <summary>
-//         /// RenderTarget2D used, might be null or require resize so use CheckInvalid before accesing
-//         /// </summary>
-//         public RenderTarget2D render;
+        /// <summary>
+        /// RenderTarget2D used, might be null or require resize so use CheckInvalid before accesing
+        /// </summary>
+        public RenderTarget2D render;
 
-//         // will dispose unused render after designated time
-//         public ushort disposeTimer;
-//         public const ushort disposeMax = 60 * 60 * 15; // dispose after 15 minutes
+        // will dispose unused render after designated time
+        public ushort disposeTimer;
+        public const ushort disposeMax = 60 * 60 * 15; // dispose after 15 minutes
 
-//         /// <summary>
-//         /// Check if render target is currently used
-//         /// Set to true during valid capturing
-//         /// Set to false after draw is complete
-//         /// </summary>
-//         public bool active;
+        /// <summary>
+        /// Check if render target is currently used
+        /// Set to true during valid capturing
+        /// Set to false after draw is complete
+        /// </summary>
+        public bool active;
 
-//         public void Initialize()
-//         {
-//             disposeTimer = 0;
-//             active = false;
-//             render = null;
-//         }
+        public void Initialize()
+        {
+            disposeTimer = 0;
+            active = false;
+            render = null;
+        }
 
-//         /// <summary>
-//         /// Check if TargetInstance is Invalid
-//         /// </summary>
-//         /// <returns>true if renders is null or require resizing</returns>
-//         public bool CheckInvalid()
-//         {
-//             return render == null;
-//         }
+        /// <summary>
+        /// Check if TargetInstance is Invalid
+        /// </summary>
+        /// <returns>true if renders is null or require resizing</returns>
+        public bool CheckInvalid()
+        {
+            return render == null || render.Size() != new Vector2(Main.screenWidth,Main.screenHeight);
+        }
 
-//         public void UpdateDispose()
-//         {
-//             if (disposeTimer < disposeMax)
-//             {
-//                 disposeTimer++;
-//             }
-//             else
-//             {
-//                 Dispose();
-//             }
-//         }
+        public void UpdateDispose()
+        {
+            if (active) return;
 
-//         public void SetNewRender(DrawRT drawInstance)
-//         {
-//             // check if we do require new render
-//             if (CheckInvalid())
-//             {
-//                 // Try setting up new rendertarget 2d
-//                 //render = new RenderTarget2D();
-//             }
-//             active = true;
-//         }
+            if (disposeTimer < disposeMax)
+            {
+                disposeTimer++;
+            }
+            else
+            {
+                Dispose();
+            }
+        }
 
-//         public void Dispose()
-//         {
-//             if (!Main.gameMenu)
-//             {
-//                 Main.NewText("Disposed render");
-//             }
-//             active = false;
-//             render.Dispose();
-//             render = null;
-//             disposeTimer = 0;
-//         }
-//     }
+        public void SetNewRender(DrawRT drawInstance)
+        {
+            // check if we do require new render
+            if (CheckInvalid())
+            {
+                var graphics = Main.graphics.GraphicsDevice;
+                int RTwidth = Main.screenWidth;
+                int RTheight = Main.screenHeight;
+                // create a new one
+                render = new RenderTarget2D(graphics, RTwidth, RTheight, default, default, default, default, RenderTargetUsage.PreserveContents);
+            }
+            disposeTimer = 0;
+            active = true;
+        }
 
-//     public class DrawRT
-//     {
-//         public int index;
+        public void Dispose()
+        {
+            if (!Main.gameMenu)
+            {
+                Main.NewText("Disposed render");
+            }
+            active = false;
+            render.Dispose();
+            render = null;
+            disposeTimer = 0;
+        }
+    }
+
+    public class DrawRT
+    {
+        public int index;
         
-//         public const int IndexID_None = -1;
-//         public const int IndexID_ErrorHappen = -2;
+        public const int IndexID_None = -1;
+        public const int IndexID_ErrorHappen = -2;
 
-//         public bool Valid => index >= 0;
+        public bool Valid => index >= 0;
 
-//         public bool ShitHappens => index == IndexID_ErrorHappen;
+        public bool ShitHappens => index == IndexID_ErrorHappen;
 
-//         /// <summary>
-//         /// Called after draw capture completed, regardless if its valid or not
-//         /// Used to clear unused arrays and reference to free memory
-//         /// Require to call SetIndexNone at the end, it is crucial
-//         /// </summary>
-//         /// <param name="target"></param>
-//         public virtual void CleanDrawCapture(TargetInstance target)
-//         {
-//             SetIndexNone();
-//         }
+        /// <summary>
+        /// Called after draw capture completed, regardless if its valid or not
+        /// Used to clear unused arrays and reference to free memory
+        /// Require to call SetIndexNone at the end, it is crucial
+        /// </summary>
+        /// <param name="target"></param>
+        public virtual void CleanDrawCapture(TargetInstance target)
+        {
+            SetIndexNone();
+        }
 
-//         /// <summary>
-//         /// Initialize the draw render target
-//         /// Require to call SetIndexNone at the end, it is crucial
-//         /// </summary>
-//         public virtual void Initialize()
-//         {
-//             SetIndexNone();
-//         }
+        /// <summary>
+        /// Initialize the draw render target
+        /// Require to call SetIndexNone at the end, it is crucial
+        /// </summary>
+        public virtual void Initialize()
+        {
+            SetIndexNone();
+        }
 
-//         /// <summary>
-//         /// Set index to none, Used in Initialize and CleanDrawCapture
-//         /// </summary>
-//         public void SetIndexNone()
-//         {
-//             index = IndexID_None;
-//         }
+        /// <summary>
+        /// Set index to none, Used in Initialize and CleanDrawCapture
+        /// </summary>
+        public void SetIndexNone()
+        {
+            index = IndexID_None;
+        }
 
-//         /// <summary>
-//         /// Set index to an error id, Used for debugging
-//         /// </summary>
-//         public void SetIndexError()
-//         {
-//             index = IndexID_ErrorHappen;
-//         }
+        /// <summary>
+        /// Set index to an error id, Used for debugging
+        /// </summary>
+        public void SetIndexError()
+        {
+            index = IndexID_ErrorHappen;
+        }
 
-//         /// <summary>
-//         /// Called when the rendertarget is capturing
-//         /// Require spritebatch to Begin and End
-//         /// </summary>
-//         /// <param name="target">The render target used</param>
-//         public virtual void DrawCapture(TargetInstance target)
-//         {
+        /// <summary>
+        /// Called when the rendertarget is capturing
+        /// Require spritebatch to Begin and End
+        /// </summary>
+        /// <param name="target">The render target used</param>
+        public virtual void DrawCapture(SpriteBatch spriteBatch , GraphicsDevice graphics ,TargetInstance target)
+        {
 
-//         }
+        }
 
-//         /// <summary>
-//         /// Draw the captured target
-//         /// Requires begin and end
-//         /// </summary>
-//         /// <param name="target"></param>
-//         public virtual void DrawTarget(TargetInstance target)
-//         {
+        /// <summary>
+        /// Draw the captured target
+        /// Requires begin and end
+        /// </summary>
+        /// <param name="target"></param>
+        public virtual void DrawTarget(SpriteBatch spriteBatch ,TargetInstance target)
+        {
 
-//         }
+        }
 
-//         /// <summary>
-//         /// 
-//         /// </summary>
-//         /// <param name="targets"></param>
-//         /// <returns></returns>
-//         public virtual bool GetAvailableTarget(TargetInstance[] targets)
-//         {
-//             // safe code, in case idk
-//             if (targets == null) return false;
-//             if (targets.Length <= 0) return false;
+        /// <summary>
+        /// Get available targets to the DrawRT
+        /// </summary>
+        /// <param name="targets">Pool of Target Instance</param>
+        /// <returns>returns true if successfully found a target in the array</returns>
+        public virtual bool GetAvailableTarget(TargetInstance[] targets)
+        {
+            // safe code, in case idk
+            if (targets == null) return false;
+            if (targets.Length <= 0) return false;
 
-//             // if (ShitHappens)
-//             // {
-//             //     Main.NewText("Previous draw had null value, reporting as a warn");
-//             // }
+            // if (ShitHappens)
+            // {
+            //     Main.NewText("Previous draw had null value, reporting as a warn");
+            // }
 
-//             SetIndexNone();
+            SetIndexNone();
 
-//             for (int i = 0; i < targets.Length; i++)
-//             {
-//                 if (targets[i] == null)
-//                 {
-//                     targets[i] = new TargetInstance();
-//                     targets[i].Initialize();
-//                     targets[i].SetNewRender(this);
-//                     OnGetTarget(targets[i]);
-//                     index = i;
-//                     return true;
-//                 }
-//                 if (!targets[i].active)
-//                 {
-//                     targets[i].SetNewRender(this);
-//                     OnGetTarget(targets[i]);
-//                     index = i;
-//                     return true;
-//                 }
-//             }
-//             return false;
-//         }
+            for (int i = 0; i < targets.Length; i++)
+            {
+                if (targets[i] == null)
+                {
+                    targets[i] = new TargetInstance();
+                    targets[i].Initialize();
+                    targets[i].SetNewRender(this);
+                    OnGetTarget(targets[i]);
+                    index = i;
+                    return true;
+                }
+                if (!targets[i].active)
+                {
+                    targets[i].SetNewRender(this);
+                    OnGetTarget(targets[i]);
+                    index = i;
+                    return true;
+                }
+            }
+            return false;
+        }
 
-//         public virtual void OnGetTarget(TargetInstance target)
-//         {
+        public virtual void OnGetTarget(TargetInstance target)
+        {
 
-//         }
-//     }
+        }
+    }
 
-//     public class DrawProjRT : DrawRT
-//     {
-//         public short dye;
-//         public List<Projectile> projectiles;
+    public class DrawProjRT : DrawRT
+    {
+        public short dye;
+        public List<Projectile> projectiles;
 
-//         public DrawProjRT(short shader, Projectile projectile)
-//         {
-//             dye = shader;
-//             projectiles = new List<Projectile>(){projectile};
-//         }
+        public DrawProjRT(short shader, Projectile projectile)
+        {
+            dye = shader;
+            projectiles = new List<Projectile>(){projectile};
+        }
 
-//         public override void DrawCapture(TargetInstance target)
-//         {
-//             foreach (var item in projectiles)
-//             {
-//                 throw new System.NotImplementedException();
-//             }
-//         }
+        public override void DrawCapture(SpriteBatch spriteBatch , GraphicsDevice graphics , TargetInstance target)
+        {
+            graphics.SetRenderTarget(target.render);
+            graphics.Clear(Color.Transparent);
 
-//         public override void DrawTarget(TargetInstance target)
-//         {
-//             if (target == null)
-//             {
-//                 Main.NewText("Target instance somehow null, what the fuck mike");
-//                 target = new TargetInstance();
-//                 return;
-//             }
-//             if (target.CheckInvalid())
-//             {
-//                 // we create new render and dont draw
-//                 target = new TargetInstance();
-//                 target.SetNewRender(this);
-//                 SetIndexError();
-//                 return;
-//             }
-//             Main.spriteBatch.Draw(target.render, new Rectangle(), Color.White);
-//         }
+            spriteBatch.BeginNormal();
+            foreach (var proj in projectiles)
+            {
+                Main.instance.DrawProj(proj.whoAmI);
+            }
+            spriteBatch.End();
 
-//         public override void CleanDrawCapture(TargetInstance target)
-//         {
-//             index = IndexID_None;
-//             projectiles.Clear();
-//         }
-//     }
+            graphics.SetRenderTarget(null);
+        }
 
-//     public class RenderManager : ModSystem
-//     {
-//         public override void Load()
-//         {
-//             base.Load();
-//         }
+        public override void DrawTarget(SpriteBatch spriteBatch ,TargetInstance target)
+        {
+            if (target == null)
+            {
+                Main.NewText("Target instance somehow null, what the fuck mike");
+                target = new TargetInstance();
+                return;
+            }
 
-//         public override void Unload()
-//         {
-//             base.Unload();
-//         }
+            if (target.CheckInvalid())
+            {
+                // we create new render and dont draw
+                target = new TargetInstance();
+                target.SetNewRender(this);
+                SetIndexError();
+                return;
+            }
 
-//         public override void OnWorldLoad()
-//         {
-//             Load();
-//         }
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, null, null, null, Main.GameViewMatrix.EffectMatrix);
+            GameShaders.Armor.Apply(dye, null, null);
+            // spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
+            spriteBatch.Draw(target.render, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
+            spriteBatch.End();
+        }
 
-//         public override void OnWorldUnload()
-//         {
-//             Unload();
-//         }
+        public override void CleanDrawCapture(TargetInstance target)
+        {
+            SetIndexNone();
+            projectiles.Clear();
+        }
+    }
 
-//         public override void PostDrawTiles()
-//         {
-//             base.PostDrawTiles();
-//         }
+    public class RenderManager : ModSystem
+    {
+        public override void Load()
+        {
+            Load_DrawTargets();
+        }
 
-//         /// <summary>
-//         /// The instances of rendertarget2d compiled in 1 array
-//         /// Used by all other DrawRT Objects using DrawRT.index 
-//         /// </summary>
-//         public TargetInstance[] targets;
+        public override void Unload()
+        {
+            Unload_DrawTargets();
+        }
 
-//         /// <summary>
-//         /// Max Render Target in the screen, around 300 sounds fine tbh 
-//         /// </summary>
-//         public const short MaxTargets = 300;
+        public override void OnWorldLoad()
+        {
+            Load_DrawTargets();
+        }
 
-//         public List<DrawRT> drawTargetsProj;
-//         public List<DrawRT> drawTargetsNPCs;
+        public override void OnWorldUnload()
+        {
+            DisposeAll();
+            Load_DrawTargets();
+        }
 
-//         /// <summary>
-//         /// Load important properties
-//         /// </summary>
-//         public void Load_DrawTargets()
-//         {
-//             targets = new TargetInstance[MaxTargets];
+        /// <summary>
+        /// The instances of rendertarget2d compiled in 1 array
+        /// Used by all other DrawRT Objects using DrawRT.index 
+        /// </summary>
+        public TargetInstance[] targets;
 
-//             drawTargetsProj = new List<DrawRT>();
-//             drawTargetsNPCs = new List<DrawRT>();
-//         }
+        /// <summary>
+        /// Max Render Target in the screen, around 300 sounds fine tbh 
+        /// </summary>
+        public const short MaxTargets = 300;
+
+        public List<DrawRT> drawTargetsProj;
+        public List<DrawRT> drawTargetsNPCs;
+
+        /// <summary>
+        /// Load important properties
+        /// </summary>
+        public void Load_DrawTargets()
+        {
+            targets = new TargetInstance[MaxTargets];
+
+            drawTargetsProj = new List<DrawRT>();
+            drawTargetsNPCs = new List<DrawRT>();
+        }
         
-//         /// <summary>
-//         /// Create a new target for dyed projectiles
-//         /// </summary>
-//         /// <param name="dye">The Shader ID</param>
-//         /// <param name="projectile">The projectile to be added, must be active</param>
-//         public void AddTarget_Proj(short dye, Projectile projectile)
-//         {
-//             // if some shit happen
-//             if ( projectile == null || !projectile.active || projectile.hide) return;
+        /// <summary>
+        /// Unload properties during total mod unload
+        /// </summary>
+        public void Unload_DrawTargets()
+        {
+            DisposeAll();
+            drawTargetsProj = null;
+            drawTargetsNPCs = null;
+        }
+        
+        /// <summary>
+        /// Create a new target for dyed projectiles
+        /// </summary>
+        /// <param name="dye">The Shader ID</param>
+        /// <param name="projectile">The projectile to be added, must be active</param>
+        public void AddTarget_Proj(short dye, Projectile projectile)
+        {
+            // if some shit happen
+            if (projectile == null || !projectile.active || projectile.hide) return;
 
-//             // if drawTargetsPorj has no shit, we just make one
-//             if (drawTargetsProj.Count <= 0)
-//             {
-//                 drawTargetsProj.Add(new DrawProjRT(dye, projectile));
-//             }
+            // if drawTargetsPorj has no shit, we just make one
+            if (drawTargetsProj.Count <= 0)
+            {
+                drawTargetsProj.Add(new DrawProjRT(dye, projectile));
+                return;
+            }
 
-//             // adds a new draw target
-//             foreach (DrawProjRT item in drawTargetsProj)
-//             {
-//                 if (item == null) continue;
-//                 if (item.dye == dye)
-//                 {
-//                     if (item.projectiles == null)
-//                     {
-//                         item.projectiles = new List<Projectile>();
-//                     }
-//                     item.projectiles.Add(projectile);
-//                 }
-//             }
+            // adds a new draw target
+            foreach (DrawProjRT item in drawTargetsProj)
+            {
+                if (item == null) continue;
+                if (item.dye == dye)
+                {
+                    if (item.projectiles == null)
+                    {
+                        item.projectiles = new List<Projectile>();
+                    }
+                    item.projectiles.Add(projectile);
+                    return;
+                }
+            }
 
-//             // if there is no matching draw targets, we make one
-//             drawTargetsProj.Add(new DrawProjRT(dye, projectile));
-//         }
+            // if there is no matching draw targets, we make one
+            drawTargetsProj.Add(new DrawProjRT(dye, projectile));
+        }
 
-//         /// <summary>
-//         /// Dispose all target instance and drawrt
-//         /// </summary>
-//         public void DisposeAll()
-//         {
-//             // foreach (var item in targets)
-//             // {
-//             //     item.Dispose();
-//             // }
+        /// <summary>
+        /// Dispose all target instance and drawrt
+        /// Called during unloading
+        /// </summary>
+        public void DisposeAll()
+        {
+            for (int i = 0; i < targets.Length; i++)
+            {
+                targets[i].Dispose();
+            }
+        }
 
-//             for (int i = 0; i < targets.Length; i++)
-//             {
-//                 targets[i].Dispose();
-//             }
+        public bool TryDraw(SpriteBatch spriteBatch , List<DrawRT> draw)
+        {
+            foreach (var item in draw)
+            {
+                // only draw valid targets
+                if (item.Valid)
+                {
+                    item.DrawTarget(spriteBatch,targets[item.index]);
+                }
 
-//         }
+                // would still clean draw capture otherwise
+                item.CleanDrawCapture(targets[item.index]);
 
-//         public void Draw_NPC()
-//         {
+                // no longer active
+                targets[item.index].active = false;
+            }
+            return false;
+        }
 
-//         }
+        public void Capture()
+        {
+            // Check graphic device
+            GraphicsDevice graphics = Main.graphics.GraphicsDevice;
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            if (graphics == null || spriteBatch == null) return;
 
-//         public void Draw_Tiles()
-//         {
+            // Prepare targets
+            if (!Capture_PrepareTargets()) return;
 
-//         }
+            // capture our draw targets
+            // Capture_Projectile(graphics);
+            // Capture_NPCs(graphics);
+            Capture_DrawRT(spriteBatch, graphics, drawTargetsProj);
+            Capture_DrawRT(spriteBatch, graphics, drawTargetsNPCs);
 
-//         public void Draw_PreTiles()
-//         {
+            // After done draw capturing , we update unactive targetinstance
+            foreach (var item in targets)
+            {
+                item.UpdateDispose();
+            }
+        }
 
-//         }
+        /// <summary>say no
+        /// Prepare targets, if targets somehow didnt initialize we 
+        /// </summary>
+        /// <returns></returns>
+        public bool Capture_PrepareTargets()
+        {
+            // try reloading properties
+            if (targets == null || targets.Length <= 0)
+            {
+                Load_DrawTargets();
+                return false;
+            }
+            else if (drawTargetsNPCs == null || drawTargetsProj == null)
+            {
+                Load_DrawTargets();
+                return false;
+            }
+            return true;
+        }
 
-//         public void Draw_Player()
-//         {
-//         }
+        public void Capture_DrawRT(SpriteBatch spriteBatch, GraphicsDevice graphics , List<DrawRT> drawRender)
+        {
+            foreach (var item in drawTargetsNPCs)
+            {
+                if (item.GetAvailableTarget(targets))
+                {
+                    item.DrawCapture(spriteBatch, graphics,targets[item.index]);
+                }
+            }
+        }
 
-//         public void Draw_Proj()
-//         {
-//             TryDraw(ref drawTargetsProj);
-//         }
-
-//         public bool TryDraw(ref List<DrawRT> draw)
-//         {
-//             foreach (var item in draw)
-//             {
-//                 // only draw valid targets
-//                 if (item.Valid)
-//                 {
-//                     item.DrawTarget(targets[item.index]);
-//                 }
-
-//                 // would still clean draw capture otherwise
-//                 item.CleanDrawCapture(targets[item.index]);
-//             }
-//             return false;
-//         }
-
-//         public void Capture()
-//         {
-//             // Prepare targets
-//             if (!Capture_PrepareTargets()) return;
-
-//             // capture our draw targets
-//             Capture_Projectile();
-//             Capture_NPCs();
-
-//             // After done draw capturing , we update unused targetinstance
-//             foreach (var item in targets)
-//             {
-//                 item.UpdateDispose();
-//             }
-//         }
-
-//         /// <summary>say no
-//         /// Prepare targets, if targets somehow didnt initialize we 
-//         /// </summary>
-//         /// <returns></returns>
-//         public bool Capture_PrepareTargets()
-//         {
-//             // try reloading properties
-//             if (targets == null || targets.Length <= 0)
-//             {
-//                 Load_DrawTargets();
-//                 return false;
-//             }
-//             else if (drawTargetsNPCs == null || drawTargetsProj == null)
-//             {
-//                 Load_DrawTargets();
-//                 return false;
-//             }
-//             return true;
-//         }
-
-//         /// <summary>
-//         /// Capture NPC Drawing
-//         /// </summary>
-//         public void Capture_NPCs()
-//         {
-
-//         }
-
-//         /// <summary>
-//         /// Capture Projectile Drawing
-//         /// </summary>
-//         public void Capture_Projectile()
-//         {
-//             foreach (var item in drawTargetsProj)
-//             {
-//                 if (item.GetAvailableTarget(targets))
-//                 {
-//                     item.DrawCapture(targets[item.index]);
-//                 }
-//             }
-//         }
-
-//     }
-// }
+    }
+}

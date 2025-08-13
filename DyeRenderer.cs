@@ -92,7 +92,7 @@ namespace Gearedup
                 renders.Add(dye, new RenderTManager(projectile));
             }
 
-            Main.NewText("Add New Render Packets " + dye);
+            if (GearServerConfig.Get.DebugMode) Main.NewText("Add New Render Packets " + dye);
         }
 
         public static void AddRender(NPC npc, short dye)
@@ -106,7 +106,7 @@ namespace Gearedup
                 rendersNPC.Add(dye, new RenderTManager(npc));
             }
 
-            Main.NewText("Add New NPC Render Packets " + dye);
+            if (GearServerConfig.Get.DebugMode) Main.NewText("Add New NPC Render Packets " + dye);
         }
 
 
@@ -151,7 +151,7 @@ namespace Gearedup
             {
                 if (item.Value.IsActive())
                 {
-                    Main.NewText("Drawed npcs renders shader " + item.Key);
+                    if (GearServerConfig.Get.DebugMode) Main.NewText("Drawed npcs renders shader " + item.Key);
                     // DrawData data = new DrawData
                     // {
                     //     position = Vector2.Zero,
@@ -162,12 +162,12 @@ namespace Gearedup
                     //
                     spriteBatch.End();
                     spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, null, null, null, Main.GameViewMatrix.EffectMatrix);
+                    
                     GameShaders.Armor.Apply(item.Key, null, null);
                     // spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
                     spriteBatch.Draw(item.Value.renderTarget, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
                     spriteBatch.End();
                     spriteBatch.Begin(default, default, default, default, default, default, Main.GameViewMatrix.TransformationMatrix);
-                    item.Value.Clear();
                 }
             }
         }
@@ -243,7 +243,7 @@ namespace Gearedup
             {
                 if (item.Value.IsActive())
                 {
-                    Main.NewText("Drawed projectile renders shader " + item.Key);
+                    if (GearServerConfig.Get.DebugMode) Main.NewText("Drawed projectile renders shader " + item.Key);
                     // DrawData data = new DrawData
                     // {
                     //     position = Vector2.Zero,
@@ -315,7 +315,7 @@ namespace Gearedup
                     // skip unused renderer
                     if (!tuple.Value.IsActive()) continue;
 
-                    Main.NewText("Preparing render " + tuple.Key);
+                    if (GearServerConfig.Get.DebugMode) Main.NewText("Preparing render " + tuple.Key);
 
                     graphics.SetRenderTarget(tuple.Value.renderTarget);
                     graphics.Clear(Color.Transparent);
@@ -327,7 +327,7 @@ namespace Gearedup
 
                     foreach (var i in tuple.Value.entityIndexes)
                     {
-                        Main.NewText("-- Simulating " + Main.projectile[i].Name);
+                        if (GearServerConfig.Get.DebugMode) Main.NewText("-- Simulating " + Main.projectile[i].Name);
                         Main.instance.DrawProj(i);
                     }
 
@@ -355,7 +355,7 @@ namespace Gearedup
                     // skip unused renderer
                     if (!tuple.Value.IsActive()) continue;
 
-                    Main.NewText("Preparing render npc " + tuple.Key);
+                    if (GearServerConfig.Get.DebugMode) Main.NewText("Preparing render npc " + tuple.Key);
 
                     graphics.SetRenderTarget(tuple.Value.renderTarget);
                     graphics.Clear(Color.Transparent);
@@ -368,15 +368,15 @@ namespace Gearedup
                     foreach (var i in tuple.Value.entityIndexes)
                     {
                         var npc = Main.npc[i];
-                        Main.NewText("-- Simulating NPC Draws " + npc.FullName);
+                        if (GearServerConfig.Get.DebugMode) Main.NewText("-- Simulating NPC Draws " + npc.FullName);
 
                         // ripped straight throught heaven
                         if (npc.ModNPC != null && npc.ModNPC is ModNPC modNPC)
                         {
-                            if (modNPC.PreDraw(Main.spriteBatch, Main.screenPosition, npc.GetAlpha(Color.White)))
+                            if (modNPC.PreDraw(Main.spriteBatch, Main.screenPosition, npc.GetAlpha(npc.color)))
                                 Main.instance.DrawNPC(i, false);
 
-                            modNPC.PostDraw(Main.spriteBatch, Main.screenPosition, npc.GetAlpha(Color.White));
+                            modNPC.PostDraw(Main.spriteBatch, Main.screenPosition, npc.GetAlpha(npc.color));
                         }
                         else
                         {

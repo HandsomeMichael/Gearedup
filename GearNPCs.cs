@@ -60,6 +60,14 @@ namespace Gearedup
 
             return false;
         }
+        public override Color? GetAlpha(NPC npc, Color drawColor)
+        {
+            if (dye > 0 && !DyeRenderer.isRenderingNPC)
+            {
+                return Color.White;
+            }
+            return null;
+        }
         public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             if (dye > 0 && !DyeRenderer.isRenderingNPC)
