@@ -10,7 +10,7 @@ using Terraria.ModLoader.IO;
 
 namespace Gearedup.Content.Items
 {
-    public class PhasingDevices : ToggleItem
+    public class PhasingDevice : ToggleItem
     {
         public override int ItemRarity => ItemRarityID.Blue;
         public override void UpdateEnable(GearPlayer gearPlayer) => gearPlayer.phasingDevice = true;

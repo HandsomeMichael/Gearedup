@@ -1,9 +1,8 @@
 # This file will automatically update with entries for new content after a build and reload.
 
-Generic:
-{
-	ItemEnable:"[ Effect Enabled ]"
-	ItemDisable:"[ Effect Disabled ]"
+Generic: {
+	ItemEnable: "[ Effect Enabled ]"
+	ItemDisable: "[ Effect Disabled ]"
 }
 
 Items: {
@@ -48,15 +47,12 @@ Items: {
 
 	DeiticStaff: {
 		DisplayName: Staff of Deitic
-		Tooltip: 
-		'''
-		Shoots a regular petal that deals lunarian damage
-		Right - click to spawn catched npcs
-		'''
-		Brainwash:
-		'''
-		Spawned npcs will 
-		'''
+		Tooltip:
+			'''
+			Shoots a regular petal that deals lunarian damage
+			Right - click to spawn catched npcs
+			'''
+		Brainwash: "Spawned npcs will "
 	}
 
 	SuperBugNet: {
@@ -69,17 +65,14 @@ Items: {
 		CatchNPC: Can catch most npcs
 		CatchNoBoss: Bosses are immune to this net
 		CatchNoBossProj: Bosses and its projectile are immune to this net
-
-		ModeBoth: "[ Catch Mode : Projectile & NPC ]"
-		ModeBoth: "[ Catch Mode : Projectile Only ]"
 		ModeBoth: "[ Catch Mode : NPC Only ]"
-		
-		TooltipReal: 
-		'''
-		Right - click to do a fullspin ( grant immune frame )
-		Right - click in the inventory to change mode
-		'Gotta catch em all'
-		'''
+		TooltipReal:
+			'''
+			Right - click to do a fullspin ( grant immune frame )
+			Right - click in the inventory to change mode
+			'Gotta catch em all'
+			'''
+		Tooltip: ""
 	}
 
 	// OgreFeet: {
@@ -92,18 +85,18 @@ Items: {
 	// 		Mana sickness heavily reduce horizontal movement
 	// 		'''
 	// }
-
+	
 	// BagOSick: {
 	// 	DisplayName: Bag O' Sick
 	// 	Tooltip:
 	// 		'''
-	// 		Getting hit reduces most debuff time 
+	// 		Getting hit reduces most debuff time
 	// 		Critical hit may extend enemy debuff
 	// 		Increased critical damage on debuffed enemy
 	// 		Inflict any debuff you had
 	// 		'''
 	// }
-
+	
 	// HonorMedal: {
 	// 	DisplayName: Medal of True Honor
 	// 	Tooltip:
@@ -116,7 +109,7 @@ Items: {
 	// 		'Pure Determination'
 	// 		'''
 	// }
-
+	
 	// WingInjection: {
 	// 	DisplayName: Wings Injector
 	// 	Tooltip:
@@ -130,7 +123,7 @@ Items: {
 	// 		'Fly high'
 	// 		'''
 	// }
-
+	
 	// ArtifactOfMartian: {
 	// 	DisplayName: Artifact Of Martian
 	// 	Tooltip:
@@ -142,7 +135,7 @@ Items: {
 	// 		'A Manhunter Tools'
 	// 		'''
 	// }
-
+	
 	UniversalDyer: {
 		DisplayName: Universal Dyer
 		Imbue: Imbued with {0}
@@ -150,6 +143,7 @@ Items: {
 		Tooltip:
 			'''
 			Dye any projectiles or npcs you own
+			Can also be used to duplicate dye properties
 			Hold a dye and right click this item to apply its dye
 			Works in vanity slot
 			'''
@@ -187,6 +181,21 @@ Items: {
 		Tooltip: ""
 		DisplayName: Night Thing
 	}
+
+	AmmoBag: {
+		DisplayName: Ammo Bag
+		Tooltip: ""
+	}
+
+	DeveloGun: {
+		DisplayName: Develo Gun
+		Tooltip: ""
+	}
+
+	DyeSprayer: {
+		DisplayName: Dye Sprayer
+		Tooltip: ""
+	}
 }
 
 Stat: {
@@ -210,7 +219,7 @@ Stat: {
 	debuff: "{0} Damage on most debuffed entity"
 	wet: "{0} Damage on submerged entity"
 	team: "{0} Damage on opposing team"
-	friendlyFire: "Grant friendly fire"
+	friendlyFire: Grant friendly fire
 	nokb: No knockback
 	unicorn: Scale damage on speed
 	corrosive: Grant Poison on user and enemy on hit
@@ -386,6 +395,21 @@ Configs: {
 			Label: Catch Projectile Ammo
 			Tooltip: ""
 		}
+
+		AllowSuperBugNet_BossesProjectile: {
+			Label: Allow Super Bug Net_ Bosses Projectile
+			Tooltip: ""
+		}
+
+		CatchProjectileDamage: {
+			Label: Catch Projectile Damage
+			Tooltip: ""
+		}
+
+		CatchProjectileDamageScale: {
+			Label: Catch Projectile Damage Scale
+			Tooltip: ""
+		}
 	}
 }
 
@@ -393,4 +417,5 @@ Projectiles: {
 	DeveloGunProj.DisplayName: Develo Gun Proj
 	SuperBugNetProj.DisplayName: Super Bug Net Proj
 	NightThingProj.DisplayName: Night Thing Proj
+	DyeSprayerProj.DisplayName: Dye Sprayer Proj
 }

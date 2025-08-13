@@ -60,9 +60,9 @@ namespace Gearedup.Content.Endless
 
         public override void RightClick(Player player)
         {
-            if (player.HeldItem != null && player.HeldItem.ammo > 0)
+            if (Main.mouseItem != null && Main.mouseItem.ammo > 0)
             {
-                var cloned = player.HeldItem.Clone();
+                var cloned = Main.mouseItem.Clone();
                 if (cloned.maxStack > 1)
                 {
                     bool haveStack = false;
@@ -84,7 +84,7 @@ namespace Gearedup.Content.Endless
                 {
                     ammo.Add(cloned);
                 }
-                player.HeldItem.TurnToAir();
+                Main.mouseItem.TurnToAir();
             }
         }
 

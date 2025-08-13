@@ -37,8 +37,8 @@ namespace Gearedup.Content.Items
         {
             Recipe recipe = CreateRecipe();
             recipe.AddIngredient(ItemID.FallenStar, 10);
-            recipe.AddIngredient(ItemID.HallowedBar, 8);
-            recipe.AddTile(TileID.MythrilAnvil);
+            recipe.AddIngredient(ItemID.LunarBar, 10);
+            recipe.AddTile(TileID.ShimmerMonolith);
             recipe.Register();
         }
     }
