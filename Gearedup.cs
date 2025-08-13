@@ -17,7 +17,11 @@ namespace Gearedup
 {
 	public partial class Gearedup : Mod
 	{
+		// get instances
 		public static Gearedup Get => ModContent.GetInstance<Gearedup>();
+		public static string DotTexture => "Gearedup/Content/Dot";
+		public static string PlaceholderTexture => "Gearedup/Content/Placeholder";
+
 		public List<string> errors;
 
 		// cross mod ig

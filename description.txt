@@ -23,3 +23,10 @@ Not important stuff that i would import on :
 - Bytech Dye, Any dye at any time
 - Phase Plate, allows player to fall faster on platform. can be activated and deactivated on inventory
 - Teleportic Potion, allows player to teleport into already discovered place in the map
+
+- usefull commands
+- one hit medal
+- stackable shit
+- stackable anything
+- respawn re zero
+- spelunker better render

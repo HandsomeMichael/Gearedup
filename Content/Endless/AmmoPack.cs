@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Gearedup.Content.Items;
 using Gearedup.Helper;
 using Microsoft.Xna.Framework;
@@ -32,7 +33,18 @@ namespace Gearedup.Content.Endless
                 ReloadDefaults();
                 return;
             }
-            Mod.Call("Error",$"Missing item for {ammoType.mod}:{ammoType.name} ");
+            Mod.Call("Error", $"Missing item for {ammoType.mod}:{ammoType.name} ");
+        }
+
+        public override void NetSend(BinaryWriter writer)
+        {
+            ammoType.NetSend(writer);
+        }
+
+        public override void NetReceive(BinaryReader reader)
+        {
+            ammoType.NetReceive(reader);
+            ammoType.ValidateAsItem();
         }
 
         // protected override bool CloneNewInstances => true;
@@ -73,7 +85,7 @@ namespace Gearedup.Content.Endless
                 {
                     if (tt.Mod == "Terraria" && tt.Name == "ItemName")
                     {
-                        tt.Text = "Magical " + ContentSamples.ItemsByType[id].Name + " Pack";
+                        tt.Text = "Endless " + ContentSamples.ItemsByType[id].Name + " Pack";
                         break;
                     }
                 }

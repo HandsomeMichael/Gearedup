@@ -69,6 +69,11 @@ namespace Gearedup.Content.Perks
             Item.rare = ItemRarityID.Blue;
         }
 
+        public override void RightClick(Player player)
+        {
+            
+        }
+
         public override void SaveData(TagCompound tag)
         {
             tag.Add("name", name);
