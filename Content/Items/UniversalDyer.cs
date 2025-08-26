@@ -135,7 +135,7 @@ namespace Gearedup.Content.Items
 				.AddIngredient(ItemID.BlackDye, 1)
 				.AddIngredient(ItemID.SoulofNight, 10)
 				.AddIngredient(ItemID.SoulofLight, 10)
-				.AddIngredient(ItemID.Star, 5)
+				.AddIngredient(ItemID.FallenStar, 5)
 				.AddTile(TileID.DyeVat)
 				.Register();
 		}

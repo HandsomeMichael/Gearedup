@@ -40,12 +40,12 @@ namespace Gearedup.Content.Items
 			return true;
         }
 
-		public override void AddRecipes()
-		{
-			Recipe recipe = CreateRecipe();
-			recipe.AddIngredient(ItemID.DirtBlock, 10);
-			recipe.AddTile(TileID.WorkBenches);
-			recipe.Register();
-		}
+		// public override void AddRecipes()
+		// {
+		// 	Recipe recipe = CreateRecipe();
+		// 	recipe.AddIngredient(ItemID.DirtBlock, 10);
+		// 	recipe.AddTile(TileID.WorkBenches);
+		// 	recipe.Register();
+		// }
 	}
 }

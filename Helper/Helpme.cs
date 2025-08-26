@@ -23,6 +23,38 @@ namespace Gearedup.Helper
             return item.GetGlobalItem<GearItem>();
         }
 
+		public static bool HasAny(this int[] array, int[] array2)
+		{
+			for (int i = 0; i < array.Length; i++)
+			{
+				for (int j = 0; j < array2.Length; j++)
+				{
+					if (array[i] == array2[i])
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		public static bool HasAnyBuff(this NPC npc, params int[] buffTypes)
+		{
+			foreach (int buff in buffTypes)
+			{
+				if (!npc.buffImmune[buff])
+				{
+					for (int i = 0; i < NPC.maxBuffs; i++)
+					{
+						if (npc.buffTime[i] >= 1 && npc.buffType[i] == buff)
+							return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
 		/// <summary>
 		/// Uhhhhh
 		/// </summary>

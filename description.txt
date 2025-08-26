@@ -7,6 +7,11 @@ Also adds endless ammo , endless throwing weapons , dyeable weapons and much mor
 It should capable with almost every mod
 Based on dynamic gear advancement mod
 
+Content :
+
+
+- 10 Cross-Mod Accesories ( Calamity Mod atm )
+
 Planned on :
 
 - Modular weapons perks
@@ -25,8 +30,11 @@ Not important stuff that i would import on :
 - Teleportic Potion, allows player to teleport into already discovered place in the map
 
 - usefull commands
-- one hit medal
-- stackable shit
 - stackable anything
 - respawn re zero
 - spelunker better render
+
+- perk grant small bonuses
+- perk have durability tied by item rarity , item value , item damage , perk count
+
+melee :

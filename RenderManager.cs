@@ -1,0 +1,776 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Gearedup.Helper;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
+using Terraria.Graphics.Shaders;
+using Terraria.ModLoader;
+
+namespace Gearedup
+{
+    /// <summary>
+    /// RenderTarget2D Wrapper
+    /// </summary>
+    public class TargetInstance
+    {
+
+        /// <summary>
+        /// RenderTarget2D used, might be null or require resize so use CheckInvalid before accesing
+        /// </summary>
+        public RenderTarget2D render;
+
+        // will dispose unused render after designated time
+        public ushort disposeTimer;
+        public const ushort disposeMax = 60 * 60 * 15; // dispose after 15 minutes
+
+        /// <summary>
+        /// Check if render target is currently used
+        /// Set to true during valid capturing
+        /// Set to false after draw is complete
+        /// </summary>
+        public bool active;
+
+        public void Initialize()
+        {
+            disposeTimer = 0;
+            active = false;
+            render = null;
+        }
+
+        /// <summary>
+        /// Check if TargetInstance is Invalid
+        /// </summary>
+        /// <returns>true if renders is null or require resizing</returns>
+        public bool CheckInvalid()
+        {
+            return render == null || render.Size() != new Vector2(Main.screenWidth,Main.screenHeight);
+        }
+
+        /// <summary>
+        /// Update dispose timer
+        /// </summary>
+        public void UpdateDispose()
+        {
+            if (active) return;
+
+            if (disposeTimer < disposeMax)
+            {
+                disposeTimer++;
+            }
+            else
+            {
+                Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Create a new RenderTarget
+        /// </summary>
+        public void SetNewRender()
+        {
+            // check if we do require new render
+            if (CheckInvalid())
+            {
+                var graphics = Main.graphics.GraphicsDevice;
+                int RTwidth = Main.screenWidth;
+                int RTheight = Main.screenHeight;
+                // create a new one
+                render = new RenderTarget2D(graphics, RTwidth, RTheight, default, default, default, default, RenderTargetUsage.PreserveContents);
+            }
+            disposeTimer = 0;
+            active = true;
+        }
+
+        /// <summary>
+        /// Dispose this RenderTarget2D 
+        /// </summary>
+        public void Dispose()
+        {
+            Gearedup.Log("-- Render Disposed");
+            
+            active = false;
+            
+            if (render != null) render.Dispose();
+
+            render = null;
+            disposeTimer = 0;
+        }
+    }
+
+    public class DrawRT
+    {
+        /// <summary>
+        /// The index linked to TargetInstance Pool
+        /// </summary>
+        public int index;
+        public const int IndexID_None = -1;
+        public const int IndexID_ErrorHappen = -2;
+
+        /// <summary>
+        /// Check if index is valid
+        /// </summary>
+        public bool Valid => index >= 0;
+
+        public bool ShitHappens => index == IndexID_ErrorHappen;
+
+        /// <summary>
+        /// Called after draw capture completed, regardless if its valid or not
+        /// Used to clear unused arrays and reference to free memory
+        /// </summary>
+        public virtual void CleanDrawCapture()
+        {
+        }
+
+        /// <summary>
+        /// Initialize the draw render target
+        /// Require to call SetIndexNone at the end, it is crucial
+        /// </summary>
+        public virtual void Initialize()
+        {
+            SetIndexNone();
+        }
+
+        /// <summary>
+        /// Set index to none, Used in Initialize and CleanDrawCapture
+        /// </summary>
+        public void SetIndexNone()
+        {
+            index = IndexID_None;
+        }
+
+        /// <summary>
+        /// Set index to an error id, Used for debugging
+        /// </summary>
+        public void SetIndexError()
+        {
+            index = IndexID_ErrorHappen;
+        }
+
+        /// <summary>
+        /// Called when the rendertarget is capturing
+        /// Require spritebatch to Begin and End
+        /// </summary>
+        /// <param name="target">The render target used</param>
+        public virtual void DrawCapture(SpriteBatch spriteBatch , GraphicsDevice graphics ,TargetInstance target)
+        {
+
+        }
+
+        /// <summary>
+        /// Draw the captured target
+        /// Requires begin and end
+        /// </summary>
+        /// <param name="target"></param>
+        public virtual void DrawTarget(SpriteBatch spriteBatch ,ref TargetInstance target)
+        {
+
+        }
+
+        public virtual void GetAvailableTarget_Pre()
+        {
+            
+        }
+
+        /// <summary>
+        /// Should this DrawRT be Captured then Drawed properly
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool ShouldCapture()
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Get available targets to the DrawRT
+        /// </summary>
+        /// <param name="targets">Pool of Target Instance</param>
+        /// <returns>returns true if successfully found a target in the array</returns>
+        public virtual bool GetAvailableTarget(TargetInstance[] targets)
+        {
+            // safe code, in case idk
+            if (targets == null)
+            {
+                Gearedup.Log("Targets are all null");
+                return false;
+            }
+            if (targets.Length <= 0)
+            {
+                Gearedup.Log("Targets are empty somehow");
+                return false;
+            }
+
+            GetAvailableTarget_Pre();
+
+            // if (ShitHappens)
+            // {
+            //     Gearedup.Log("Previous draw had null value, reporting as a warn");
+            // }
+
+            SetIndexNone();
+
+            for (int i = 0; i < targets.Length; i++)
+            {
+                // if hasnt created, we create it
+                if (targets[i] == null)
+                {
+                    targets[i] = new TargetInstance();
+                    targets[i].Initialize();
+                    targets[i].SetNewRender();
+                    OnGetTarget(targets[i]);
+                    index = i;
+                    Gearedup.Log("Creating a new TargetInstance " + index);
+                    return true;
+                }
+                // if not active we patch it
+                if (!targets[i].active)
+                {
+                    targets[i].SetNewRender();
+                    OnGetTarget(targets[i]);
+                    index = i;
+                    Gearedup.Log("Using already existing TargetInstance " + index);
+                    return true;
+                }
+            }
+
+            Gearedup.Log("Didnt found available TargetInstance, try reloading or change TargetInstance Max");
+
+            return false;
+        }
+
+        public virtual void OnGetTarget(TargetInstance target)
+        {
+
+        }
+    }
+
+    public class DrawNPCRT : DrawRT
+    {
+        public short dye;
+        public List<NPC> npcs = new List<NPC>();
+
+        public DrawNPCRT(short shader, NPC npc)
+        {
+            dye = shader;
+            npcs = new List<NPC>() { npc };
+        }
+
+        public override void DrawCapture(SpriteBatch spriteBatch, GraphicsDevice graphics, TargetInstance target)
+        {
+            graphics.SetRenderTarget(target.render);
+            graphics.Clear(Color.Transparent);
+
+            // spriteBatch.Begin(default, BlendState.Additive, default, default, default, default);
+            spriteBatch.BeginNormal();
+            foreach (var npc in npcs)
+            {
+                Gearedup.Log("-- Capturing " + npc.FullName);
+                Main.instance.DrawNPC(npc.whoAmI, false);
+            }
+            spriteBatch.End();
+
+            graphics.SetRenderTarget(null);
+        }
+
+        public override void DrawTarget(SpriteBatch spriteBatch, ref TargetInstance target)
+        {
+            if (target == null)
+            {
+                Gearedup.Log("Target instance somehow null, what the fuck mike");
+                target = new TargetInstance();
+                return;
+            }
+
+            if (target.CheckInvalid())
+            {
+                // we create new render and dont draw
+                Gearedup.Log("WHAT THE FUCK");
+                target.SetNewRender();
+                target.active = false;
+                SetIndexError();
+                return;
+            }
+
+            Gearedup.Log("SUCCESFULLY DRAWED SYESYSYSEYESYS");
+
+            spriteBatch.End();
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.EffectMatrix);
+            // spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Main.GameViewMatrix.EffectMatrix);
+            GameShaders.Armor.Apply(dye, null, null);
+            // spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
+            spriteBatch.Draw(target.render, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
+            spriteBatch.End();
+            spriteBatch.BeginNormal();
+        }
+
+        public override void CleanDrawCapture()
+        {
+            npcs.Clear();
+        }
+
+        public override void GetAvailableTarget_Pre()
+        {
+            Gearedup.Log("Preparing npc target for [" + dye + "] with " + npcs.Count + " total");
+        }
+
+        public override bool ShouldCapture()
+        {
+            return npcs != null && npcs.Count > 0;
+        }
+    }
+
+    public class DrawProjRT : DrawRT
+    {
+        public short dye;
+        public List<Projectile> projectiles = new List<Projectile>();
+
+        public DrawProjRT(short shader, Projectile projectile)
+        {
+            dye = shader;
+            projectiles = new List<Projectile>() { projectile };
+        }
+
+        public override void DrawCapture(SpriteBatch spriteBatch, GraphicsDevice graphics, TargetInstance target)
+        {
+            graphics.SetRenderTarget(target.render);
+            graphics.Clear(Color.Transparent);
+
+            // spriteBatch.Begin(default, BlendState.Additive, default, default, default, default);
+            spriteBatch.BeginNormal();
+            foreach (var proj in projectiles)
+            {
+                Gearedup.Log("-- Capturing " + proj.Name);
+                Main.instance.DrawProj(proj.whoAmI);
+            }
+            spriteBatch.End();
+
+            graphics.SetRenderTarget(null);
+        }
+
+        public override void DrawTarget(SpriteBatch spriteBatch, ref TargetInstance target)
+        {
+            if (target == null)
+            {
+                Gearedup.Log("Target instance somehow null, what the fuck mike");
+                target = new TargetInstance();
+                return;
+            }
+
+            if (target.CheckInvalid())
+            {
+                // we create new render and dont draw
+                Gearedup.Log("WHAT THE FUCK");
+                target.SetNewRender();
+                target.active = false;
+                SetIndexError();
+                return;
+            }
+
+            Gearedup.Log("SUCCESFULLY DRAWED SYESYSYSEYESYS");
+
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Main.GameViewMatrix.EffectMatrix);
+            // spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Main.GameViewMatrix.EffectMatrix);
+            GameShaders.Armor.Apply(dye, null, null);
+            // spriteBatch.BeginDyeShader(item.Key, Main.LocalPlayer,false,false);
+            spriteBatch.Draw(target.render, new Rectangle(0, 0, Main.screenWidth, Main.screenHeight), Color.White);
+            spriteBatch.End();
+        }
+
+        public override void CleanDrawCapture()
+        {
+            projectiles.Clear();
+        }
+
+        public override void GetAvailableTarget_Pre()
+        {
+            Gearedup.Log("Preparing projectile target for [" + dye + "] with " + projectiles.Count + " total");
+        }
+
+        public override bool ShouldCapture()
+        {
+            return projectiles != null && projectiles.Count > 0;
+        }
+    }
+
+    public class RenderManager : ModSystem
+    {
+        public static RenderManager Get => ModContent.GetInstance<RenderManager>();
+
+        public override void Load()
+        {
+            Load_DrawTargets();
+
+            Terraria.On_Main.CheckMonoliths += DrawToTarget;
+            Terraria.On_Main.DrawProjectiles += DrawProjectilesPatch;
+            Terraria.On_Main.DrawNPCs += DrawNPCsPatch;
+        }
+
+        private void DrawNPCsPatch(On_Main.orig_DrawNPCs orig, Main self, bool behindTiles)
+        {
+            orig(self, behindTiles);
+            TryDraw(Main.spriteBatch, drawTargetsNPCs);
+        }
+
+        private void DrawProjectilesPatch(On_Main.orig_DrawProjectiles orig, Main self)
+        {
+            orig(self);
+            TryDraw(Main.spriteBatch, drawTargetsProj);
+
+            // try
+            // {
+            //     TryDraw(Main.spriteBatch, drawTargetsProj);
+            // }
+            // catch (System.Exception excp)
+            // {
+            //     Gearedup.Log(excp);
+            //     Gearedup.Log("KILL YOURSELF");
+            // }
+        }
+
+        private void DrawToTarget(On_Main.orig_CheckMonoliths orig)
+        {
+            orig();
+
+            if (Main.gameMenu) return;
+
+            Capture();
+        }
+
+        public override void Unload()
+        {
+            Unload_DrawTargets();
+        }
+
+        public override void OnWorldLoad()
+        {
+            Load_DrawTargets();
+        }
+
+        public override void OnWorldUnload()
+        {
+            DisposeAll();
+            Load_DrawTargets();
+        }
+
+
+        /// <summary>
+        /// Some projectile have custom draw, ignoring projectile dye pass.
+        /// For that we need to redraw it using rendertarget
+        /// </summary>
+        /// <param name="projectile">Projectile</param>
+        /// <returns></returns>
+        public static bool IsCustomDrawed(Projectile projectile)
+        {
+            if (GearClientConfig.Get.DyeRenderTargetsAll) return true;
+            if (GearClientConfig.Get.DyeRenderTargetsModded && projectile.ModProjectile != null) return true;
+            if (GearClientConfig.Get.DyeRenderTargetProjectileList.Count > 0)
+            {
+                foreach (var item in GearClientConfig.Get.DyeRenderTargetProjectileList)
+                {
+                    if (item.Type == projectile.type)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Is render capturing spritebatch calls. 
+        /// used to hide redrawed entities, improve performance and looks
+        /// </summary>
+        public bool isCapturing = false;
+
+        /// <summary>
+        /// The instances of rendertarget2d compiled in 1 array
+        /// Used by all other DrawRT Objects using DrawRT.index 
+        /// </summary>
+        public TargetInstance[] targets;
+
+        /// <summary>
+        /// Max Render Target in the screen, around 300 sounds fine tbh 
+        /// </summary>
+        public const short MaxTargets = 300;
+
+        public List<DrawRT> drawTargetsProj;
+        public List<DrawRT> drawTargetsNPCs;
+
+
+        /// <summary>
+        /// Load important properties
+        /// </summary>
+        public void Load_DrawTargets()
+        {
+            targets = new TargetInstance[MaxTargets];
+
+            drawTargetsProj = new List<DrawRT>();
+            drawTargetsNPCs = new List<DrawRT>();
+
+            // idk why idk why
+            for (int i = 0; i < targets.Length; i++)
+            {
+                targets[i] = new TargetInstance();
+                targets[i].Initialize();
+            }
+        }
+        
+        /// <summary>
+        /// Unload properties during total mod unload
+        /// </summary>
+        public void Unload_DrawTargets()
+        {
+            // DisposeAll();
+            targets = null;
+            drawTargetsProj = null;
+            drawTargetsNPCs = null;
+        }
+        
+        /// <summary>
+        /// Create a new target for dyed projectiles
+        /// </summary>
+        /// <param name="dye">The Shader ID</param>
+        /// <param name="projectile">The projectile to be added, must be active</param>
+        public void AddTarget_Proj(short dye, Projectile projectile)
+        {
+            // if some shit happen
+            if (projectile == null || !projectile.active) return;
+
+            // if drawTargetsProj has no shit, we just make one
+            if (drawTargetsProj.Count <= 0)
+            {
+                Gearedup.Log("Registering proj  " + projectile.Name + ", as new instance");
+                drawTargetsProj.Add(new DrawProjRT(dye, projectile));
+                return;
+            }
+
+            // adds a new draw target
+            foreach (DrawProjRT item in drawTargetsProj)
+            {
+                if (item == null) continue;
+                if (item.dye == dye)
+                {
+                    if (item.projectiles == null)
+                    {
+                        item.projectiles = new List<Projectile>();
+                    }
+                    Gearedup.Log("Registering proj " + projectile.Name + "");
+                    item.projectiles.Add(projectile);
+                    return;
+                }
+            }
+
+            Gearedup.Log("Registering proj " + projectile.Name + " as a new drawrt");
+            // if there is no matching draw targets, we make one
+            drawTargetsProj.Add(new DrawProjRT(dye, projectile));
+        }
+
+        public void AddTarget_NPC(short dye, NPC npc)
+        {
+            // if some shit happen
+            if (npc == null || !npc.active) return;
+
+            // if drawTargetsNPCs has no shit, we just make one
+            if (drawTargetsNPCs.Count <= 0)
+            {
+                Gearedup.Log("Registering npc  " + npc.FullName + ", as new instance");
+                drawTargetsNPCs.Add(new DrawNPCRT(dye, npc));
+                return;
+            }
+
+            // adds a new draw target
+            foreach (DrawNPCRT item in drawTargetsNPCs)
+            {
+                if (item == null) continue;
+                if (item.dye == dye)
+                {
+                    if (item.npcs == null)
+                    {
+                        item.npcs = new List<NPC>();
+                    }
+                    Gearedup.Log("Registering npc " + npc.FullName + "");
+                    item.npcs.Add(npc);
+                    return;
+                }
+            }
+
+            Gearedup.Log("Registering npc  " + npc.FullName + " as a new drawrt");
+            // if there is no matching draw targets, we make one
+            drawTargetsNPCs.Add(new DrawNPCRT(dye, npc));
+        }
+
+        /// <summary>
+        /// Dispose all target instance and drawrt
+        /// Called during unloading
+        /// </summary>
+        public void DisposeAll()
+        {
+            if (targets.Length <= 0) return;
+
+            for (int i = 0; i < targets.Length; i++)
+            {
+                if (targets[i] != null)
+                {
+                    targets[i].Dispose();
+                    targets[i] = null;
+                }
+            }
+        }
+
+        public bool TryDraw(SpriteBatch spriteBatch , List<DrawRT> draw)
+        {
+            // dont draw if null
+            if (spriteBatch == null) return false;
+            if (draw == null || draw.Count <= 0) return false;
+
+            foreach (var item in draw)
+            {
+                // only draw valid index
+                if (item.Valid)
+                {
+                    if (item.index >= targets.Length)
+                    {
+                        Gearedup.Log("what the fuck");
+                        return false;
+                    }
+
+                    item.DrawTarget(spriteBatch, ref targets[item.index]);
+                    item.CleanDrawCapture();
+                    targets[item.index].active = false;
+                    item.SetIndexNone();
+                }
+            }
+            return true;
+        }
+
+        // Try drawing as much as possible without stopping
+        public bool TryDrawSpecial(SpriteBatch spriteBatch , List<DrawRT> draw)
+        {
+            // dont draw if null
+            if (spriteBatch == null) return false;
+            if (draw == null || draw.Count <= 0) return false;
+
+            foreach (var item in draw)
+            {
+                // only draw valid index
+                if (item.Valid)
+                {
+                    if (item.index >= targets.Length)
+                    {
+                        Gearedup.Log("what the fuck");
+                        return false;
+                    }
+                    // keep draw without resetting shit
+                    item.DrawTarget(spriteBatch, ref targets[item.index]);
+                }
+            }
+            return true;
+        }
+
+        public void Capture_Inner(SpriteBatch spriteBatch,GraphicsDevice graphics)
+        {
+            // ResetSpecialDraw(drawTargetsNPCs);
+            Capture_DrawRT(spriteBatch, graphics, drawTargetsProj);
+            Capture_DrawRT(spriteBatch, graphics, drawTargetsNPCs);
+        }
+
+        public void ResetSpecialDraw(List<DrawRT> draws)
+        {
+            if (draws == null || draws.Count <= 0) return;
+            foreach (var item in draws)
+            {
+                if (item != null && item.Valid)
+                {
+                    item.CleanDrawCapture();
+                    if (targets[item.index] != null)
+                    {
+                        targets[item.index].active = false;
+                    }
+                    item.SetIndexNone();
+                }
+            }
+        }
+
+        public void Capture()
+        {
+            // Check graphic device
+            GraphicsDevice graphics = Main.graphics.GraphicsDevice;
+            SpriteBatch spriteBatch = Main.spriteBatch;
+            if (graphics == null || spriteBatch == null) return;
+            if (targets == null)
+            {
+                Gearedup.Log("Ok how the fuck bro");
+                Load_DrawTargets();
+                return;
+            }
+
+            // Prepare targets
+
+            // Gearedup.Log("Preparing render targets");
+
+            if (!Capture_PrepareTargets()) return;
+
+            isCapturing = true;
+
+            // Gearedup.Log("Capturing targets");
+            // capture our draw targets
+            Capture_Inner(spriteBatch,graphics);
+
+            isCapturing = false;
+
+            // Gearedup.Log("Try disposing");
+            // After done draw capturing , we update unactive targetinstance
+            foreach (var item in targets)
+            {
+                if (item != null && item.render != null)
+                {
+                    // Gearedup.Log("-- Updating dispose of a render");
+                    item.UpdateDispose();
+                }
+            }
+        }
+
+        /// <summary>say no
+        /// Prepare targets, if targets somehow didnt initialize we 
+        /// </summary>
+        /// <returns></returns>
+        public bool Capture_PrepareTargets()
+        {
+            // try reloading properties
+            if (targets == null || targets.Length <= 0)
+            {
+                Gearedup.Log("TargetInstance array are null, reloading properties");
+                Load_DrawTargets();
+                return false;
+            }
+            else if (drawTargetsNPCs == null || drawTargetsProj == null)
+            {
+                Gearedup.Log("DrawTargetEntities are somehow null, what the fuck. reloading properties");
+                Load_DrawTargets();
+                return false;
+            }
+            return true;
+        }
+        
+        /// <summary>
+        /// Capture spritebatch draw
+        /// </summary>
+        /// <param name="spriteBatch">The spritebatch used</param>
+        /// <param name="graphics">The user graphic device</param>
+        /// <param name="drawRender">List of DrawRT to be drawed</param>
+        public void Capture_DrawRT(SpriteBatch spriteBatch, GraphicsDevice graphics, List<DrawRT> drawRender)
+        {
+            if (drawRender.Count <= 0) return;
+            foreach (var item in drawRender) // <-- FIX: LOOP OVER THE PARAMETER
+            {
+                if (item.ShouldCapture() && item.GetAvailableTarget(targets)) // Also check ShouldCapture
+                {
+                    item.DrawCapture(spriteBatch, graphics, targets[item.index]);
+                }
+            }
+        }
+
+    }
+}

@@ -106,7 +106,8 @@ namespace Gearedup.Helper
                 return true;
             }
 
-            ModContent.GetInstance<Gearedup>().AddError($"Failed to find mod type : {mod}/{name}");
+            Gearedup.Log($"Failed to find mod type : {mod}/{name}",true);
+            // ModContent.GetInstance<Gearedup>().AddError($"Failed to find mod type : {mod}/{name}");
 
             // We do this our own
             // ModContent.GetInstance<Gearedup>().Logger.Error($"Failed to find mod type: {mod}.{name}");
@@ -133,7 +134,7 @@ namespace Gearedup.Helper
                 return true;
             }
 
-            ModContent.GetInstance<Gearedup>().AddError($"Failed to find mod type : {mod}/{name}");
+            Gearedup.Log($"Failed to find mod type : {mod}/{name}",true);
             return false;
         }
 
@@ -156,8 +157,9 @@ namespace Gearedup.Helper
                 id = modEntity.Type;
                 return true;
             }
-            
-            ModContent.GetInstance<Gearedup>().AddError($"Failed to find mod type : {mod}/{name}");
+
+            Gearedup.Log($"Failed to find mod type : {mod}/{name}",true);
+            // ModContent.GetInstance<Gearedup>().AddError($"Failed to find mod type : {mod}/{name}");
             return false;
         }
 

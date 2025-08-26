@@ -11,6 +11,8 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.UI.Chat;
+using static Terraria.NPC;
 
 namespace Gearedup.Content.Items
 {
@@ -106,16 +108,19 @@ namespace Gearedup.Content.Items
 
             var npc = NPC.NewNPCDirect(Projectile.GetSource_ReleaseEntity("Suprise matafaka"),(int)Projectile.Center.X,(int)Projectile.Center.Y,(int)Projectile.ai[2]);
 
-            // Reduce Stats
+            // Reduce Stats by 50%
             npc.SpawnedFromStatue = true; // no loot
             ReduceStats(ref npc.lifeMax,0.5f);
             ReduceStats(ref npc.life,0.5f);
-            ReduceStats(ref npc.defense,0.5f,0);
-            ReduceStats(ref npc.damage,0.5f);
+            // ReduceStats(ref npc.damage,0.5f);
+            npc.defense = Math.Min(5, npc.defense/2); // almost zero out defense
+            npc.boss = false;
+
+            // npc.friendly = true; // npc will be friendly but able to take damage
 
             // uhhh
             if (npc.type == NPCID.Vampire || npc.type == NPCID.VampireBat)
-            SoundEngine.PlaySound(new SoundStyle("Gearedup/Sound/jonathanbanging"),Projectile.Center);
+                SoundEngine.PlaySound(new SoundStyle("Gearedup/Sound/jonathanbanging"), Projectile.Center);
 
             if (GearServerConfig.Get.AllowDeveloGun_Brainwash && npc.TryGetGlobalNPC<BrainWashedNPC>(out var braining))
             {
@@ -126,7 +131,7 @@ namespace Gearedup.Content.Items
         void ReduceStats(ref int stats, float value, int max = 1)
         {
             // its either 1 or whatever
-            stats = Math.Max((int)((float)stats * 0.1f),max);
+            stats = Math.Max((int)((float)stats * value),max);
         }
     }
 
@@ -173,11 +178,47 @@ namespace Gearedup.Content.Items
             return GearServerConfig.Get.AllowDeveloGun_Brainwash;
         }
 
+        public static Vector2 resetPlayerPos;
+
         public override bool PreAI(NPC npc)
         {
             if (ownedBy != -1)
             {
-                Main.player[ownedBy].npcTypeNoAggro[npc.type] = true;
+
+                if (Main.player[ownedBy].TryGetModPlayer<GearPlayer>(out GearPlayer gr))
+                {
+                    gr.haveCultFollowing = true;
+                }
+
+                resetPlayerPos = Main.player[ownedBy].Center;
+
+                float distance = 0f;
+                int index = -1;
+
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    NPC target = Main.npc[i];
+                    float newDist = target.Distance(Main.player[ownedBy].Center);
+                    bool maiEnemi = true;
+                    if (target.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC brainWashed))
+                    {
+                        if (brainWashed.ownedBy == ownedBy)
+                        {
+                            maiEnemi = false;
+                        }
+                    }
+                    if (i != npc.whoAmI && maiEnemi && target.active && target.CanBeChasedBy(npc) && newDist < 2000f && ((newDist < distance) || index == -1))
+                    {
+                        index = i;
+                        distance = newDist;
+                    }
+                }
+
+                if (index != -1)
+                {
+                    Dust.NewDust(Main.npc[index].Center, 10, 10, DustID.BatScepter);
+                    Main.player[ownedBy].Center = Main.npc[index].Center;
+                }
             }
             return base.PreAI(npc);
         }
@@ -186,7 +227,17 @@ namespace Gearedup.Content.Items
         {
             if (ownedBy != -1)
             {
-                Main.player[ownedBy].npcTypeNoAggro[npc.type] = false;
+                Main.player[ownedBy].Center = resetPlayerPos;
+                // no fucked up defense value
+                npc.defense = Math.Min(5, npc.defense);
+            }
+        }
+
+        public override void AI(NPC npc)
+        {
+            if (ownedBy != -1)
+            {
+                AttackOther(npc);
             }
         }
 
@@ -194,11 +245,14 @@ namespace Gearedup.Content.Items
         {
             if (ownedBy != -1 && Main.myPlayer == ownedBy)
             {
-                var size = Helpme.MeasureString("Team");
+                // Friendly
+                string text = "Friendly " + npc.FullName;
+                var size = Helpme.MeasureString(text);
 
-                Terraria.UI.Chat.ChatManager.DrawColorCodedString(spriteBatch,
+                ChatManager.DrawColorCodedStringWithShadow(spriteBatch,
                 FontAssets.MouseText.Value,
-                "Team", npc.Center - Main.screenPosition,
+                text,
+                npc.Top - Main.screenPosition + new Vector2(0, (float)(Math.Sin(Main.GameUpdateCount * 0.1) * 0.1)),
                 Color.LightGreen, 0f, size / 2f, Vector2.One);
             }
         }
@@ -211,6 +265,134 @@ namespace Gearedup.Content.Items
                 return target.whoAmI != ownedBy;
             }
             return base.CanHitPlayer(npc, target, ref cooldownSlot);
+        }
+
+        public void AttackOther(NPC npc)
+        {
+            int specialHitSetter = 1;
+            float damageMultiplier = 1f;
+            Rectangle hitbox = npc.Hitbox;
+
+            for (int i = 0; i < 200; i++)
+            {
+                NPC target = Main.npc[i];
+                bool maiEnemi = true;
+                if (i != npc.whoAmI && target.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC br))
+                {
+                    if (br.ownedBy == ownedBy)
+                    {
+                        maiEnemi = false;
+                    }
+                }
+                if (i != npc.whoAmI && maiEnemi && target.active && (!target.friendly || NPCID.Sets.TakesDamageFromHostilesWithoutBeingFriendly[target.type]))
+                {
+                    Rectangle targetRect = target.Hitbox;
+                    NPC.GetMeleeCollisionData(hitbox, i, ref specialHitSetter, ref damageMultiplier, ref targetRect);
+
+                    if (hitbox.Intersects(targetRect))
+                    {
+                        if (target.immune[255] <= 0) { BeHurtByOtherNPC(target, npc); }
+                        if (target.damage > 0 && npc.immune[255] <= 0) { BeHurtByOtherNPC(npc, target); }
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void BeHurtByOtherNPC(NPC self, NPC thatNPC)
+        {
+            int num = 30;
+            if (self.type == NPCID.DD2EterniaCrystal)
+            {
+                num = 20;
+            }
+            int num3 = 6;
+            int num4 = ((!(thatNPC.Center.X > self.Center.X)) ? 1 : (-1));
+            HitModifiers modifiers = self.GetIncomingStrikeModifiers(DamageClass.Default, num4);
+            NPCLoader.ModifyHitNPC(thatNPC, self, ref modifiers);
+            HitInfo strike = modifiers.ToHitInfo(thatNPC.damage, crit: false, num3, damageVariation: true);
+            double num5 = self.StrikeNPC(strike, fromNet: false, noPlayerInteraction: true);
+
+            if (Main.netMode != NetmodeID.SinglePlayer)
+            {
+                NetMessage.SendStrikeNPC(self, in strike);
+            }
+
+            self.netUpdate = true;
+            self.immune[255] = num;
+            NPCLoader.OnHitNPC(thatNPC, self, in strike);
+            int num2 = strike.SourceDamage;
+            if (self.dryadWard)
+            {
+                num2 = (int)num5 / 3;
+                num3 = 6;
+                num4 *= -1;
+                thatNPC.SimpleStrikeNPC(num2, num4, false, num3);
+                // thatNPC.StrikeNPCNoInteraction(num2, num3, num4);
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                {
+                    NetMessage.SendData(MessageID.DamageNPC, -1, -1, null, thatNPC.whoAmI, num2, num3, num4);
+                }
+                thatNPC.netUpdate = true;
+                thatNPC.immune[255] = num;
+            }
+            if (NPCID.Sets.HurtingBees[thatNPC.type])
+            {
+                num2 = self.damage;
+                num3 = 6;
+                num4 *= -1;
+
+                thatNPC.SimpleStrikeNPC(num2, num4, false, num3);
+
+                if (Main.netMode != NetmodeID.SinglePlayer)
+                {
+                    NetMessage.SendData(MessageID.DamageNPC, -1, -1, null, thatNPC.whoAmI, num2, num3, num4);
+                }
+                thatNPC.netUpdate = true;
+                thatNPC.immune[255] = num;
+            }
+        }
+
+        public override bool? CanBeHitByItem(NPC npc, Player player, Item item)
+        {
+            if (ownedBy != -1 && player.whoAmI == ownedBy)
+            {
+                return false;
+            }
+            return null;
+        }
+
+        public override bool? CanBeHitByProjectile(NPC npc, Projectile projectile)
+        {
+            if (ownedBy != -1)
+            {
+                // can be hit by anyother projectile except owner projectile
+                if (projectile.owner == ownedBy) { return false; }
+                return true;
+            }
+            return null;
+        }
+
+
+        public override void OnSpawn(NPC npc, IEntitySource source)
+        {
+            // brainwash each other yeah
+            if (source is EntitySource_Parent entitySource)
+            {
+                if (entitySource.Entity is NPC parent)
+                {
+                    if (parent.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC br))
+                    {
+                        if (br.ownedBy != -1)
+                        {
+                            if (npc.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC npcBr))
+                            {
+                                npcBr.ownedBy = br.ownedBy;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

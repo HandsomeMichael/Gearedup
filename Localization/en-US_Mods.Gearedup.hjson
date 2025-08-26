@@ -49,8 +49,10 @@ Items: {
 		DisplayName: Staff of Deitic
 		Tooltip:
 			'''
-			Shoots a regular petal that deals lunarian damage
-			Right - click to spawn catched npcs
+			Summons a deitic staff that points to nearby enemy
+			Right-Click to summon catched npc that follow it
+			Summoned npc might still prey other player
+			There can only be one deitic staff to control all
 			'''
 		Brainwash: "Spawned npcs will "
 	}
@@ -64,13 +66,24 @@ Items: {
 			'''
 		CatchNPC: Can catch most npcs
 		CatchNoBoss: Bosses are immune to this net
-		CatchNoBossProj: Bosses and its projectile are immune to this net
-		ModeBoth: "[ Catch Mode : NPC Only ]"
+		ModeProj: "[ Priority Mode : [i:40] Projectile Only ]"
+		ModeBoth: "[ Priority Mode : [i:43] NPC & [i:40] Projectile ]"
+		ModeNPC: "[ Priority Mode : [i:43] NPC Only ]"
 		TooltipReal:
 			'''
 			Right - click to do a fullspin ( grant immune frame )
-			Right - click in the inventory to change mode
+			Right - click in the inventory to change catch priority
 			'Gotta catch em all'
+			'''
+		TooltipHalf:
+			'''
+			Right - click to do a fullspin ( grant immune frame )
+			'Gotta catch em all'
+			'''
+		Useless:
+			'''
+			This item is useless because most of the feature is disabled
+			Go to the server config to change this bit 
 			'''
 		Tooltip: ""
 	}
@@ -151,7 +164,13 @@ Items: {
 
 	BucketOfCatPiss: {
 		DisplayName: Bucket Of Cat Piss
-		Tooltip: Its a filled bucket
+		Tooltip:
+			'''
+			Any ranged projectile have a chance to apply ichor or cursed flames
+			Increased ranged damage by 5% on debuffed enemies
+			Increased ranged damage by 10%
+			'most profound equipment'
+			'''
 	}
 
 	PhasingDevice: {
@@ -159,6 +178,16 @@ Items: {
 		Tooltip:
 			'''
 			Allow player to fall faster throught platform
+			Works in player inventory only
+			'''
+	}
+
+	LunarPhasingDevice: {
+		DisplayName: Lunarian Phasing Device
+		Tooltip:
+			'''
+			Allow player to fall even faster throught platform
+			Reset wing time during the fall
 			Works in player inventory only
 			'''
 	}
@@ -200,6 +229,30 @@ Items: {
 	DyeSprayer: {
 		DisplayName: Dye Sprayer
 		Tooltip: ""
+	}
+
+	LootOrb: {
+		DisplayName: Loot Orb
+		Tooltip:
+			'''
+			Enemy have low chance to spawn with better stat and loot
+			Boss bag will drop its entire content or more item
+			Works in inventory and vanity slot
+			'''
+	}
+
+	DevEyes: {
+		DisplayName: Dev Eyes
+		Tooltip: ""
+	}
+
+	// Cal items
+	
+	BrimstoneParasyte: {
+		DisplayName: Brimstone Parasyte
+		Tooltip: Increased damage by 14%
+		TooltipSingle: Taking damage above 90 will reduce potion cooldown by 1 second
+		TooltipMultiplayer: Share 30% damage taken to nearby healthy friends
 	}
 }
 
@@ -254,7 +307,12 @@ Stat: {
 Configs: {
 	GearClientConfig: {
 		DisplayName: Gear Client Config
-		Headers.GearDye: Gear Dye Header
+
+		Headers: {
+			GearDye: Gear Dye Header
+			Optifine: Optifine Header
+			Debug: Debug Header
+		}
 
 		DyeProjectileDust: {
 			Label: Dye Projectile Dust
@@ -308,6 +366,46 @@ Configs: {
 
 		DyeRenderTargetsToggle: {
 			Label: Dye Render Targets Toggle
+			Tooltip: ""
+		}
+
+		DyeRenderTargetProjectileList: {
+			Label: Dye Render Target Projectile List
+			Tooltip: ""
+		}
+
+		Opti_DisableRenderTargetBullshit: {
+			Label: Opti_ Disable Render Target Bullshit
+			Tooltip: ""
+		}
+
+		Opti_DisableSomeShaderShit: {
+			Label: Opti_ Disable Some Shader Shit
+			Tooltip: ""
+		}
+
+		Opti_ShowOwnCombatTextOnly: {
+			Label: Opti_ Show Own Combat Text Only
+			Tooltip: ""
+		}
+
+		Opti_ShowOwnProjectileOnly: {
+			Label: Opti_ Show Own Projectile Only
+			Tooltip: ""
+		}
+
+		Opti_ReduceCombatText: {
+			Label: Opti_ Reduce Combat Text
+			Tooltip: ""
+		}
+
+		Opti_ReduceDust: {
+			Label: Opti_ Reduce Dust
+			Tooltip: ""
+		}
+
+		Debug_ItemID: {
+			Label: Debug_ Item I D
 			Tooltip: ""
 		}
 	}
@@ -420,6 +518,11 @@ Configs: {
 		DebugMode: {
 			Label: Debug Mode
 			Tooltip: ""
+		}
+
+		LootOrb_DisobeyCondition: {
+			Tooltip: ""
+			Label: Loot Orb_ Disobey Condition
 		}
 	}
 }

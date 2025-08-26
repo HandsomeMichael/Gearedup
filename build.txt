@@ -1,3 +1,10 @@
 displayName = Customize Weapon Now
 author = Lasthue
-version = 0.1
+version = 0.1.6
+homepage = https://github.com/HandsomeMichael/Gearedup
+hideCode = false
+hideResources = false
+includeSource = true
+buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, Old\*, *csbak
+weakReferences = CalamityMod
+sortAfter = FargowiltasSouls, Fargowiltas, CalamityMod

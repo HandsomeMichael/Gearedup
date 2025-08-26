@@ -53,6 +53,8 @@ namespace Gearedup.Content.Items
             Item.value = 1000;
             Item.consumable = false;
             Item.rare = ItemRarity;
+            
+            if (ItemRarity == ItemRarityID.Expert) { Item.expert = true; }
         }
 
         public override bool ConsumeItem(Player player) => false;

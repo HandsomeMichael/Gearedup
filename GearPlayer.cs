@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Gearedup.Content.Items;
+using Gearedup.Helper;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -13,13 +14,21 @@ namespace Gearedup
     {
         public short universalDye;
         public bool phasingDevice;
+        public bool phasingDeviceLunar;
+        public bool haveCultFollowing;
+        public bool catPissed;
+        public bool getBossBag;
 
         public List<Vector2> platform = new List<Vector2>();
 
         public override void ResetEffects()
         {
             phasingDevice = false;
+            phasingDeviceLunar = false;
             universalDye = 0;
+            haveCultFollowing = false;
+            catPissed = false;
+            getBossBag = false;
         }
 
         // public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
@@ -37,7 +46,7 @@ namespace Gearedup
         // {
         //     packet.Write((byte)lunarDamage);
         // }
-        
+
         // public void ReceivePlayerSync(BinaryReader reader)
         // {
         //     lunarDamage = reader.ReadByte();
@@ -54,6 +63,67 @@ namespace Gearedup
         // 	if (lunarDamage != clone.lunarDamage)
         // 		SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
         // }
+
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (catPissed && proj.DamageType == DamageClass.Ranged)
+            {
+                if (Main.rand.NextBool(5))
+                {
+                    target.AddBuff(BuffID.CursedInferno, hit.Damage * 2);
+                }
+                if (Main.rand.NextBool(6))
+                {
+                    target.AddBuff(BuffID.Ichor, hit.Damage * 2);
+                }
+            }
+        }
+
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (catPissed)
+            {
+                if (proj.DamageType == DamageClass.Ranged &&
+                target.HasAnyBuff(BuffID.CursedInferno, BuffID.Poisoned, BuffID.Venom, BuffID.Confused, BuffID.OnFire, BuffID.Frostburn))
+                {
+                    modifiers.ScalingBonusDamage += 0.05f;
+                }
+            }
+        }
+
+        public override void OnHitByNPC(NPC npc, Player.HurtInfo hurtInfo)
+        {
+            if (haveCultFollowing)
+            {
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    if (Main.npc[i].active && Main.npc[i].TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC br))
+                    {
+                        if (br.ownedBy != -1 && br.ownedBy == Player.whoAmI)
+                        {
+                            Main.npc[i].SimpleStrikeNPC(hurtInfo.Damage, hurtInfo.HitDirection, false, hurtInfo.Knockback);
+                        }
+                    }
+                }
+            }
+        }
+
+        public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo)
+        {
+            if (haveCultFollowing)
+            {
+                for (int i = 0; i < Main.maxNPCs; i++)
+                {
+                    if (Main.npc[i].active && Main.npc[i].TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC br))
+                    {
+                        if (br.ownedBy != -1 && br.ownedBy == Player.whoAmI)
+                        {
+                            Main.npc[i].SimpleStrikeNPC(hurtInfo.Damage, hurtInfo.HitDirection, false, hurtInfo.Knockback);
+                        }
+                    }
+                }
+            }
+        }
 
         public override void PostUpdateMiscEffects()
         {
@@ -91,6 +161,13 @@ namespace Gearedup
                 Player.waterWalk = false;
                 Player.waterWalk2 = false;
 
+                if (platform.Count > 0 && phasingDeviceLunar)
+                {
+                    Player.wingTime = Player.wingTimeMax; // reset wing time
+                    Player.velocity *= 1.2f; // increase player velocity by 20% during this
+                    Player.endurance += 0.01f; // have slight dr
+                }
+
                 // Legacy way
 
                 // Tile thisTile = Framing.GetTileSafely(Player.Bottom);
@@ -119,7 +196,8 @@ namespace Gearedup
 
         public override void PostUpdate()
         {
-            foreach (var pos in platform) {
+            foreach (var pos in platform)
+            {
                 var tile = Framing.GetTileSafely((int)(pos.X / 16), (int)(pos.Y / 16));
                 tile.IsActuated = false;
             }

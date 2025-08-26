@@ -13,17 +13,18 @@ using Terraria.ModLoader.IO;
 
 namespace Gearedup.Content.Catched
 {
-    public struct NPCStats
-    {
-        public int life;
-        public int damage;
-        public int defense;
-        public float[] ai;
-    }
+    // public struct NPCStats
+    // {
+    //     public int life;
+    //     public int damage;
+    //     public int defense;
+    //     public float[] ai;
+    // }
     public class CatchedNPC : ModItem
     {
         public override string Texture => "Gearedup/Content/Placeholder";
         public TypeID npcType;
+        // public TypeID dyeID;
         public bool notIntended;
 
         public bool IsNotIntended(NPC npc)
@@ -46,12 +47,14 @@ namespace Gearedup.Content.Catched
 
         public override void NetSend(BinaryWriter writer)
         {
+            // dyeID.NetSend(writer);
             npcType.NetSend(writer);
             writer.Write(notIntended);
             writer.Write(Item.value);
         }
         public override void NetReceive(BinaryReader reader)
         {
+            // dyeID.NetReceive(reader);
             npcType.NetReceive(reader);
             notIntended = reader.ReadBoolean();
             Item.value = reader.ReadInt32();
@@ -63,6 +66,7 @@ namespace Gearedup.Content.Catched
         }
         public override void SaveData(TagCompound tag)
         {
+            // dyeID.Save(tag);
             npcType.Save(tag);
 
             tag.Add("value", Item.value);
@@ -70,6 +74,7 @@ namespace Gearedup.Content.Catched
         }
         public override void LoadData(TagCompound tag)
         {
+            // dyeID.Save(tag);
             npcType.Load(tag);
 
             Item.value = tag.GetInt("value");
@@ -86,7 +91,7 @@ namespace Gearedup.Content.Catched
         {
             if (source.ModItem != null && source.ModItem is CatchedNPC target)
             {
-                if (target.npcType.id == npcType.id)
+                if (target.npcType.id == npcType.id )//&& target.dyeID.id == dyeID.id)
                 {
                     return true;
                 }
@@ -102,6 +107,23 @@ namespace Gearedup.Content.Catched
             Item.ammo = ModContent.ItemType<CatchedNPC>();
             Item.notAmmo = true;
         }
+
+        // public override bool? UseItem(Player player)
+        // {
+        //     // player.ApplyItemTime(sItem);
+		// 	// NPC.ReleaseNPC((int)base.Center.X, (int)base.Bottom.Y, sItem.makeNPC, sItem.placeStyle, whoAmI);
+        //     // if (!Main.GamepadDisableCursorItemIcon && player.position.X / 16f - (float)tileRangeX - (float)sItem.tileBoost <= (float)tileTargetX && (position.X + (float)width) / 16f + (float)tileRangeX + (float)sItem.tileBoost - 1f >= (float)tileTargetX && position.Y / 16f - (float)tileRangeY - (float)sItem.tileBoost <= (float)tileTargetY && (position.Y + (float)height) / 16f + (float)tileRangeY + (float)sItem.tileBoost - 2f >= (float)tileTargetY)
+        //     // {
+        //     // 	player.cursorItemIconEnabled = true;
+        //     // 	Main.ItemIconCacheUpdate(sItem.type);
+        //     // }
+        //     // if (player.ItemTimeIsZero && player.itemAnimation > 0 && controlUseItem)
+        //     // {
+        //     // 	ItemCheck_ReleaseCritter(sItem);
+        //     // }
+
+        //     return true;
+        // }
 
         internal static FieldInfo bestiaryKeyField;
 

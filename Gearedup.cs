@@ -28,23 +28,34 @@ namespace Gearedup
 		public Mod calamityMod;
 		public Mod fargoSoul;
 
-		public void AddError(string context)
+		public static void Log(string context, bool error = false)
 		{
+			// dont log anything if debugmode is disabled
+			if (!GearServerConfig.Get.DebugMode) return;
 
+			if (!Main.gameMenu)
+			{
+				Main.NewText(context);
+			}
+
+			if (error)
+			{
+				Get.errors.Add(context);
+				Get.Logger.Info(context);
+			}
 		}
 
 		public override object Call(params object[] args)
 		{
 			switch (args[0])
 			{
-				case "GetErrors":
+				case "GetLogs":
 					return errors;
-				case "Error":
-					errors.Add(args[1].ToString());
-
+				case "Log":
+					Log("[call] "+args[1].ToString());
 					break;
 				case "NotSupported":
-					throw new Exception("This mod is not supported using one of your mods, please remove this shit bruh");
+					throw new Exception("This mod is not supported using "+args[1]+", please disable "+DisplayNameClean+" for the time being");
 				default:
 					errors.Add($"Unknown call: {args[0]}");
 					break;
@@ -55,6 +66,7 @@ namespace Gearedup
 		public override void Load()
 		{
 			errors = new List<string>();
+			
 			On_ItemSlot.DrawItemIcon += ItemSlot_DrawItemIcon;
 			Terraria.On_Item.NewItem_Inner += Item_NewItem_Inner;
 			Terraria.On_Main.GetProjectileDesiredShader += ShaderPatch;
@@ -69,11 +81,18 @@ namespace Gearedup
 			// thoriumMod = ModLoader.GetMod("ThoriumMod"); 
 		}
 
+		public override void PostSetupContent()
+		{
+			// calamityMod = LoadMod("CalamityMod", "Recipes, npcs , projectiles patches");
+			// fargoSoul = LoadMod("Fargowiltasoul", "Recipes patches i guess idk");
+            // base.PostSetupContent();
+		}
+
 		public Mod LoadMod(string name, string fuck)
 		{
 			if (ModLoader.TryGetMod(name, out Mod res))
 			{
-				Logger.Info("Adding crossmod shit to "+name+" for "+fuck);
+				Logger.Info("Adding crossmod shit to " + name + " for " + fuck);
 				return res;
 			}
 			return null;
@@ -112,6 +131,16 @@ namespace Gearedup
 					if (GearItem.CanGeared(item))
 					{
 						// scale += (float)(Math.Sin(Main.GameUpdateCount * 0.1) * 0.1);
+						return orig(item, context, spriteBatch, screenPositionForItemCenter,
+						scale + (float)(Math.Sin(Main.GameUpdateCount * 0.1) * 0.1),
+						sizeLimit,
+						environmentColor);
+					}
+				}
+				else if (GearItem.CanGeared(Main.mouseItem) || Main.mouseItem.type == ModContent.GetInstance<UniversalDyer>().Type)
+				{
+					if (item.dye > 0 && item.type != ModContent.GetInstance<UniversalDyer>().Type)
+					{
 						return orig(item, context, spriteBatch, screenPositionForItemCenter,
 						scale + (float)(Math.Sin(Main.GameUpdateCount * 0.1) * 0.1),
 						sizeLimit,
@@ -169,7 +198,7 @@ namespace Gearedup
 					int shader = GameShaders.Armor.GetShaderIdFromItemId(dyeID);
 					if (shader <= 0)
 					{
-						Main.NewText("Error, shader is zero");
+						Log("[drawlayer helditem] shader is zero for "+heldItem.Name, true);
 						return;
 					}
 
@@ -216,7 +245,7 @@ namespace Gearedup
 						{
 							globalProj.useRenderTarget = true;
 						}
-						else if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
+						else if (RenderManager.IsCustomDrawed(Main.projectile[hasil]))
 						{
 							globalProj.useRenderTarget = true;
 						}
@@ -253,7 +282,7 @@ namespace Gearedup
 						{
 							GearProjectile.dye = parentDyedProjectile.dye;
 							// if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
-							if (parentDyedProjectile.ShouldRenderTarget())
+							if (parentDyedProjectile.ShouldRenderTarget(projSource))
 							{
 								GearProjectile.useRenderTarget = true;
 							}
@@ -280,7 +309,7 @@ namespace Gearedup
 						if (gearNPCs.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
 						{
 							globalProj.dye = gearNPCs.dye;
-							if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
+							if (RenderManager.IsCustomDrawed(Main.projectile[hasil]))
 							{
 								globalProj.useRenderTarget = true;
 							}
@@ -303,10 +332,11 @@ namespace Gearedup
 			//         }
 			//     }
 			// }
+
 			if (proj.active && proj.TryGetGlobalProjectile<GearProjectile>(out GearProjectile dyedProjectile))
 			{
 				// Dont use shader again if it tried to use render target methods
-				if (dyedProjectile.dye > 0 && !dyedProjectile.ShouldRenderTarget())
+				if (dyedProjectile.dye > 0 && !dyedProjectile.ShouldRenderTarget(proj))
 				{
 					return dyedProjectile.dye;
 				}
@@ -315,19 +345,18 @@ namespace Gearedup
 		}
 	
 	}
-	
-	/// <summary>
-	/// Think about worse coding implementation and this problaby it bruh
-	/// </summary>
+
+
 	public class SlimShady : ModSystem
 	{
 
 		public override void OnWorldLoad()
 		{
 			var errors = (List<string>)Mod.Call("GetErrors");
+
 			if (errors != null && errors.Count > 0)
 			{
-				Main.NewText($"There is {errors.Count} errors found during loading, check the log for more details.", Color.Red);
+				Main.NewText($"Found {errors.Count} registered logs. skibidi toilet haktuah", Color.LightPink);
 			}
 		}
 
@@ -339,6 +368,7 @@ namespace Gearedup
 				{
 					ItemSlot.DrawItemIcon(Main.HoverItem, 1, spriteBatch, new Vector2(Main.mouseX, Main.mouseY), 2f, 1f, Color.White);
 				}
+
 				// else if (GearItem.CanGeared(Main.HoverItem) && Main.mouseItem.ModItem is GearPerk)
 				// {
 

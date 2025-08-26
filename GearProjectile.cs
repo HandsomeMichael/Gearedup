@@ -9,28 +9,27 @@ namespace Gearedup
         public short dye;
         public bool useRenderTarget;
 
+        public override bool InstancePerEntity => true;
+
         // public static bool ShouldRenderTarget(Projectile projectile, GearProjectile gearProjectile)
         // {
         //     return gearProjectile.useRenderTarget;
         // }
 
-        public bool ShouldRenderTarget()
+        public bool ShouldRenderTarget(Projectile projectile)
         {
             // If no other possible render target spawn then we just despawn them
-            if (!GearClientConfig.Get.DyeRenderTargetsModded &&
-            (GearClientConfig.Get.DyeRenderTargetItemsList == null || GearClientConfig.Get.DyeRenderTargetItemsList.Count <= 0))
-            {
-                return false;
-            }
+            // if (!GearClientConfig.Get.DyeRenderTargetsModded && (GearClientConfig.Get.DyeRenderTargetItemsList == null || GearClientConfig.Get.DyeRenderTargetItemsList.Count <= 0))
+            // {
+            //     return false;
+            // }
             return useRenderTarget;
         }
-        
-        public override bool InstancePerEntity => true;
 
         public override void PostAI(Projectile projectile)
         {
             // very safe shit
-            if (projectile.owner != 255 && projectile.TryGetOwner(out Player owner))
+            if (projectile.owner != 255 && projectile.friendly && projectile.TryGetOwner(out Player owner))
             {
                 if (owner.TryGetModPlayer<GearPlayer>(out GearPlayer gearPlayer)) 
                 {
@@ -41,9 +40,9 @@ namespace Gearedup
                 }
             }
 
-            if (dye > 0 && ShouldRenderTarget() && !Main.dedServ)
+            if (dye > 0 && ShouldRenderTarget(projectile) && !Main.dedServ)
             {
-                DyeRenderer.AddRender(projectile, dye);
+                RenderManager.Get.AddTarget_Proj(dye,projectile);
             }
 
         }
@@ -63,12 +62,10 @@ namespace Gearedup
 
         public override bool PreDraw(Projectile projectile, ref Color lightColor)
         {
-            if (!DyeRenderer.isRendering)
+            // If redrawen projectile is not capturing, we hid it
+            if (!RenderManager.Get.isCapturing)
             {
-                if (ShouldRenderTarget())
-                {
-                    return false;
-                }
+                if (ShouldRenderTarget(projectile)) { return false; }
             }
             return base.PreDraw(projectile, ref lightColor);
         }

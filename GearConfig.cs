@@ -45,10 +45,6 @@ namespace Gearedup
 		[ReloadRequired]
 		public bool AllowSuperBugNet_Bosses;
 
-		[DefaultValue(false)]
-		[ReloadRequired]
-		public bool AllowSuperBugNet_BossesProjectile;
-
 		[DefaultValue(true)]
 		[ReloadRequired]
 		public bool AllowDeveloGun;
@@ -86,6 +82,12 @@ namespace Gearedup
 		[Header("Debug")]
 		[DefaultValue(false)]
 		public bool DebugMode;
+
+        public override void OnChanged()
+        {
+			// if (GearServerConfig.Get != null)
+			// 	BossBagPatchSystem.UpdateDBPlease();
+        }
 	}
 
 	public class GearClientConfig : ModConfig
@@ -93,8 +95,17 @@ namespace Gearedup
 		public override ConfigScope Mode => ConfigScope.ServerSide;
 		public static GearClientConfig Get => ModContent.GetInstance<GearClientConfig>();
 
-        // save the config , this requires reflection though.
-        public static void SaveConfig() => typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[1] { Get });
+		// save the config , this requires reflection though.
+		// deprecated i think
+		// public static void SaveConfig() => typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[1] { Get });
+
+		[Header("Optifine")]
+		public bool Opti_DisableRenderTargetBullshit;
+		public bool Opti_DisableSomeShaderShit;
+		public bool Opti_ShowOwnCombatTextOnly;
+		public bool Opti_ShowOwnProjectileOnly;
+		public bool Opti_ReduceCombatText;
+		public bool Opti_ReduceDust;
 
 		[Header("GearDye")]
 
@@ -107,10 +118,20 @@ namespace Gearedup
 		[DefaultValue(true)]
 		public bool DyeRenderTargetsToggle;
 
+		// [JsonDefaultListValue("{\"name\": \"GoldBar\"}")]
 		public List<ItemDefinition> DyeRenderTargetItemsList = new List<ItemDefinition>();
+
+		// [JsonDefaultListValue("{\"name\": \"GoldBar\"}")]
+		public List<ProjectileDefinition> DyeRenderTargetProjectileList = new List<ProjectileDefinition>();
+
 		public void AddItemRT(Item item)
 		{
 			DyeRenderTargetItemsList.Add(new ItemDefinition(item.type));
+			SaveChanges();
+		}
+		public void AddProjectileRT(Projectile projectile)
+		{
+			DyeRenderTargetProjectileList.Add(new ProjectileDefinition(projectile.type));
 		}
 		public bool IsItemRT(Item item)
 		{
@@ -130,20 +151,24 @@ namespace Gearedup
 
 
 
-		[DefaultValue(true)] 
+		[DefaultValue(true)]
 		[ReloadRequired]
 		public bool DyeProjectileDust;
-		
-		[DefaultValue(false)] 
+
+		[DefaultValue(false)]
 		public bool DyeItemPlayerShader;
 
-		[DefaultValue(false)] 
+		[DefaultValue(false)]
 		public bool DyeOverlapItemLayer;
 
-		[DefaultValue(true)] 
+		[DefaultValue(true)]
 		public bool DyeItemDyeDye;
 
-		[DefaultValue(true)] 
+		[DefaultValue(true)]
 		public bool DyeItemName;
+
+		[Header("Debug")]
+		[DefaultValue(false)]
+		public bool Debug_ItemID;
 	}
 }

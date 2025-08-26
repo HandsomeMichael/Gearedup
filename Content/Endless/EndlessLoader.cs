@@ -36,7 +36,7 @@ namespace Gearedup.Content.Endless
                         rec.AddIngredient(item.type, Math.Min(item.maxStack, 3996) / 2);
 
                         // Hardmode ammo packs require more stuff
-                        if (item.rare > ItemRarityID.Blue)
+                        if (item.rare > ItemRarityID.Green)
                         {
                             rec.AddIngredient(ModContent.ItemType<WhiteStar>(), 1);
                         }

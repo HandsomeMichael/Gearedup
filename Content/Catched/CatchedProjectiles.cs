@@ -208,7 +208,18 @@ namespace Gearedup.Content.Catched
             // Helpme.DrawInvalid(spriteBatch, Item.Center - Main.screenPosition, rotation);
             return true;
         }
-        
+
+        public static List<int> listToNotDraw;
+
+        public override void Load()
+        {
+            listToNotDraw = new List<int>();
+        }
+
+        public override void Unload()
+        {
+            listToNotDraw = null;
+        }
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             // Check id
@@ -217,31 +228,41 @@ namespace Gearedup.Content.Catched
                 // Check texture
                 Main.instance.LoadProjectile(validID);
                 var proj = ContentSamples.ProjectilesByType[validID];
-                if (proj.ModProjectile != null)
-                {
 
-                    var lightColor = Color.White;
-                    float origScale = proj.scale;
-                    Vector2 origPos = proj.Center;
-                    proj.scale = 0.4f;
-                    proj.Center = position + Main.screenPosition;
-                    if (proj.ModProjectile.PreDraw(ref lightColor))
+                // Try drawing the projectile if possible
+                if (proj.ModProjectile != null && !listToNotDraw.Contains(validID))
+                {
+                    try
                     {
-                        if (!DrawNormally(validID, spriteBatch, position, drawColor))
+                        var lightColor = Color.White;
+                        float origScale = proj.scale;
+                        Vector2 origPos = proj.Center;
+                        proj.scale = 0.4f;
+                        proj.Center = position + Main.screenPosition;
+                        if (proj.ModProjectile.PreDraw(ref lightColor))
                         {
-                            proj.ModProjectile.PostDraw(lightColor);
-                            proj.scale = origScale;
-                            proj.Center = origPos;
+                            if (!DrawNormally(validID, spriteBatch, position, drawColor))
+                            {
+                                proj.ModProjectile.PostDraw(lightColor);
+                                proj.scale = origScale;
+                                proj.Center = origPos;
+                            }
+                            else
+                            {
+                                proj.scale = origScale;
+                                proj.Center = origPos;
+                                return false;
+                            }
                         }
-                        else
-                        {
-                            proj.scale = origScale;
-                            proj.Center = origPos;
-                            return false;
-                        }
+                        proj.scale = origScale;
+                        proj.Center = origPos;
                     }
-                    proj.scale = origScale;
-                    proj.Center = origPos;
+                    // fall back to normal drawing and blacklist it
+                    catch (System.Exception)
+                    {
+                        listToNotDraw.Add(validID);
+                        return DrawNormally(validID, spriteBatch, position, drawColor);
+                    }
                 }
                 else
                 {

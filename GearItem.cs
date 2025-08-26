@@ -17,6 +17,89 @@ using Terraria.ModLoader.IO;
 
 namespace Gearedup
 {
+    // public class ItemStat
+    // {
+    //     public Dictionary<string, int> stats;
+    //     public ushort durability;
+
+    //     public class RollVariety
+    //     {
+    //         public string roll;
+    //         public int minValue;
+    //         public int maxValue;
+    //         public float badMult;
+
+    //         /// <summary>
+    //         /// the higher , the lower the chance
+    //         /// </summary>
+    //         public byte weight;
+
+    //         public RollVariety()
+    //         {
+
+    //         }
+
+    //         public int GetRealValue(bool bad = false)
+    //         {
+    //             if (bad)
+    //             {
+    //                 return (int)(Main.rand.NextFloat(minValue, maxValue) * badMult);    
+    //             }
+    //             return (int)Main.rand.NextFloat(minValue, maxValue);
+    //         }
+    //     }
+
+    //     public RollVariety TryRoll(List<RollVariety> rolls, List<string> rolled)
+    //     {
+    //         // we do weighted roll
+    //         foreach (var item in rolls)
+    //         {
+    //             if (rolled.Contains(item.roll)) continue;
+
+    //             if (Main.rand.NextBool(item.weight))
+    //             {
+    //                 return item;
+    //             }
+    //         }
+    //         // if no shit happen then we randomly roll
+    //         return Main.rand.Next(rolls);
+    //     }
+
+    //     public bool RollStat(Item item, GearItem gi, int context)
+    //     {
+    //         List<string> rolled = new List<string>();
+    //         List<RollVariety> perkList = null;
+
+    //         if (item.DamageType == DamageClass.Melee)
+    //         {
+    //             perkList = new List<RollVariety>()
+    //             {
+    //                 // roll type, regular stats , bad prefix mult
+    //                 new RollVariety("damage",0.1f,1.5f) // bad prefix of this would get 50% more
+    //             };
+    //         }
+
+    //         // no valid perk available
+    //         if (perkList == null) return false;
+
+    //         // Regular Roll
+    //         if (context == 0)
+    //         {
+    //             // roll min and plus
+    //             string plus = Main.rand.Next(perkList);
+    //             perkList.Remove(plus);
+    //             string min = Main.rand.Next(perkList);
+
+    //         }
+
+
+
+    //         // succesfull
+    //         return true;
+
+    //     }
+
+    // }
     public class GearItem : GlobalItem
     {
         public override bool InstancePerEntity => true;
@@ -32,7 +115,7 @@ namespace Gearedup
         public static bool CanGeared(Item item)
         {
             return (item.maxStack == 1 && item.damage > 0 && item.useTime > 0 && item.useAnimation > 0) ||
-            item.type == ModContent.GetInstance<EndlessThrowable>().Type; // endlless throwable can be geared up
+            item.type == ModContent.ItemType<EndlessThrowable>(); // endlless throwable can be geared up
         }
 
         public override bool AppliesToEntity(Item item, bool lateInstantiation) => CanGeared(item);
@@ -72,7 +155,7 @@ namespace Gearedup
             if (hasStats && line.Name.Contains("GearStat_"))
             {
                 line.BaseScale /= 2f;
-                // yOffset += 4;
+                yOffset -= 4;
                 // Utils.DrawInvBG(Main.spriteBatch, new Rectangle(
                 //     line.X,
                 //     line.Y - 2,
@@ -202,11 +285,16 @@ namespace Gearedup
         // this doesnt do shi my gng 💔
         public override void OnCreated(Item item, ItemCreationContext context)
         {
-            // 1% chance of getting perk
+            // 1/100 chance of getting perk
             if (Main.rand.NextBool(100))
             {
-
+                RollPerk();
             }
+        }
+
+        public void RollPerk()
+        {
+            
         }
     }
 

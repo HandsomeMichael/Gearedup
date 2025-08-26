@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Gearedup.Helper;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -17,6 +18,29 @@ namespace Gearedup.Content.Overwrite
         // edit lots of recipe lil boy
         public override void PostAddRecipes()
         {
+            for (int i = 0; i < Recipe.numRecipes; i++)
+            {
+                Recipe recipe = Main.recipe[i];
+
+                if (recipe.TryGetResult(Gearedup.Get.calamityMod.ItemType("GrandGelatin"), out _))
+                {
+                    recipe.RemoveIngredient(ItemID.SoulofLight);
+                    recipe.RemoveIngredient(ItemID.SoulofNight);
+
+                    recipe.AddModIngredient(Gearedup.Get.calamityMod, "PurifiedGel", 15);
+                }
+
+                if (recipe.TryGetResult(Gearedup.Get.calamityMod.ItemType("TracersCelestial"), out _))
+                {
+                    recipe.AddIngredient(ItemID.HellfireTreads);
+                }
+                
+                
+                // All recipes that require wood will now need 100% more
+                // if (recipe.TryGetIngredient(ItemID.Wood, out Item ingredient)) {
+                // 	ingredient.stack *= 2;
+                // }
+            }
             // that jellyfish recipe
             // bloodmoon summon -> blood orb
             // bloodmoon summon requires blood orb , gel and leather
@@ -41,11 +65,12 @@ namespace Gearedup.Content.Overwrite
             {
                 if (Calamity.Version.ToString() == Version)
                 {
+                    Gearedup.Log("{ " + this.FullName + " } Module imported perfectly",true);
                     return true;
                 }
                 else
                 {
-                    Gearedup.Get.AddError("{ " + this.FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version);
+                    Gearedup.Log("{ " + this.FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version,true);
                     return false;
                 }
             }
@@ -53,6 +78,48 @@ namespace Gearedup.Content.Overwrite
             {
                 return false;
             }
+        }
+    }
+
+    public abstract class CalItemPatchMultiple : GlobalItem
+    {
+        public Mod Calamity => Gearedup.Get.calamityMod;
+
+        public override bool AppliesToEntity(Item entity, bool lateInstantiation)
+        {
+            return entity.ModItem != null && entity.ModItem.Mod.Name == "CalamityMod" && ItemName.Contains(entity.ModItem.Name);
+        }
+
+        public virtual string[] ItemName => new string[]{"a"};
+        public virtual string Version => "v2.0.5";
+
+        public override bool IsLoadingEnabled(Mod mod)
+        {
+            if (Calamity != null)
+            {
+                if (Calamity.Version.ToString() == Version)
+                {
+                    Gearedup.Log("{ " + this.FullName + " } Module imported perfectly",true);
+                    return true;
+                }
+                else
+                {
+                    Gearedup.Log("{ " + this.FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version,true);
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    public class CelestialCool : CalItemPatchMultiple
+    {
+        public override void UpdateAccessory(Item item, Player player, bool hideVisual)
+        {
+            player.hellfireTreads = true;
         }
     }
 

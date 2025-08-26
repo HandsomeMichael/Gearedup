@@ -81,12 +81,14 @@ namespace Gearedup.Content.Endless
         {
             if (ammoType.id is int id)
             {
+                tooltips.Add(new TooltipLine(Mod, "extract",$"Can be [i:{ItemID.Extractinator}] extracted into [i:{id}] ammo"));
+
                 foreach (TooltipLine tt in tooltips)
                 {
                     if (tt.Mod == "Terraria" && tt.Name == "ItemName")
                     {
                         tt.Text = "Endless " + ContentSamples.ItemsByType[id].Name + " Pack";
-                        break;
+                        return;
                     }
                 }
             }
@@ -103,6 +105,15 @@ namespace Gearedup.Content.Endless
 
                 tooltips.Insert(1, new TooltipLine(Mod, "tips", "Does nothing on its own..."));
                 //tooltips.Add(new TooltipLine(Mod, "tips", "Does nothing on its own..."));
+            }
+        }
+
+        public override void ExtractinatorUse(int extractinatorBlockType, ref int resultType, ref int resultStack)
+        {
+            if (ammoType.id is int id)
+            {
+                resultStack = Math.Min(ContentSamples.ItemsByType[id].maxStack, 3996) / 2;
+                resultType = id;
             }
         }
 

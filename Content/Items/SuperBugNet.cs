@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Gearedup.Content.Catched;
 using Gearedup.Helper;
@@ -10,6 +11,7 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -21,10 +23,30 @@ namespace Gearedup.Content.Items
 		public const byte ModeNPC = 0;
 		public const byte ModeProj = 1;
 		public const byte ModeBoth = 2;
-
 		public int altCoolDown = 0;
-
 		public byte bugMode = 0;
+
+        public override void LoadData(TagCompound tag)
+        {
+			bugMode = tag.GetByte("mode");
+        }
+
+        public override void SaveData(TagCompound tag)
+        {
+			tag.Add("mode",bugMode);
+        }
+		public override void NetSend(BinaryWriter writer)
+		{
+			writer.Write(altCoolDown);
+			writer.Write(bugMode);
+		}
+
+		public override void NetReceive(BinaryReader reader)
+		{
+			altCoolDown = reader.ReadInt32();
+			bugMode = reader.ReadByte();
+			
+        }
 
 		public override void SetDefaults()
 		{
@@ -45,11 +67,74 @@ namespace Gearedup.Content.Items
 
 			// Projectile Properties
 			Item.shoot = ModContent.ProjectileType<SuperBugNetProj>(); // The sword as a projectile
+			Item.consumable = false;
 		}
 
-        public override void UpdateInventory(Player player)
-        {
-            if (altCoolDown > 0) altCoolDown--;
+		public override void RightClick(Player player)
+		{
+			if (GearServerConfig.Get.AllowSuperBugNet_NPCs && GearServerConfig.Get.AllowSuperBugNet_Projectile)
+			{
+				bugMode++;
+				if (bugMode > 2)
+				{
+					bugMode = 0;
+				}
+			}
+        }
+
+        public override bool ConsumeItem(Player player)
+		{
+			return false;
+		}
+
+        public override bool CanRightClick()
+		{
+			return true;
+		}
+
+		public override void UpdateInventory(Player player)
+		{
+			if (altCoolDown > 0) altCoolDown--;
+			// if any of these are false. we do bugMode 0
+			if (!GearServerConfig.Get.AllowSuperBugNet_NPCs || !GearServerConfig.Get.AllowSuperBugNet_Projectile)
+			{
+				bugMode = 0;
+			}
+		}
+
+		public override void ModifyTooltips(List<TooltipLine> tooltips)
+		{
+			bool canNPC = GearServerConfig.Get.AllowSuperBugNet_NPCs;
+			bool canBoss = GearServerConfig.Get.AllowSuperBugNet_Bosses;
+			bool canProj = GearServerConfig.Get.AllowSuperBugNet_Projectile;
+
+			if (canNPC)
+			{
+				tooltips.Add(new TooltipLine(Mod, "npc", Language.GetTextValue("Mods.Gearedup.Items.SuperBugNet.CatchNPC")));
+			}
+			if (!canBoss)
+			{
+				tooltips.Add(new TooltipLine(Mod, "npcboss", Language.GetTextValue("Mods.Gearedup.Items.SuperBugNet.CatchNoBoss")));
+			}
+			if (canProj)
+			{
+				tooltips.Add(new TooltipLine(Mod, "proj", Language.GetTextValue("Mods.Gearedup.Items.SuperBugNet.CatchProj")));
+			}
+			if (!canNPC && !canProj)
+			{
+				tooltips.Add(new TooltipLine(Mod, "proj", Language.GetTextValue("Mods.Gearedup.Items.SuperBugNet.Useless")));
+			}
+			else if ((!canNPC && canProj) || (!canProj && canNPC))
+			{
+				tooltips.Add(new TooltipLine(Mod, "proj", Language.GetTextValue("Mods.Gearedup.Items.SuperBugNet.TooltipHalf")));
+			}
+			else
+			{
+				tooltips.Add(new TooltipLine(Mod, "proj", Language.GetTextValue("Mods.Gearedup.Items.SuperBugNet.TooltipReal")));
+				// current mode
+				string mode = bugMode == 2 ? "ModeBoth" : (bugMode == 0 ? "ModeNPC":"ModeProj");
+				tooltips.Add(new TooltipLine(Mod, "proj", Language.GetTextValue("Mods.Gearedup.Items.SuperBugNet."+mode)));
+			}
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -303,7 +388,9 @@ namespace Gearedup.Content.Items
 
 		void CatchProjectile(Projectile projectile)
 		{
+			// YES YES YES
 			var source = Owner.GetSource_ItemUse(Owner.HeldItem,"Catching Goth Mommy");
+
 			int i = Item.NewItem(source,Owner.Center,0, 0, ModContent.ItemType<CatchedProjectile>(), 1,noBroadcast: true, 0, noGrabDelay: true);
 			Item item = Main.item[i];
 			if (item.ModItem != null && item.ModItem is CatchedProjectile boeingplane)
@@ -316,8 +403,7 @@ namespace Gearedup.Content.Items
 			}
 			else
 			{
-				Main.NewText("You just discovered a 1 in a kajillion bajillion chance of rare Error :D");
-				Mod.Logger.Error("How the fuck did this item got created then");
+				Gearedup.Log("[SBN] null catched item found, HOW TF did this happen",true);
 			}
 			NetMessage.SendData(MessageID.SyncItem, -1, -1, null, i, 1f);
 			projectile.active = false;
@@ -327,7 +413,7 @@ namespace Gearedup.Content.Items
 		void TryCatching()
 		{
 			// uhh what
-			if (GearServerConfig.Get.AllowSuperBugNet_NPCs)
+			if (GearServerConfig.Get.AllowSuperBugNet_NPCs && (bugMode == 2 || bugMode == 0))
 			{
 				foreach (var npc in Main.ActiveNPCs)
 				{
@@ -335,7 +421,8 @@ namespace Gearedup.Content.Items
 					{
 						if (npc.boss && !GearServerConfig.Get.AllowSuperBugNet_Bosses)
 						{
-							//Main.NewText("Passed on boss");
+							if (Projectile.owner == Main.myPlayer)
+								Gearedup.Log($"[SBN] Passed on {npc.TypeName} boss ");
 							continue;
 						}
 						CatchNPC(npc,Projectile.owner);
@@ -344,7 +431,7 @@ namespace Gearedup.Content.Items
 			}
 
 			// might move this function around global proj
-			if (GearServerConfig.Get.AllowSuperBugNet_Projectile)
+			if (GearServerConfig.Get.AllowSuperBugNet_Projectile && (bugMode == 2 || bugMode == 1))
 			{
 				foreach (var proj in Main.ActiveProjectiles)
 				{
@@ -507,80 +594,3 @@ namespace Gearedup.Content.Items
 
 	}
 }
-
-
-// Unused code
-
-// // wacky way to code part 12
-// // use weird instancing mechanism for all the wacky people
-
-// public const int Instances_Max = 255;
-// public static int[] Instances;
-// public static bool CheckAnyHitting(Rectangle hitbox)
-// {
-//     for (int i = 0; i < Instances.Length; i++)
-//     {
-//         if (Instances[i] != -1)
-//         {
-//             int index = Instances[i];
-//             if (Main.projectile[index] != null && Main.projectile[index].ModProjectile != null)
-//             {
-//                 var proj = Main.projectile[index].ModProjectile as SuperBugNetProj;
-//             }
-//         }
-//     }
-//     return false;
-// }
-
-// public static void UnloadInstances()
-// {
-//     Instances = null;
-// }
-
-// public static void ResetInstances()
-// {
-//     Instances = new int[Instances_Max];
-//     for (int i = 0; i < Instances.Length; i++)
-//     {
-//         Instances[i] = -1;
-//     }
-// }
-
-// public int instanceKey 
-// {
-//     get { return (int)Projectile.ai[1]; }
-//     set { Projectile.ai[1] = value;}
-// }
-
-// public void DeleteKey()
-// {
-//     if (instanceKey == -1)
-//     {
-//         Main.NewText("Error , key already not existed in the first place");
-//         return;
-//     }
-
-//     Instances[instanceKey] = -1;
-//     instanceKey = -1;
-// }
-
-// public void TryAssignKey()
-// {
-//     if (instanceKey == -1)
-//     {
-//         for (int i = 0; i < Instances.Length; i++)
-//         {
-//             if (Instances[i] == -1)
-//             {
-//                 Instances[i] = Projectile.whoAmI;
-//                 instanceKey = i;
-//                 Main.NewText("Sucessfully assigned key to "+i);
-//             }
-//         }
-//     }
-// }
-
-// public override void OnKill(int timeLeft)
-// {
-//     DeleteKey();
-// }
