@@ -128,6 +128,8 @@ namespace Gearedup
                 // tooltips.Add(new TooltipLine(Mod, "DyeTips",$"Press anything"));
             }
             if (!hasStats) return;
+
+            tooltips.Add(new TooltipLine(Mod, "GearUpLilBro", "Contain Bonus Stat : "));
             foreach (var stat in stats)
             {
                 var text = Language.GetTextValue($"Mods.Gearedup.Stat." + stat.Key, stat.Value);
@@ -154,8 +156,9 @@ namespace Gearedup
         {
             if (hasStats && line.Name.Contains("GearStat_"))
             {
-                line.BaseScale /= 2f;
-                yOffset -= 4;
+                line.BaseScale *= 0.7f;
+                yOffset += 3;
+
                 // Utils.DrawInvBG(Main.spriteBatch, new Rectangle(
                 //     line.X,
                 //     line.Y - 2,

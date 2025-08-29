@@ -76,6 +76,7 @@ namespace Gearedup.Content.Overwrite
             }
             else
             {
+                Mod?.Logger?.Info("Didnt load dumbass");
                 return false;
             }
         }
@@ -99,29 +100,30 @@ namespace Gearedup.Content.Overwrite
             {
                 if (Calamity.Version.ToString() == Version)
                 {
-                    Gearedup.Log("{ " + this.FullName + " } Module imported perfectly",true);
+                    Gearedup.Log("{ " + this?.FullName + " } Module imported perfectly",true);
                     return true;
                 }
                 else
                 {
-                    Gearedup.Log("{ " + this.FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version,true);
+                    Gearedup.Log("{ " + this?.FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version,true);
                     return false;
                 }
             }
             else
             {
+                Mod?.Logger?.Info("Didnt load dumbass");
                 return false;
             }
         }
     }
 
-    public class CelestialCool : CalItemPatchMultiple
-    {
-        public override void UpdateAccessory(Item item, Player player, bool hideVisual)
-        {
-            player.hellfireTreads = true;
-        }
-    }
+    // public class CelestialCool : CalItemPatchMultiple
+    // {
+    //     public override void UpdateAccessory(Item item, Player player, bool hideVisual)
+    //     {
+    //         player.hellfireTreads = true;
+    //     }
+    // }
 
     public class EatableBloodOrb : CalItemPatch
     {

@@ -8,19 +8,18 @@ namespace Gearedup.Content.Items.CalamityNoFargo
 {
     public abstract class CalAccesory : ModItem
     {
-        public override bool IsLoadingEnabled(Mod mod)
-        {
-            return Gearedup.Get.calamityMod != null;
-        }
+        // public override bool IsLoadingEnabled(Mod mod)
+        // {
+        //     // return Gearedup.Get.calamityMod != null;
+        // }
 
         public override void Load()
         {
-            Gearedup.Log("[ Gearedup Load ] Loading CalAccesory : "+Name);
+            Gearedup.Log("[ Cal Accesory Module ] Loading CalAccesory : "+Name);
         }
 
         public virtual string[] Combined => [];
-        public virtual string[] CombinedTooltips => null;
-        public virtual bool UseTooltips => true;
+        // public virtual bool UseTooltips => true;
 
         public override void SetDefaults()
         {
@@ -46,28 +45,30 @@ namespace Gearedup.Content.Items.CalamityNoFargo
 
         }
 
-        public override void ModifyTooltips(List<TooltipLine> tooltips)
-        {
+        // public override void ModifyTooltips(List<TooltipLine> tooltips)
+        // {
 
-            if (!UseTooltips) return;
+        //     if (!UseTooltips) return;
 
-            if (CombinedTooltips != null)
-            {
-                foreach (var i in CombinedTooltips)
-                {
-                    Gearedup.Get.calamityMod.Item_UpdateTooltipline(i, tooltips);
-                }
-            }
-            else
-            {
-                foreach (var i in Combined)
-                {
-                    Gearedup.Get.calamityMod.Item_UpdateTooltipline(i, tooltips);
-                }
-            }
-        }
+        //     if (CombinedTooltips != null)
+        //     {
+        //         foreach (var i in CombinedTooltips)
+        //         {
+        //             Gearedup.Get.calamityMod.Item_UpdateTooltipline(i, tooltips);
+        //         }
+        //     }
+        //     else
+        //     {
+        //         foreach (var i in Combined)
+        //         {
+        //             Gearedup.Get.calamityMod.Item_UpdateTooltipline(i, tooltips);
+        //         }
+        //     }
+        // }
         public override void AddRecipes()
         {
+            if (Gearedup.Get.calamityMod == null) return;
+
             var recipe = Recipe.Create(Type);
             foreach (var i in Combined)
             {
@@ -92,16 +93,26 @@ namespace Gearedup.Content.Items.CalamityNoFargo
     {
         public override string[] Combined => new string[]
         {
-            "LuxorsGift","FungalSymbiote","AmidiasSpark","GladiatorsLocket","UnstableGraniteCore"
+            "LuxorsGift","AmidiasSpark","GladiatorsLocket","UnstableGraniteCore"
         };
 
+        public override void MoreUpdate(Player player, bool hideVisual)
+        {
+            if (player.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+            {
+                gp.primateGift = true;   
+            }
+        }
         public override void MoreDefaults()
         {
+            Item.rare = ItemRarityID.Expert;
             Item.defense = 2;
+            Item.expert = true;
         }
 
         public override void MoreRecipes(Recipe recipe)
         {
+            recipe.AddModIngredient(Gearedup.Get.calamityMod, "FungalSymbiote");
             recipe.AddModIngredient(Gearedup.Get.calamityMod, "CryonicBar", 15);
             recipe.AddIngredient(ItemID.SoulofFright, 10);
             recipe.AddIngredient(ItemID.SoulofMight, 10);

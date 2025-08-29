@@ -24,6 +24,8 @@ namespace Gearedup.Content.Endless
         public override void SetStaticDefaults()
         {
             ItemID.Sets.CanGetPrefixes[Type] = true;
+            ItemID.Sets.ShimmerCountsAsItem[Type] = -1;
+            ItemID.Sets.ShimmerTransformToItem[Type] = -1;
         }
 
         // protected override bool CloneNewInstances => true;
@@ -231,6 +233,7 @@ namespace Gearedup.Content.Endless
         private void PatchTooltip(On_Main.orig_MouseText_DrawItemTooltip_GetLinesInfo orig, Item item, ref int yoyoLogo, ref int researchLine, float oldKB, ref int numLines, string[] toolTipLine, bool[] preFixLine, bool[] badPreFixLine, string[] toolTipNames, out int prefixlineIndex)
         {
             int resetNetID = 0;
+            int resetTypeIDToo = 0;
             if (item.ModItem != null)
             {
                 if (item.ModItem is EndlessThrowable throwable)
@@ -241,6 +244,16 @@ namespace Gearedup.Content.Endless
                         item.netID = id;
                     }
                 }
+                else if (item.ModItem is AccesoryDuplicator accesoryDuplicator)
+                {
+                    if (accesoryDuplicator.duplicate.id is int id)
+                    {
+                        resetTypeIDToo = item.type;
+                        resetNetID = item.netID;
+                        item.type = id;
+                        item.netID = id;
+                    }
+                }
             }
 
             orig(item, ref yoyoLogo, ref researchLine, oldKB, ref numLines, toolTipLine, preFixLine, badPreFixLine, toolTipNames, out prefixlineIndex);
@@ -248,6 +261,10 @@ namespace Gearedup.Content.Endless
             if (resetNetID != 0)
             {
                 item.netID = resetNetID;
+            }
+            if (resetTypeIDToo != 0)
+            {
+                item.type = resetTypeIDToo;
             }
         }
     }

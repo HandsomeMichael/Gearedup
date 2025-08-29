@@ -29,7 +29,7 @@ namespace Gearedup.Content.Perks
         public const byte Yoyo = 12;
     }
 
-    public abstract class GearPerk : ModItem
+    public class GearPerk : ModItem
     {
 
         public static void SpawnExample()

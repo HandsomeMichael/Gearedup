@@ -247,10 +247,10 @@ namespace Gearedup
 
     public class DrawNPCRT : DrawRT
     {
-        public short dye;
+        public int dye;
         public List<NPC> npcs = new List<NPC>();
 
-        public DrawNPCRT(short shader, NPC npc)
+        public DrawNPCRT(int shader, NPC npc)
         {
             dye = shader;
             npcs = new List<NPC>() { npc };
@@ -322,10 +322,10 @@ namespace Gearedup
 
     public class DrawProjRT : DrawRT
     {
-        public short dye;
+        public int dye;
         public List<Projectile> projectiles = new List<Projectile>();
 
-        public DrawProjRT(short shader, Projectile projectile)
+        public DrawProjRT(int shader, Projectile projectile)
         {
             dye = shader;
             projectiles = new List<Projectile>() { projectile };
@@ -533,7 +533,7 @@ namespace Gearedup
         /// </summary>
         /// <param name="dye">The Shader ID</param>
         /// <param name="projectile">The projectile to be added, must be active</param>
-        public void AddTarget_Proj(short dye, Projectile projectile)
+        public void AddTarget_Proj(int dye, Projectile projectile)
         {
             // if some shit happen
             if (projectile == null || !projectile.active) return;
@@ -567,7 +567,7 @@ namespace Gearedup
             drawTargetsProj.Add(new DrawProjRT(dye, projectile));
         }
 
-        public void AddTarget_NPC(short dye, NPC npc)
+        public void AddTarget_NPC(int dye, NPC npc)
         {
             // if some shit happen
             if (npc == null || !npc.active) return;

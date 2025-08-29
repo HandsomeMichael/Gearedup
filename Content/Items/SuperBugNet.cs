@@ -25,11 +25,34 @@ namespace Gearedup.Content.Items
 		public const byte ModeBoth = 2;
 		public int altCoolDown = 0;
 		public byte bugMode = 0;
+		
+		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+			Entity entityShader = GearClientConfig.Get.DyeItemPlayerShader ? Main.LocalPlayer : Item;
+
+			DrawData data = new DrawData
+			{
+				position = position - Main.screenPosition,
+				scale = new Vector2(scale, scale),
+				sourceRect = frame,
+				texture = TextureAssets.Item[Item.type].Value
+			};
+			spriteBatch.BeginDyeShaderByItem(ItemID.RainbowDye, entityShader, true, true, data);
+            return base.PreDrawInInventory(spriteBatch, position, frame, drawColor, itemColor, origin, scale);
+        }
+
+        public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
+        {
+            spriteBatch.BeginNormal(true, true);
+
+            // if (DyeClientConfig.Get.Debug)
+            // ChatManager.DrawColorCodedString(spriteBatch,FontAssets.MouseText.Value,":"+dye,position,Color.White,0f,Vector2.One,Vector2.One);
+        }
 
         public override void LoadData(TagCompound tag)
-        {
+		{
 			bugMode = tag.GetByte("mode");
-        }
+		}
 
         public override void SaveData(TagCompound tag)
         {
@@ -159,6 +182,10 @@ namespace Gearedup.Content.Items
 			
 			int i = Projectile.NewProjectile(source, position, velocity, type, damage, knockback, Main.myPlayer, attackType);
 			((SuperBugNetProj)Main.projectile[i].ModProjectile).bugMode = bugMode;
+			Main.projectile[i].GetGlobalProjectile<GearProjectile>().dye = GameShaders.Armor.GetShaderIdFromItemId(ItemID.RainbowDye);
+			Main.projectile[i].netUpdate = true;
+
+			// Main.projectile[i].netUpdate2 = true;
 
 			return false; // return false to prevent original projectile from being shot
 		}

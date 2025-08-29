@@ -70,7 +70,7 @@ namespace Gearedup
 			On_ItemSlot.DrawItemIcon += ItemSlot_DrawItemIcon;
 			Terraria.On_Item.NewItem_Inner += Item_NewItem_Inner;
 			Terraria.On_Main.GetProjectileDesiredShader += ShaderPatch;
-			Terraria.On_Projectile.NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float += ProjPatch;
+			// Terraria.On_Projectile.NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float += ProjPatch;
 			Terraria.DataStructures.On_PlayerDrawLayers.DrawPlayer_27_HeldItem += ShittyPatch;
 
 			if (GearClientConfig.Get.DyeProjectileDust) { Terraria.On_Dust.NewDust += DustPatch; }
@@ -95,6 +95,7 @@ namespace Gearedup
 				Logger.Info("Adding crossmod shit to " + name + " for " + fuck);
 				return res;
 			}
+			Logger.Info("Failed to integrate " + name + " , couldnt find the mod dumbass");
 			return null;
 		}
 
@@ -221,104 +222,105 @@ namespace Gearedup
 		}
 		
 		// TO DO : Move this to OnSpawn Hook
-		private int ProjPatch(On_Projectile.orig_NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float orig,
-		IEntitySource spawnSource, float X, float Y, float SpeedX, float SpeedY, int Type, int Damage, float KnockBack, int Owner, float ai0, float ai1, float ai2)
-		{
-			int hasil = orig(spawnSource, X, Y, SpeedX, SpeedY, Type, Damage, KnockBack, Owner, ai0, ai1, ai2);
+		// private int ProjPatch(On_Projectile.orig_NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float orig,
+		// IEntitySource spawnSource, float X, float Y, float SpeedX, float SpeedY, int Type, int Damage, float KnockBack, int Owner, float ai0, float ai1, float ai2)
+		// {
+		// 	// Projectile.NewProjectile
+		// 	int hasil = orig(spawnSource, X, Y, SpeedX, SpeedY, Type, Damage, KnockBack, Owner, ai0, ai1, ai2);
 
-			// if (!GearServerConfig.Get.ProjectileFollowParentDye) return hasil;
+		// 	// if (!GearServerConfig.Get.ProjectileFollowParentDye) return hasil;
 
-			// get from item
-			if (hasil >= 0 && spawnSource is IEntitySource_WithStatsFromItem itemSource)
-			{
-				// Main.NewText("from item");
-				if (itemSource.Item.TryGetGlobalItem<GearItem>(out GearItem globalItem))
-				{
-					// Main.NewText("got moditem");
-					if (globalItem.dye.id is int dyeID && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
-					{
-						// Main.NewText("success applied " + dyedItem.dye);
-						// globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
-						globalProj.dye = (short)GameShaders.Armor.GetShaderIdFromItemId(dyeID);
+		// 	// get from item
+		// 	if (hasil >= 0 && spawnSource is IEntitySource_WithStatsFromItem itemSource)
+		// 	{
+		// 		// Main.NewText("from item");
+		// 		if (itemSource.Item.TryGetGlobalItem<GearItem>(out GearItem globalItem))
+		// 		{
+		// 			// Main.NewText("got moditem");
+		// 			if (globalItem.dye.id is int dyeID && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
+		// 			{
+		// 				// Main.NewText("success applied " + dyedItem.dye);
+		// 				// globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
+		// 				globalProj.dye = (short)GameShaders.Armor.GetShaderIdFromItemId(dyeID);
 
-						if (GearClientConfig.Get.IsItemRT(itemSource.Item))
-						{
-							globalProj.useRenderTarget = true;
-						}
-						else if (RenderManager.IsCustomDrawed(Main.projectile[hasil]))
-						{
-							globalProj.useRenderTarget = true;
-						}
-					}
-				}
-			}
+		// 				if (GearClientConfig.Get.IsItemRT(itemSource.Item))
+		// 				{
+		// 					globalProj.useRenderTarget = true;
+		// 				}
+		// 				else if (RenderManager.IsCustomDrawed(Main.projectile[hasil]))
+		// 				{
+		// 					globalProj.useRenderTarget = true;
+		// 				}
+		// 			}
+		// 		}
+		// 	}
 
-			// We could check player ammo for this but im lazy ahh mf
+		// 	// We could check player ammo for this but im lazy ahh mf
 
-			// if (hasil >= 0 && spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
-			// {
-			//     if (ammoSource.AmmoItemIdUsed != 0) 
-			//     {
-			//     }
-			// }
-			if (hasil >= 0 && spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
-			{
-				if (ammoSource.AmmoItemIdUsed == ModContent.ItemType<CatchedProjectile>())
-				{
-					Main.projectile[hasil].hostile = false;
-					Main.projectile[hasil].friendly = true;
-				}
-			}
+		// 	// if (hasil >= 0 && spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
+		// 	// {
+		// 	//     if (ammoSource.AmmoItemIdUsed != 0) 
+		// 	//     {
+		// 	//     }
+		// 	// }
+		// 	if (hasil >= 0 && spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
+		// 	{
+		// 		if (ammoSource.AmmoItemIdUsed == ModContent.ItemType<CatchedProjectile>())
+		// 		{
+		// 			Main.projectile[hasil].hostile = false;
+		// 			Main.projectile[hasil].friendly = true;
+		// 		}
+		// 	}
 
-			// get from parents
-			if (hasil >= 0 && spawnSource is EntitySource_Parent entitySource)
-			{
-				// projectile
-				if (entitySource.Entity is Projectile projSource)
-				{
-					if (projSource.TryGetGlobalProjectile<GearProjectile>(out GearProjectile parentDyedProjectile))
-					{
-						if (parentDyedProjectile.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile GearProjectile))
-						{
-							GearProjectile.dye = parentDyedProjectile.dye;
-							// if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
-							if (parentDyedProjectile.ShouldRenderTarget(projSource))
-							{
-								GearProjectile.useRenderTarget = true;
-							}
-						}
+		// 	// get from parents
+		// 	if (hasil >= 0 && spawnSource is EntitySource_Parent entitySource)
+		// 	{
+		// 		// projectile
+		// 		if (entitySource.Entity is Projectile projSource)
+		// 		{
+		// 			if (projSource.TryGetGlobalProjectile<GearProjectile>(out GearProjectile parentDyedProjectile))
+		// 			{
+		// 				if (parentDyedProjectile.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile GearProjectile))
+		// 				{
+		// 					GearProjectile.dye = parentDyedProjectile.dye;
+		// 					// if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
+		// 					if (parentDyedProjectile.ShouldRenderTarget(projSource))
+		// 					{
+		// 						GearProjectile.useRenderTarget = true;
+		// 					}
+		// 				}
 
-					}
-				}
-				// NPC TO DO :
+		// 			}
+		// 		}
+		// 		// NPC TO DO :
 
-				else if (entitySource.Entity is NPC npcSource)
-				{
-					if (npcSource.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC bw))
-					{
-						if (bw.ownedBy != -1 && Main.projectile[hasil].TryGetGlobalProjectile<BrainWashedProj>(out BrainWashedProj bwr))
-						{
-							bwr.ownedBy = bw.ownedBy;
-							Main.projectile[hasil].hostile = true;
-							Main.projectile[hasil].friendly = true;
-						}
-					}
-					// inherit projectile
-					if (npcSource.TryGetGlobalNPC<GearNPCs>(out GearNPCs gearNPCs))
-					{
-						if (gearNPCs.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
-						{
-							globalProj.dye = gearNPCs.dye;
-							if (RenderManager.IsCustomDrawed(Main.projectile[hasil]))
-							{
-								globalProj.useRenderTarget = true;
-							}
-						}
-					}
-				}
-			}
-			return hasil;
-		}
+		// 		else if (entitySource.Entity is NPC npcSource)
+		// 		{
+		// 			if (npcSource.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC bw))
+		// 			{
+		// 				if (bw.ownedBy != -1 && Main.projectile[hasil].TryGetGlobalProjectile<BrainWashedProj>(out BrainWashedProj bwr))
+		// 				{
+		// 					bwr.ownedBy = bw.ownedBy;
+		// 					Main.projectile[hasil].hostile = true;
+		// 					Main.projectile[hasil].friendly = true;
+		// 				}
+		// 			}
+		// 			// inherit projectile
+		// 			if (npcSource.TryGetGlobalNPC<GearNPCs>(out GearNPCs gearNPCs))
+		// 			{
+		// 				if (gearNPCs.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
+		// 				{
+		// 					globalProj.dye = gearNPCs.dye;
+		// 					if (RenderManager.IsCustomDrawed(Main.projectile[hasil]))
+		// 					{
+		// 						globalProj.useRenderTarget = true;
+		// 					}
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// 	return hasil;
+		// }
 
 		private int ShaderPatch(On_Main.orig_GetProjectileDesiredShader orig, Projectile proj)
 		{

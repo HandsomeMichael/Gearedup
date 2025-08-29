@@ -12,12 +12,13 @@ namespace Gearedup
 {
     public class GearPlayer : ModPlayer
     {
-        public short universalDye;
+        public int universalDye;
         public bool phasingDevice;
         public bool phasingDeviceLunar;
         public bool haveCultFollowing;
         public bool catPissed;
         public bool getBossBag;
+        public bool primateGift;
 
         public List<Vector2> platform = new List<Vector2>();
 
@@ -29,6 +30,7 @@ namespace Gearedup
             haveCultFollowing = false;
             catPissed = false;
             getBossBag = false;
+            primateGift = false;
         }
 
         // public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
@@ -64,9 +66,15 @@ namespace Gearedup
         // 		SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
         // }
 
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone)
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (catPissed && proj.DamageType == DamageClass.Ranged)
+            // spawn runic projectile
+            if (target.life <= 0)
+            {
+
+            }
+
+            if (catPissed)
             {
                 if (Main.rand.NextBool(5))
                 {
@@ -79,20 +87,28 @@ namespace Gearedup
             }
         }
 
-        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             if (catPissed)
             {
-                if (proj.DamageType == DamageClass.Ranged &&
-                target.HasAnyBuff(BuffID.CursedInferno, BuffID.Poisoned, BuffID.Venom, BuffID.Confused, BuffID.OnFire, BuffID.Frostburn))
+                if (target.HasAnyBuff(BuffID.CursedInferno, BuffID.Poisoned, BuffID.Venom, BuffID.Confused, BuffID.OnFire, BuffID.Frostburn))
                 {
                     modifiers.ScalingBonusDamage += 0.05f;
+                }
+                else
+                {
+                    modifiers.ScalingBonusDamage += 0.07f;
                 }
             }
         }
 
         public override void OnHitByNPC(NPC npc, Player.HurtInfo hurtInfo)
         {
+            if (primateGift)
+            {
+
+            }
+
             if (haveCultFollowing)
             {
                 for (int i = 0; i < Main.maxNPCs; i++)

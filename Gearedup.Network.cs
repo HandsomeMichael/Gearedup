@@ -9,7 +9,8 @@ namespace Gearedup
     {
         internal enum MessageType : byte
         {
-            GearPlayerSync
+            GearPlayerSync,
+            GearProjectileSync
 		}
 
 		// Override this method to handle network packets sent for this mod.

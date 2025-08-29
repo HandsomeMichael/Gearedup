@@ -294,7 +294,7 @@ namespace Gearedup
 
                 foreach (var rate in dropRateInfos)
                 {
-                    Gearedup.Log("-- Adding to loot drops : " + rate.itemId, true);
+                    // Gearedup.Log("-- Adding to loot drops : " + rate.itemId, true);
 
                     if (rate.itemId > 0 && rate.itemId != lootOrbID)
                     {

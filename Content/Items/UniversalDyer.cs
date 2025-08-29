@@ -115,7 +115,7 @@ namespace Gearedup.Content.Items
 			player.TryGetModPlayer<GearPlayer>(out GearPlayer modPlayer);
 			if (modPlayer == null) return;
 
-			modPlayer.universalDye = (short)Item.dye;
+			modPlayer.universalDye = Item.dye;
 		}
 
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)

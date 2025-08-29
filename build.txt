@@ -1,6 +1,6 @@
 displayName = Customize Weapon Now
 author = Lasthue
-version = 0.1.6
+version = 0.1.9
 homepage = https://github.com/HandsomeMichael/Gearedup
 hideCode = false
 hideResources = false

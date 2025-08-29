@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent.ItemDropRules;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -14,7 +15,9 @@ namespace Gearedup
 {
     public class GearNPCs : GlobalNPC
     {
-        public short dye;
+        public int dye;
+        
+        // public int stackDamage;
         public bool doubleLoot;
         public static int playerSpawning = -1;
 
@@ -22,9 +25,27 @@ namespace Gearedup
         // {
         // }
 
+        // public override void OnKill(NPC npc)
+        // {
+        //     if (doubleLoot)
+        //     {
+        //         npc.drop
+        //     }
+        // }
+
+        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(dye);
+        }
+
+        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
+        {
+            dye = binaryReader.ReadInt32();
+        }
+
         public override void EditSpawnRate(Player player, ref int spawnRate, ref int maxSpawns)
         {
-            base.EditSpawnRate(player, ref spawnRate, ref maxSpawns);
+            playerSpawning = player.whoAmI;
         }
 
         public override void Load()
@@ -44,17 +65,17 @@ namespace Gearedup
             On_NPC.SpawnNPC -= FinishSpawnNPC;
         }
 
-        public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
-        {
-            binaryWriter.Write(dye);
-            bitWriter.WriteBit(doubleLoot);
-        }
+        // public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
+        // {
+        //     binaryWriter.Write(dye);
+        //     // bitWriter.WriteBit(doubleLoot);
+        // }
 
-        public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
-        {
-            dye = binaryReader.ReadByte();
-            doubleLoot = bitReader.ReadBit();
-        }
+        // public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
+        // {
+        //     dye = binaryReader.ReadByte();
+        //     // doubleLoot = bitReader.ReadBit();
+        // }
 
         public override void OnSpawn(NPC npc, IEntitySource source)
         {
@@ -78,10 +99,10 @@ namespace Gearedup
                     npc.defense = (int)((float)npc.defense * 1.2);
 
                     npc.scale += 0.3f;
-                    npc.GivenName += "Powerfull";
+                    npc.value *= 10f; // increase by 10x
 
                     doubleLoot = true;
-                    npc.netUpdate = true;
+                    // npc.netUpdate = true;
                 }
             }
         }
@@ -160,7 +181,14 @@ namespace Gearedup
             return base.PreDraw(npc, spriteBatch, screenPos, drawColor);
         }
 
+        internal void ChangeDye(NPC npc, int newDye)
+        {
+            if (dye == 0 && npc.type == NPCID.Merchant)
+            {
+                CombatText.NewText(npc.Hitbox, Color.White, "why the fuck did you do that");
+            }
 
-
+            dye = newDye;
+        }
     }
 }

@@ -19,13 +19,13 @@ namespace Gearedup
             recipe.AddTile(TileID.Anvils);
             recipe.Register();
 
-            recipe = Recipe.Create(ItemID.ApprenticeBait, 1);
+            recipe = Recipe.Create(ItemID.ApprenticeBait, 2);
             recipe.AddIngredient(ItemID.RottenChunk, 4);
             recipe.AddIngredient(ItemID.DirtBlock, 10);
             recipe.AddTile(TileID.Anvils);
             recipe.Register();
 
-            recipe = Recipe.Create(ItemID.ApprenticeBait, 1);
+            recipe = Recipe.Create(ItemID.ApprenticeBait, 2);
             recipe.AddIngredient(ItemID.Vertebrae, 4);
             recipe.AddIngredient(ItemID.DirtBlock, 10);
             recipe.AddTile(TileID.Anvils);
@@ -34,18 +34,21 @@ namespace Gearedup
             recipe = Recipe.Create(ItemID.WaterBucket);
             recipe.AddIngredient(ItemID.EmptyBucket);
             recipe.AddIngredient(ItemID.BottomlessBucket);
+            recipe.DisableDecraft();
             recipe.AddConsumeIngredientCallback(BottomlessConsume);
             recipe.Register();
 
             recipe = Recipe.Create(ItemID.HoneyBucket);
             recipe.AddIngredient(ItemID.EmptyBucket);
             recipe.AddIngredient(ItemID.BottomlessHoneyBucket);
+            recipe.DisableDecraft();
             recipe.AddConsumeIngredientCallback(BottomlessConsume);
             recipe.Register();
 
             recipe = Recipe.Create(ItemID.LavaBucket);
             recipe.AddIngredient(ItemID.EmptyBucket);
             recipe.AddIngredient(ItemID.BottomlessLavaBucket);
+            recipe.DisableDecraft();
             recipe.AddConsumeIngredientCallback(BottomlessConsume);
             recipe.Register();
 

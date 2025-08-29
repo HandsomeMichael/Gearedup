@@ -166,9 +166,11 @@ Items: {
 		DisplayName: Bucket Of Cat Piss
 		Tooltip:
 			'''
-			Any ranged projectile have a chance to apply ichor or cursed flames
-			Increased ranged damage by 5% on debuffed enemies
-			Increased ranged damage by 10%
+			Increased damage by 8%
+			Increased damage by 5% on debuffed enemies
+			Increased damage by 7% on non-debuffed enemies
+			Inflict short ichor and cursed flame on non-slime enemies
+			Killing enemies using melee have a really low chance to drop poo blocks
 			'most profound equipment'
 			'''
 	}
@@ -253,6 +255,42 @@ Items: {
 		Tooltip: Increased damage by 14%
 		TooltipSingle: Taking damage above 90 will reduce potion cooldown by 1 second
 		TooltipMultiplayer: Share 30% damage taken to nearby healthy friends
+	}
+
+	PrimateGifts: {
+		DisplayName: Primate Gifts
+		Tooltip:
+			'''
+			Enemies drop healing orb and spawn homing rune on kill
+			Some weapons fire unique runic projectiles that slightly home to enemies
+			Taking damage release a blast of spark and grant 'Mushy Buff' for 30 seconds
+			Increase damage , attack speed and movement speed based on how low your life is
+			Effects of Unstable Granite Core
+			'Malice Mode'
+			'''
+	}
+
+	HeartsOfHero: {
+		DisplayName: Hearts Of Hero
+		Tooltip:
+			'''
+			+ 2 minion slot
+			Pets will deal generic damage to enemies
+			Increase 3% non-summon damage foreach minion slot used
+			Increase 8% summon damage foreach minion slot unused
+			Summons a bunch of friends you made along the way
+			'The One Piece'
+			'''
+	}
+
+	AccesoryDuplicator: {
+		DisplayName: Accesory Duplicator
+		Tooltip: ""
+	}
+
+	GearPerk: {
+		DisplayName: Gear Perk
+		Tooltip: ""
 	}
 }
 

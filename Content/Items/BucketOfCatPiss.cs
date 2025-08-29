@@ -17,8 +17,8 @@ namespace Gearedup.Content.Items
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            // increased ranged damage by 10%
-            player.GetDamage(DamageClass.Ranged) += 0.1f;
+            // increased damage by 8%
+            player.GetDamage(DamageClass.Generic) += 0.8f;
 
             if (player.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
             {
@@ -29,10 +29,11 @@ namespace Gearedup.Content.Items
         public override void AddRecipes()
         {
             CreateRecipe()
-                .AddIngredient(ItemID.RangerEmblem)
-                .AddIngredient(ItemID.RoyalGel)
+                .AddIngredient(ItemID.EmptyBucket)
                 .AddIngredient(ItemID.BottomlessHoneyBucket)
-                .AddIngredient(ItemID.PoopBlock,15)
+                .AddIngredient(ItemID.HallowedBar, 10)
+                .AddIngredient(ItemID.RangerEmblem)
+                .AddIngredient(ItemID.PoopBlock, 15)
                 .AddTile(TileID.TinkerersWorkbench)
                 .Register();
         }

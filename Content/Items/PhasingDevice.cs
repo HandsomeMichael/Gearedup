@@ -50,7 +50,7 @@ namespace Gearedup.Content.Items
                 .AddIngredient(ItemID.FragmentSolar, 10)
                 .AddIngredient(ItemID.FragmentStardust, 10)
                 .AddIngredient(ItemID.FragmentVortex, 10)
-				.AddTile(TileID.LunarMonolith)
+				.AddTile(TileID.MythrilAnvil)
 				.Register();
         }
     }

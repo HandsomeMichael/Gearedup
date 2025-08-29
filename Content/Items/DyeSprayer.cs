@@ -145,7 +145,8 @@ namespace Gearedup.Content.Items
                     }
 
                     SoundEngine.PlaySound(SoundID.Shimmer1, Projectile.Center);
-                    dyeNPC.dye = (short)GameShaders.Armor.GetShaderIdFromItemId((int)dye);
+                    dyeNPC.ChangeDye(npc,GameShaders.Armor.GetShaderIdFromItemId((int)dye));
+                    // dyeNPC.dye = GameShaders.Armor.GetShaderIdFromItemId((int)dye);
                 }
             }
         }

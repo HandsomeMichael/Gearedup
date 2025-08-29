@@ -86,7 +86,7 @@ namespace Gearedup.Helper
             if (validate) ValidateAsItem();
         }
 
-        public bool ValidateAsItem()
+        public bool ValidateAsItem(bool ignoreError = false)
         {
             id = null;
             if (mod == null || name == null || mod == "" || name == "")
@@ -106,6 +106,8 @@ namespace Gearedup.Helper
                 return true;
             }
 
+            //if(Main.)
+            if (!ignoreError)
             Gearedup.Log($"Failed to find mod type : {mod}/{name}",true);
             // ModContent.GetInstance<Gearedup>().AddError($"Failed to find mod type : {mod}/{name}");
 
