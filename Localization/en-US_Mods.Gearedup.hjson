@@ -31,6 +31,7 @@ Items: {
 		Tooltip:
 			'''
 			Have a chance to drop from fallen star
+			It has some sort of duplicative properties
 			Cannot be used as ammo
 			'''
 	}
@@ -261,11 +262,13 @@ Items: {
 		DisplayName: Primate Gifts
 		Tooltip:
 			'''
+			Critical hit creates a blast of spark
+			Grant Mushy Buff when potion are on cooldown
+			Melee weapon swings a damaging glowing mushroom 
 			Enemies drop healing orb and spawn homing rune on kill
 			Some weapons fire unique runic projectiles that slightly home to enemies
-			Taking damage release a blast of spark and grant 'Mushy Buff' for 30 seconds
-			Increase damage , attack speed and movement speed based on how low your life is
-			Effects of Unstable Granite Core
+			Increase attack damage , attack speed and movement speed based on how low your life is
+			Effects of Unstable Granite Core and Amidias Spark
 			'Malice Mode'
 			'''
 	}
@@ -274,8 +277,7 @@ Items: {
 		DisplayName: Hearts Of Hero
 		Tooltip:
 			'''
-			+ 2 minion slot
-			Pets will deal generic damage to enemies
+			Increase life steal capabilities of Fungal Clump
 			Increase 3% non-summon damage foreach minion slot used
 			Increase 8% summon damage foreach minion slot unused
 			Summons a bunch of friends you made along the way
@@ -292,25 +294,73 @@ Items: {
 		DisplayName: Gear Perk
 		Tooltip: ""
 	}
+
+	JumbleBullet: {
+		DisplayName: Jumble Bullet
+		Tooltip:
+			'''
+			Shoot out 3 different imbued bullets
+			Deal bonus damage in critical condition
+			'''
+	}
+
+	ValueManipulator: {
+		DisplayName: Embodiment of Philosophy
+		TooltipUnreveal:
+			'''
+			Hold an item then right-click this to duplicate it
+			Hold an item then shift and right-click this to absorb it
+
+			[ Press Left Shift to View rules ]
+
+			Stored {0} Pure Energy
+			'''
+		TooltipReveal:
+			'''
+			Hold an item then right-click this to duplicate it
+			Hold an item then shift and right-click this to absorb it
+
+			Absorbed item turn into pure energy that can be exchanged
+			To duplicate item, it requires exquivelant exchange of pure energy and specific condition
+			Absorbing the item will reveal its specific condition to duplicate it , althought some aren't able to be revealed
+			Failed attempt of duplication due to condition not meeting might result in calamity or spared success 
+			Some valueless , deitic and eternity filled item are unable to be exchanged
+			The Truth might spare your experiment but note your action...
+
+			Stored {0} Pure Energy
+			'''
+		Tooltip: ""
+	}
+
+	PlayerTeleporter: {
+		DisplayName: Fate Ribbon
+		Tooltip:
+			'''
+			Teleports designated player to you
+			Currently assigned to {0}
+			'''
+	}
+
+	AccesoryDuplicatorMat: {
+		DisplayName: Accesory Duplicator Mat
+		Tooltip: ""
+	}
 }
 
 Stat: {
 	# item
 	damage: "{0}% Damage"
 	crit: "{0}% Critical chance"
-	critdam: "{0}% Critical damage"
+	critDamage: "{0}% Critical damage"
 	speed: "{0}% Attack speed"
 	armorPen: "{0} Armor penetration"
-	trueDamage: "{0} True damage"
 	defenseUsage: "{0} Defense when attacking"
 	# player
-	weight: "{0} Direct weight"
-	weightUsage: "{0} Weight when used"
-	weightRemover: Remove any weight when held
 	moveSpeed: "{0} Movement speed"
 	standingDefense: "{0} Defense when standing still"
 	standingSpeed: "{0} Attack speed when standing still"
 	standingDamage: "{0} Damage when standing still"
+	standingCrit: "{0} Critical chance when standing still"
 	#custom
 	debuff: "{0} Damage on most debuffed entity"
 	wet: "{0} Damage on submerged entity"
@@ -325,6 +375,8 @@ Stat: {
 	baneHumanoid: "{0} Damage to humanoid"
 	baneCarnivore: "{0} Damage to most carnivores"
 	execute: "{0} Damage to low health entities"
+	trueExecute: Execute enemy below {0}% life
+	trueDamage: "{0} True damage"
 	# melee custom
 	flight: Increase flight time on successful hit
 	wornout: Unsuccessful hit reduces {0} attack speed
@@ -335,11 +387,19 @@ Stat: {
 	backfire: "{0} Chance to backfire user"
 	overheat: Builds up jamming heat when used
 	# mining
-	mining: "{0} Mining speed"
+	miner: "{0} Mining speed on ores"
 	range: "{0} Mining range"
 	digger: "{0} Mining speed on stone and dirt"
 	doubleMining: "{0} Chance to double ore drops"
 	void: Clear dropped dirt , stone , clay and sands
+}
+
+Projectiles: {
+	DeveloGunProj.DisplayName: Develo Gun Proj
+	SuperBugNetProj.DisplayName: Super Bug Net Proj
+	NightThingProj.DisplayName: Night Thing Proj
+	DyeSprayerProj.DisplayName: Dye Sprayer Proj
+	JumbleBulletProjectile.DisplayName: Jumble Bullet Projectile
 }
 
 Configs: {
@@ -347,69 +407,9 @@ Configs: {
 		DisplayName: Gear Client Config
 
 		Headers: {
-			GearDye: Gear Dye Header
 			Optifine: Optifine Header
+			GearDye: Gear Dye Header
 			Debug: Debug Header
-		}
-
-		DyeProjectileDust: {
-			Label: Dye Projectile Dust
-			Tooltip: ""
-		}
-
-		DyeItemPlayerShader: {
-			Label: Dye Item Player Shader
-			Tooltip: ""
-		}
-
-		DyeOverlapItemLayer: {
-			Label: Dye Overlap Item Layer
-			Tooltip: ""
-		}
-
-		DyeItemName: {
-			Label: Dye Item Name
-			Tooltip: ""
-		}
-
-		DyeItemPrefix: {
-			Label: Dye Item Prefix
-			Tooltip: ""
-		}
-
-		DyeRenderTargets: {
-			Label: Dye Render Targets
-			Tooltip: ""
-		}
-
-		DyeRenderTargetsAll: {
-			Label: Dye Render Targets All
-			Tooltip: ""
-		}
-
-		DyeRenderTargetsModded: {
-			Label: Dye Render Targets Modded
-			Tooltip: ""
-		}
-
-		DyeRenderTargetItemsList: {
-			Label: Dye Render Target Items List
-			Tooltip: ""
-		}
-
-		DyeItemDyeDye: {
-			Label: Dye Item Dye Dye
-			Tooltip: ""
-		}
-
-		DyeRenderTargetsToggle: {
-			Label: Dye Render Targets Toggle
-			Tooltip: ""
-		}
-
-		DyeRenderTargetProjectileList: {
-			Label: Dye Render Target Projectile List
-			Tooltip: ""
 		}
 
 		Opti_DisableRenderTargetBullshit: {
@@ -442,8 +442,63 @@ Configs: {
 			Tooltip: ""
 		}
 
+		DyeRenderTargetsAll: {
+			Label: Dye Render Targets All
+			Tooltip: ""
+		}
+
+		DyeRenderTargetsModded: {
+			Label: Dye Render Targets Modded
+			Tooltip: ""
+		}
+
+		DyeRenderTargetsToggle: {
+			Label: Dye Render Targets Toggle
+			Tooltip: ""
+		}
+
+		DyeRenderTargetItemsList: {
+			Label: Dye Render Target Items List
+			Tooltip: ""
+		}
+
+		DyeRenderTargetProjectileList: {
+			Label: Dye Render Target Projectile List
+			Tooltip: ""
+		}
+
+		DyeProjectileDust: {
+			Label: Dye Projectile Dust
+			Tooltip: ""
+		}
+
+		DyeItemPlayerShader: {
+			Label: Dye Item Player Shader
+			Tooltip: ""
+		}
+
+		DyeOverlapItemLayer: {
+			Label: Dye Overlap Item Layer
+			Tooltip: ""
+		}
+
+		DyeItemDyeDye: {
+			Label: Dye Item Dye Dye
+			Tooltip: ""
+		}
+
+		DyeItemName: {
+			Label: Dye Item Name
+			Tooltip: ""
+		}
+
 		Debug_ItemID: {
 			Label: Debug_ Item I D
+			Tooltip: ""
+		}
+
+		DyeProjectileLight: {
+			Label: Dye Projectile Light
 			Tooltip: ""
 		}
 	}
@@ -468,26 +523,6 @@ Configs: {
 			Tooltip: ""
 		}
 
-		AllowLunarBugNet: {
-			Label: Allow Lunar Bug Net
-			Tooltip: ""
-		}
-
-		AllowWeaponDye: {
-			Label: Allow Weapon Dye
-			Tooltip: ""
-		}
-
-		WaterRemoveDye: {
-			Label: Water Remove Dye
-			Tooltip: ""
-		}
-
-		AllowDyeConsumed: {
-			Label: Allow Dye Consumed
-			Tooltip: ""
-		}
-
 		AllowSuperBugNet: {
 			Label: Allow Super Bug Net
 			Tooltip: ""
@@ -508,11 +543,6 @@ Configs: {
 			Tooltip: ""
 		}
 
-		AllowSuperBugNet_FullyUnlocked: {
-			Label: Allow Super Bug Net_ Fully Unlocked
-			Tooltip: ""
-		}
-
 		AllowDeveloGun: {
 			Label: Allow Develo Gun
 			Tooltip: ""
@@ -523,23 +553,23 @@ Configs: {
 			Tooltip: ""
 		}
 
+		AllowWeaponDye: {
+			Label: Allow Weapon Dye
+			Tooltip: ""
+		}
+
+		AllowDyeConsumed: {
+			Label: Allow Dye Consumed
+			Tooltip: ""
+		}
+
+		WaterRemoveDye: {
+			Label: Water Remove Dye
+			Tooltip: ""
+		}
+
 		CatchNPCStats: {
 			Label: Catch N P C Stats
-			Tooltip: ""
-		}
-
-		CatchProjectileStats: {
-			Label: Catch Projectile Stats
-			Tooltip: ""
-		}
-
-		CatchProjectileAmmo: {
-			Label: Catch Projectile Ammo
-			Tooltip: ""
-		}
-
-		AllowSuperBugNet_BossesProjectile: {
-			Label: Allow Super Bug Net_ Bosses Projectile
 			Tooltip: ""
 		}
 
@@ -553,21 +583,33 @@ Configs: {
 			Tooltip: ""
 		}
 
+		CatchProjectileAmmo: {
+			Label: Catch Projectile Ammo
+			Tooltip: ""
+		}
+
 		DebugMode: {
 			Label: Debug Mode
 			Tooltip: ""
 		}
-
-		LootOrb_DisobeyCondition: {
-			Tooltip: ""
-			Label: Loot Orb_ Disobey Condition
-		}
 	}
 }
 
-Projectiles: {
-	DeveloGunProj.DisplayName: Develo Gun Proj
-	SuperBugNetProj.DisplayName: Super Bug Net Proj
-	NightThingProj.DisplayName: Night Thing Proj
-	DyeSprayerProj.DisplayName: Dye Sprayer Proj
+NPCInteraction: {
+	OnDye: {
+		Chat1: Why you do this to me.
+		Chat2: Why.
+		Chat3: Uhhhh..
+		Chat4: But why..
+		Chat5: AHH ITS IN MY EYES !!!
+		Chat6: i feel colorfull today.
+		Chat7: slightly irritating...
+	}
+}
+
+Buffs: {
+	TruthDemise: {
+		Description: Mods.Gearedup.Buffs.TruthDemise.Description
+		DisplayName: Truth Demise
+	}
 }

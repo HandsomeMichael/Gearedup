@@ -1,4 +1,5 @@
 using System;
+using Gearedup.Content.Items;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -9,6 +10,8 @@ namespace Gearedup
     {
         public override void AddRecipes()
         {
+
+            // Craftable baits
             var recipe = Recipe.Create(ItemID.MasterBait, 1);
             recipe.AddIngredient(ItemID.JourneymanBait, 5);
             recipe.AddTile(TileID.Anvils);
@@ -31,6 +34,8 @@ namespace Gearedup
             recipe.AddTile(TileID.Anvils);
             recipe.Register();
 
+            // Buckets
+
             recipe = Recipe.Create(ItemID.WaterBucket);
             recipe.AddIngredient(ItemID.EmptyBucket);
             recipe.AddIngredient(ItemID.BottomlessBucket);
@@ -52,6 +57,35 @@ namespace Gearedup
             recipe.AddConsumeIngredientCallback(BottomlessConsume);
             recipe.Register();
 
+            // Create bottomless stuff
+
+            recipe = Recipe.Create(ItemID.BottomlessBucket);
+            recipe.AddIngredient(ItemID.WaterBucket, 99);
+            recipe.AddIngredient(ItemID.HallowedBar, 10);
+            recipe.AddIngredient(ItemID.ChlorophyteBar, 8);
+            recipe.AddIngredient<WhiteStar>(5);
+            recipe.AddCondition(Condition.InBeach);
+            recipe.DisableDecraft();
+            recipe.Register();
+
+            recipe = Recipe.Create(ItemID.BottomlessHoneyBucket);
+            recipe.AddIngredient(ItemID.HoneyBucket, 99);
+            recipe.AddIngredient(ItemID.HallowedBar, 10);
+            recipe.AddIngredient(ItemID.ChlorophyteBar, 8);
+            recipe.AddIngredient<WhiteStar>(5);
+            recipe.AddCondition(Condition.InJungle);
+            recipe.DisableDecraft();
+            recipe.Register();
+
+            recipe = Recipe.Create(ItemID.BottomlessLavaBucket);
+            recipe.AddIngredient(ItemID.LavaBucket, 99);
+            recipe.AddIngredient(ItemID.HallowedBar, 10);
+            recipe.AddIngredient(ItemID.ChlorophyteBar, 8);
+            recipe.AddIngredient<WhiteStar>(5);
+            recipe.AddCondition(Condition.InUnderworld);
+            recipe.DisableDecraft();
+            recipe.Register();
+            
         }
 
         private void BottomlessConsume(Recipe recipe, int type, ref int amount, bool isDecrafting)

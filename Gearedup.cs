@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Gearedup.Content.Catched;
 using Gearedup.Content.Items;
 using Gearedup.Content.Perks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ReLogic.Content.Sources;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Graphics.Shaders;
@@ -52,10 +50,10 @@ namespace Gearedup
 				case "GetLogs":
 					return errors;
 				case "Log":
-					Log("[call] "+args[1].ToString());
+					Log("[call] " + args[1]);
 					break;
 				case "NotSupported":
-					throw new Exception("This mod is not supported using "+args[1]+", please disable "+DisplayNameClean+" for the time being");
+					throw new Exception("This mod is not supported using " + args[1] + ", please disable " + DisplayNameClean + " for the time being");
 				default:
 					errors.Add($"Unknown call: {args[0]}");
 					break;
@@ -66,26 +64,26 @@ namespace Gearedup
 		public override void Load()
 		{
 			errors = new List<string>();
-			
-			On_ItemSlot.DrawItemIcon += ItemSlot_DrawItemIcon;
-			Terraria.On_Item.NewItem_Inner += Item_NewItem_Inner;
-			Terraria.On_Main.GetProjectileDesiredShader += ShaderPatch;
-			// Terraria.On_Projectile.NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float += ProjPatch;
-			Terraria.DataStructures.On_PlayerDrawLayers.DrawPlayer_27_HeldItem += ShittyPatch;
 
-			if (GearClientConfig.Get.DyeProjectileDust) { Terraria.On_Dust.NewDust += DustPatch; }
+			On_ItemSlot.DrawItemIcon += ItemSlot_DrawItemIcon;
+			On_Item.NewItem_Inner += Item_NewItem_Inner;
+			On_Main.GetProjectileDesiredShader += ShaderPatch;
+			// Terraria.On_Projectile.NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float += ProjPatch;
+			On_PlayerDrawLayers.DrawPlayer_27_HeldItem += ShittyPatch;
+
+			if (GearClientConfig.Get.DyeProjectileDust) { On_Dust.NewDust += DustPatch; }
 
 			calamityMod = LoadMod("CalamityMod", "Recipes, npcs , projectiles patches");
 			fargoSoul = LoadMod("Fargowiltasoul", "Recipes patches i guess idk");
-			
+
 			// thoriumMod = ModLoader.GetMod("ThoriumMod"); 
 		}
 
 		public override void PostSetupContent()
 		{
 			// calamityMod = LoadMod("CalamityMod", "Recipes, npcs , projectiles patches");
-			// fargoSoul = LoadMod("Fargowiltasoul", "Recipes patches i guess idk");
-            // base.PostSetupContent();
+			// fargoSoul = LoadMod("Fargowiltasoul", "Recipes patches I guess idk");
+			// base.PostSetupContent();
 		}
 
 		public Mod LoadMod(string name, string fuck)
@@ -104,7 +102,7 @@ namespace Gearedup
 			errors = null;
 		}
 
-		private int Item_NewItem_Inner(On_Item.orig_NewItem_Inner orig, IEntitySource source, int X, int Y, int Width, int Height, Item itemToClone, int Type, int Stack, bool noBroadcast, int pfix, bool noGrabDelay, bool reverseLookup)
+		private int Item_NewItem_Inner(On_Item.orig_NewItem_Inner orig, IEntitySource source, int x, int y, int width, int height, Item itemToClone, int type, int stack, bool noBroadcast, int pfix, bool noGrabDelay, bool reverseLookup)
 		{
 			// do fun stuff in hardmode
 			if (Main.hardMode && source is EntitySource_DropAsItem projSource)
@@ -116,12 +114,12 @@ namespace Gearedup
 						// 1/15 chance to turn into a white star
 						if (Main.rand.NextBool(15))
 						{
-							return orig(source, X, Y, Width, Height, itemToClone, ModContent.ItemType<WhiteStar>(), Stack, noBroadcast, pfix, noGrabDelay, reverseLookup);
+							return orig(source, x, y, width, height, itemToClone, ModContent.ItemType<WhiteStar>(), stack, noBroadcast, pfix, noGrabDelay, reverseLookup);
 						}
 					}
 				}
 			}
-			return orig(source, X, Y, Width, Height, itemToClone, Type, Stack, noBroadcast, pfix, noGrabDelay, reverseLookup);
+			return orig(source, x, y, width, height, itemToClone, type, stack, noBroadcast, pfix, noGrabDelay, reverseLookup);
 		}
 		private float ItemSlot_DrawItemIcon(On_ItemSlot.orig_DrawItemIcon orig, Item item, int context, SpriteBatch spriteBatch, Vector2 screenPositionForItemCenter, float scale, float sizeLimit, Color environmentColor)
 		{
@@ -138,6 +136,10 @@ namespace Gearedup
 						environmentColor);
 					}
 				}
+				// else if (Main.mouseItem.accessory)
+				// {
+
+				// }
 				else if (GearItem.CanGeared(Main.mouseItem) || Main.mouseItem.type == ModContent.GetInstance<UniversalDyer>().Type)
 				{
 					if (item.dye > 0 && item.type != ModContent.GetInstance<UniversalDyer>().Type)
@@ -153,15 +155,15 @@ namespace Gearedup
 		}
 
 		// We patch creation of dust
-		private int DustPatch(On_Dust.orig_NewDust orig, Vector2 Position, int Width, int Height, int Type, float SpeedX, float SpeedY, int Alpha, Color newColor, float Scale)
+		private int DustPatch(On_Dust.orig_NewDust orig, Vector2 position, int width, int height, int type, float speedX, float speedY, int alpha, Color newColor, float scale)
 		{
 
 			// new method
 
-			int i = orig(Position, Width, Height, Type, SpeedX, SpeedY, Alpha, newColor, Scale);
-			if (ProjectileDustSupport.currentAI != -1)
+			int i = orig(position, width, height, type, speedX, speedY, alpha, newColor, scale);
+			if (ProjectileAITrack.currentAI != -1)
 			{
-				var projectile = Main.projectile[ProjectileDustSupport.currentAI];
+				var projectile = Main.projectile[ProjectileAITrack.currentAI];
 
 				if (projectile != null && projectile.active && projectile.timeLeft >= 1)
 				{
@@ -192,14 +194,14 @@ namespace Gearedup
 
 			// int? shaderNum = heldItem.GetGlobalItem<GearItem>().dye.id;//GetShader(heldItem);
 
-			if (heldItem.TryGetGlobalItem<GearItem>(out GearItem gi))
+			if (heldItem.TryGetGlobalItem(out GearItem gi))
 			{
 				if (gi.dye.id is int dyeID)
 				{
 					int shader = GameShaders.Armor.GetShaderIdFromItemId(dyeID);
 					if (shader <= 0)
 					{
-						Log("[drawlayer helditem] shader is zero for "+heldItem.Name, true);
+						Log("[drawlayer helditem] shader is zero for " + heldItem.Name, true);
 						return;
 					}
 
@@ -220,124 +222,13 @@ namespace Gearedup
 				}
 			}
 		}
-		
-		// TO DO : Move this to OnSpawn Hook
-		// private int ProjPatch(On_Projectile.orig_NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float orig,
-		// IEntitySource spawnSource, float X, float Y, float SpeedX, float SpeedY, int Type, int Damage, float KnockBack, int Owner, float ai0, float ai1, float ai2)
-		// {
-		// 	// Projectile.NewProjectile
-		// 	int hasil = orig(spawnSource, X, Y, SpeedX, SpeedY, Type, Damage, KnockBack, Owner, ai0, ai1, ai2);
-
-		// 	// if (!GearServerConfig.Get.ProjectileFollowParentDye) return hasil;
-
-		// 	// get from item
-		// 	if (hasil >= 0 && spawnSource is IEntitySource_WithStatsFromItem itemSource)
-		// 	{
-		// 		// Main.NewText("from item");
-		// 		if (itemSource.Item.TryGetGlobalItem<GearItem>(out GearItem globalItem))
-		// 		{
-		// 			// Main.NewText("got moditem");
-		// 			if (globalItem.dye.id is int dyeID && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
-		// 			{
-		// 				// Main.NewText("success applied " + dyedItem.dye);
-		// 				// globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
-		// 				globalProj.dye = (short)GameShaders.Armor.GetShaderIdFromItemId(dyeID);
-
-		// 				if (GearClientConfig.Get.IsItemRT(itemSource.Item))
-		// 				{
-		// 					globalProj.useRenderTarget = true;
-		// 				}
-		// 				else if (RenderManager.IsCustomDrawed(Main.projectile[hasil]))
-		// 				{
-		// 					globalProj.useRenderTarget = true;
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-
-		// 	// We could check player ammo for this but im lazy ahh mf
-
-		// 	// if (hasil >= 0 && spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
-		// 	// {
-		// 	//     if (ammoSource.AmmoItemIdUsed != 0) 
-		// 	//     {
-		// 	//     }
-		// 	// }
-		// 	if (hasil >= 0 && spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
-		// 	{
-		// 		if (ammoSource.AmmoItemIdUsed == ModContent.ItemType<CatchedProjectile>())
-		// 		{
-		// 			Main.projectile[hasil].hostile = false;
-		// 			Main.projectile[hasil].friendly = true;
-		// 		}
-		// 	}
-
-		// 	// get from parents
-		// 	if (hasil >= 0 && spawnSource is EntitySource_Parent entitySource)
-		// 	{
-		// 		// projectile
-		// 		if (entitySource.Entity is Projectile projSource)
-		// 		{
-		// 			if (projSource.TryGetGlobalProjectile<GearProjectile>(out GearProjectile parentDyedProjectile))
-		// 			{
-		// 				if (parentDyedProjectile.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile GearProjectile))
-		// 				{
-		// 					GearProjectile.dye = parentDyedProjectile.dye;
-		// 					// if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
-		// 					if (parentDyedProjectile.ShouldRenderTarget(projSource))
-		// 					{
-		// 						GearProjectile.useRenderTarget = true;
-		// 					}
-		// 				}
-
-		// 			}
-		// 		}
-		// 		// NPC TO DO :
-
-		// 		else if (entitySource.Entity is NPC npcSource)
-		// 		{
-		// 			if (npcSource.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC bw))
-		// 			{
-		// 				if (bw.ownedBy != -1 && Main.projectile[hasil].TryGetGlobalProjectile<BrainWashedProj>(out BrainWashedProj bwr))
-		// 				{
-		// 					bwr.ownedBy = bw.ownedBy;
-		// 					Main.projectile[hasil].hostile = true;
-		// 					Main.projectile[hasil].friendly = true;
-		// 				}
-		// 			}
-		// 			// inherit projectile
-		// 			if (npcSource.TryGetGlobalNPC<GearNPCs>(out GearNPCs gearNPCs))
-		// 			{
-		// 				if (gearNPCs.dye > 0 && Main.projectile[hasil].TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
-		// 				{
-		// 					globalProj.dye = gearNPCs.dye;
-		// 					if (RenderManager.IsCustomDrawed(Main.projectile[hasil]))
-		// 					{
-		// 						globalProj.useRenderTarget = true;
-		// 					}
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// 	return hasil;
-		// }
 
 		private int ShaderPatch(On_Main.orig_GetProjectileDesiredShader orig, Projectile proj)
 		{
-			// if (proj != null && proj.active && proj.owner != 255)
-			// {
-			//     if (proj.TryGetOwner(out Player player)) 
-			//     {
-			//         if (player.TryGetModPlayer<DyePlayer>(out DyePlayer dyePlayer)) 
-			//         {
-			//             return dyePlayer.dye;
-			//         }
-			//     }
-			// }
 
-			if (proj.active && proj.TryGetGlobalProjectile<GearProjectile>(out GearProjectile dyedProjectile))
+			if (proj.active && proj.TryGetGlobalProjectile(out GearProjectile dyedProjectile))
 			{
-				// Dont use shader again if it tried to use render target methods
+				// Don't use shader again if it tried to use render target methods
 				if (dyedProjectile.dye > 0 && !dyedProjectile.ShouldRenderTarget(proj))
 				{
 					return dyedProjectile.dye;
@@ -345,13 +236,11 @@ namespace Gearedup
 			}
 			return orig(proj);
 		}
-	
 	}
 
 
 	public class SlimShady : ModSystem
 	{
-
 		public override void OnWorldLoad()
 		{
 			var errors = (List<string>)Mod.Call("GetErrors");
@@ -361,6 +250,17 @@ namespace Gearedup
 				Main.NewText($"Found {errors.Count} registered logs. skibidi toilet haktuah", Color.LightPink);
 			}
 		}
+
+		public override void PostAddRecipes()
+		{
+			BossBagPatchSystem.ResetDictionaries();
+
+			foreach (var item in ContentSamples.ItemsByType)
+			{
+				//ProjectileLightDye.Get?.AddUColoredDye(item.Value);
+				BossBagPatchSystem.RegisterDropsDB(item.Value);
+			}   
+        }
 
 		public override void PostDrawInterface(SpriteBatch spriteBatch)
 		{

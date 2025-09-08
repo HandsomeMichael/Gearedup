@@ -5,14 +5,13 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Gearedup.Content.Overwrite
+namespace Gearedup.Content.Calamity
 {
     public class GearCalamity : ModSystem
     {
-        public Mod Calamity => Gearedup.Get.calamityMod;
         public override bool IsLoadingEnabled(Mod mod)
         {
-            return ((Gearedup)mod).calamityMod != null;
+            return ModLoader.HasMod("CalamityMod");
         }
 
         // edit lots of recipe lil boy
@@ -34,8 +33,13 @@ namespace Gearedup.Content.Overwrite
                 {
                     recipe.AddIngredient(ItemID.HellfireTreads);
                 }
-                
-                
+
+                if (recipe.TryGetResult(Gearedup.Get.calamityMod.ItemType("AngelTreads"), out _))
+                {
+                    recipe.AddIngredient(ItemID.Magiluminescence);
+                }
+
+
                 // All recipes that require wood will now need 100% more
                 // if (recipe.TryGetIngredient(ItemID.Wood, out Item ingredient)) {
                 // 	ingredient.stack *= 2;
@@ -47,87 +51,40 @@ namespace Gearedup.Content.Overwrite
         }
     }
 
-    public abstract class CalItemPatch : GlobalItem
+    public abstract class ModItemPatch : GlobalItem
     {
-        public Mod Calamity => Gearedup.Get.calamityMod;
-
         public override bool AppliesToEntity(Item entity, bool lateInstantiation)
         {
-            return entity.ModItem != null && entity.ModItem.Mod.Name == "CalamityMod" && ItemName == entity.ModItem.Name;
+            return entity.ModItem != null && entity.ModItem.Mod.Name == ModName && ItemName == entity.ModItem.Name;
         }
-
         public virtual string ItemName => "cum";
-        public virtual string Version => "v2.0.5";
+        public virtual string ModName => "CalamityMod";
 
         public override bool IsLoadingEnabled(Mod mod)
         {
-            if (Calamity != null)
-            {
-                if (Calamity.Version.ToString() == Version)
-                {
-                    Gearedup.Log("{ " + FullName + " } Module imported perfectly",true);
-                    return true;
-                }
-                else
-                {
-                    Gearedup.Log("{ " + FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version,true);
-                    return false;
-                }
-            }
-            else
-            {
-                Mod?.Logger?.Info("Didnt load dumbass");
-                return false;
-            }
+            return ModLoader.HasMod(ModName);
         }
     }
 
-    public abstract class CalItemPatchMultiple : GlobalItem
+    public abstract class ModItemPatchMultiple : GlobalItem
     {
-        public Mod Calamity => Gearedup.Get.calamityMod;
-
         public override bool AppliesToEntity(Item entity, bool lateInstantiation)
         {
-            return entity.ModItem != null && entity.ModItem.Mod.Name == "CalamityMod" && ItemName.Contains(entity.ModItem.Name);
+            return entity.ModItem != null && entity.ModItem.Mod.Name == ModName && ItemName.Contains(entity.ModItem.Name);
         }
-
-        public virtual string[] ItemName => new string[]{"a"};
-        public virtual string Version => "v2.0.5";
+        public virtual string[] ItemName => new string[] { "cum" };
+        public virtual string ModName => "CalamityMod";
 
         public override bool IsLoadingEnabled(Mod mod)
         {
-            if (Calamity != null)
-            {
-                if (Calamity.Version.ToString() == Version)
-                {
-                    Gearedup.Log("{ " + this?.FullName + " } Module imported perfectly",true);
-                    return true;
-                }
-                else
-                {
-                    Gearedup.Log("{ " + this?.FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version,true);
-                    return false;
-                }
-            }
-            else
-            {
-                Mod?.Logger?.Info("Didnt load dumbass");
-                return false;
-            }
+            return ModLoader.HasMod(ModName);
         }
     }
 
-    // public class CelestialCool : CalItemPatchMultiple
-    // {
-    //     public override void UpdateAccessory(Item item, Player player, bool hideVisual)
-    //     {
-    //         player.hellfireTreads = true;
-    //     }
-    // }
-
-    public class EatableBloodOrb : CalItemPatch
+    public class EatableBloodOrb : ModItemPatch
     {
         public override string ItemName => "BloodOrb";
+        public override string ModName => "CalamityMod";
         public override void SetDefaults(Item entity)
         {
             entity.healLife = 125;
@@ -155,6 +112,61 @@ namespace Gearedup.Content.Overwrite
                 player.AddBuff(BuffID.Battle, 60 * 80);
             }
             return true;
+        }
+    }
+
+    public class TracersCelestialPatch : ModItemPatchMultiple
+    {
+        public override string[] ItemName => ["TracersElysian", "TracersCelestial", "TracersSeraph",];
+        public override string ModName => "CalamityMod";
+
+        public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "hellfireBonus", "Effect of Hellfire Threads & Magiluminescence"));
+        }
+
+        public override void UpdateVanity(Item item, Player player)
+        {
+            player.ApplyEquipVanity(ContentSamples.ItemsByType[ItemID.HellfireTreads]);
+        }
+        public override void UpdateAccessory(Item item, Player player, bool hideVisual)
+        {
+            player.hasMagiluminescence = true;
+            player.ApplyEquipFunctional(ContentSamples.ItemsByType[ItemID.HellfireTreads], hideVisual);
+        }
+    }
+
+    public class AngelTreads : ModItemPatch
+    {
+        public override string ItemName => "AngelTreads";
+        public override string ModName => "CalamityMod";
+
+        public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "magilumenEff", "Effect of Magiluminescence"));
+        }
+        public override void UpdateAccessory(Item item, Player player, bool hideVisual)
+        {
+            player.hasMagiluminescence = true;
+        }
+    }
+    
+    public class DodgeIncrease : ModItemPatch
+    {
+        public override bool IsLoadingEnabled(Mod mod)
+        {
+            return ModLoader.HasMod("CalamityMod") && ModLoader.HasMod("Dodgeroll");
+        }
+        public override string ItemName => "StatisNinjaBelt";
+        public override string ModName => "CalamityMod";
+
+        public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "Dodgeroll", "Multiply dodge time by 2x"));
+        }
+        public override void UpdateAccessory(Item item, Player player, bool hideVisual)
+        {
+            player.hasMagiluminescence = true;
         }
     }
 }

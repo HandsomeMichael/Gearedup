@@ -133,7 +133,7 @@ namespace Gearedup.Content.Items
                 NPC npc = Main.npc[i];
                 if (!npc.active || !npc.Hitbox.Intersects(Projectile.Hitbox)) { continue; }
 
-                if (npc.TryGetGlobalNPC<GearNPCs>(out GearNPCs dyeNPC) && dyeNPC.dye != dye)
+                if (npc.TryGetGlobalNPC(out GearNPCs dyeNPC) && dyeNPC.dye != dye)
                 {
                     for (int a = 0; a < 30; a++)
                     {

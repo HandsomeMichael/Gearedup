@@ -23,6 +23,17 @@ namespace Gearedup.Helper
             return item.GetGlobalItem<GearItem>();
         }
 
+		public static string GetFormatTime(int frameCount)
+        {
+            int totalSeconds = frameCount / 60;
+            int minutes = totalSeconds / 60;
+            int seconds = totalSeconds % 60;
+            int milliseconds = (frameCount % 60) * 1000 / 60; // Convert frames to milliseconds
+
+            // Use string interpolation to format the time
+            return $"{minutes:D2}:{seconds:D2}:{milliseconds:D3}";
+        }
+
 		public static bool HasAny(this int[] array, int[] array2)
 		{
 			for (int i = 0; i < array.Length; i++)
@@ -343,7 +354,7 @@ namespace Gearedup.Helper
 		/// <summary>
 		/// no more funny array haha
 		/// </summary>
-		public static string NextString(this UnifiedRandom rand,params string[] args) => rand.NextPart<string>(args);
+		public static string NextString(this UnifiedRandom rand,params string[] args) => rand.NextPart(args);
 		/// <summary>
 		/// no more funny array haha
 		/// </summary>
@@ -444,7 +455,7 @@ namespace Gearedup.Helper
 			if (frameCount > 0)
 			{
 				// Pulled it outta my ass
-				int animFrame = Helpme.MagicallyGetFrame(frameCount,6);
+				int animFrame = MagicallyGetFrame(frameCount,6);
 				float adjustedScale = 1f;
 				// prevents 0 division error if its happen somehow
 				Rectangle newFrame = new Rectangle(1,1,1,1);

@@ -38,6 +38,34 @@ namespace Gearedup.Helper
             SetTo(projectile);
         }
 
+
+        public TypeID(string nMod, string nName)
+        {
+            SetTo(nMod,nName);
+        }
+
+        public TypeID(TagCompound tag, string prefix = "")
+        {
+            mod = tag.GetString(prefix+"mod");
+            name = tag.GetString(prefix+"name");
+            SetTo(mod,name);
+        }
+
+        public void SetAir()
+        {
+            id = null;
+            mod = null;
+            name = null;
+        }
+
+        public void SetTo(string mod, string name)
+        {
+            this.mod = mod;
+            this.name = name;
+            id = null;
+            ValidateAsItem();
+        }
+
         public void SetTo(NPC npc, bool validate = true)
         {
             if (npc.ModNPC != null)
@@ -100,7 +128,7 @@ namespace Gearedup.Helper
                 return true;
             }
 
-            if (ModContent.TryFind<ModItem>(mod, name, out ModItem modEntity) && modEntity != null)
+            if (ModContent.TryFind(mod, name, out ModItem modEntity) && modEntity != null)
             {
                 id = modEntity.Type;
                 return true;
@@ -130,7 +158,7 @@ namespace Gearedup.Helper
                 return true;
             }
 
-            if (ModContent.TryFind<ModNPC>(mod, name, out ModNPC modEntity) && modEntity != null)
+            if (ModContent.TryFind(mod, name, out ModNPC modEntity) && modEntity != null)
             {
                 id = modEntity.Type;
                 return true;
@@ -154,7 +182,7 @@ namespace Gearedup.Helper
                 return true;
             }
 
-            if (ModContent.TryFind<ModProjectile>(mod, name, out ModProjectile modEntity) && modEntity != null)
+            if (ModContent.TryFind(mod, name, out ModProjectile modEntity) && modEntity != null)
             {
                 id = modEntity.Type;
                 return true;
@@ -177,16 +205,16 @@ namespace Gearedup.Helper
             name = reader.ReadString();
         }
 
-        public void Save(TagCompound tag)
+        public void Save(TagCompound tag,string prefix = "")
         {
-            tag.Add("mod", mod);
-            tag.Add("name", name);
+            tag.Add(prefix+"mod", mod);
+            tag.Add(prefix+"name", name);
         }
 
-        public void Load(TagCompound tag)
+        public void Load(TagCompound tag,string prefix ="")
         {
-            mod = tag.GetString("mod");
-            name = tag.GetString("name");
+            mod = tag.GetString(prefix+"mod");
+            name = tag.GetString(prefix+"name");
         }
     }
 }

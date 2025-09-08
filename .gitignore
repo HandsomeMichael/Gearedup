@@ -1,1 +1,6 @@
 # Top 10 Gitignore
+
+qodana.yaml
+/Properties
+/.idea
+/bin

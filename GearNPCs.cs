@@ -8,6 +8,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -21,26 +22,16 @@ namespace Gearedup
         public bool doubleLoot;
         public static int playerSpawning = -1;
 
-        // public override void NetSend(NPC nPC, BinaryWriter writer)
-        // {
-        // }
-
-        // public override void OnKill(NPC npc)
-        // {
-        //     if (doubleLoot)
-        //     {
-        //         npc.drop
-        //     }
-        // }
-
         public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
         {
             binaryWriter.Write(dye);
+            binaryWriter.Write(doubleLoot);
         }
 
         public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
         {
             dye = binaryReader.ReadInt32();
+            doubleLoot = binaryReader.ReadBoolean();
         }
 
         public override void EditSpawnRate(Player player, ref int spawnRate, ref int maxSpawns)
@@ -65,18 +56,6 @@ namespace Gearedup
             On_NPC.SpawnNPC -= FinishSpawnNPC;
         }
 
-        // public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter)
-        // {
-        //     binaryWriter.Write(dye);
-        //     // bitWriter.WriteBit(doubleLoot);
-        // }
-
-        // public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader)
-        // {
-        //     dye = binaryReader.ReadByte();
-        //     // doubleLoot = bitReader.ReadBit();
-        // }
-
         public override void OnSpawn(NPC npc, IEntitySource source)
         {
             if (Main.CurrentFrameFlags.AnyActiveBossNPC) return;
@@ -87,7 +66,7 @@ namespace Gearedup
             var player = Main.player[playerSpawning];
             if (!player.active || player.dead) return;
 
-            if (player.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+            if (player.TryGetModPlayer(out GearPlayer gp))
             {
                 // 1 in 500 chance to summon double loot guy
                 if (gp.getBossBag && Main.rand.NextBool(500))
@@ -102,7 +81,7 @@ namespace Gearedup
                     npc.value *= 10f; // increase by 10x
 
                     doubleLoot = true;
-                    // npc.netUpdate = true;
+                    npc.netUpdate = true;
                 }
             }
         }
@@ -134,11 +113,11 @@ namespace Gearedup
 
         public override void PostAI(NPC npc)
         {
-            if (npc.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC globalBW))
+            if (npc.TryGetGlobalNPC(out BrainWashedNPC globalBW))
             {
                 if (globalBW.ownedBy != -1 && Main.player[globalBW.ownedBy] != null && Main.player[globalBW.ownedBy].active)
                 {
-                    if (Main.player[globalBW.ownedBy].TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+                    if (Main.player[globalBW.ownedBy].TryGetModPlayer(out GearPlayer gp))
                     {
                         if (gp.universalDye != 0) { dye = gp.universalDye; }
                     }
@@ -155,7 +134,7 @@ namespace Gearedup
         {
             dyeValue = 0;
 
-            if (npc.TryGetGlobalNPC<GearNPCs>(out GearNPCs dyeEntity))
+            if (npc.TryGetGlobalNPC(out GearNPCs dyeEntity))
             {
                 dyeValue = dyeEntity.dye;
                 return dyeEntity.dye > 0;
@@ -183,10 +162,11 @@ namespace Gearedup
 
         internal void ChangeDye(NPC npc, int newDye)
         {
-            if (dye == 0 && npc.type == NPCID.Merchant)
-            {
-                CombatText.NewText(npc.Hitbox, Color.White, "why the fuck did you do that");
-            }
+            // if (dye == 0 && npc.townNPC && Main.rand.NextBool(10))
+            // {
+                
+            //     CombatText.NewText(npc.Hitbox, Color.White, Language);
+            // }
 
             dye = newDye;
         }

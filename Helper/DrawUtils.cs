@@ -18,9 +18,40 @@ namespace Gearedup.Helper
 	public static class DrawUtils 
 	{
 		/// <summary>
+		/// Get vanilla projectile texture path
+		/// </summary>
+		/// <param name="id">vanilla projectile id</param>
+		/// <returns>Desired texture</returns>
+		public static string PathProj(int id)
+		{
+			return $"Terraria/Images/Projectile_{id}";
+		}
+
+		/// <summary>
+		/// Get vanilla npc texture path
+		/// </summary>
+		/// <param name="id">vanilla npc id</param>
+		/// <returns>Desired texture</returns>
+		public static string PathNPC(int id)
+		{
+			return $"Terraria/Images/NPC_{id}";
+		}
+
+		/// <summary>
+		/// Get vanilla item texture path
+		/// </summary>
+		/// <param name="id">vanilla item id</param>
+		/// <returns>Desired texture</returns>
+		public static string PathItem(int id)
+		{
+			return $"Terraria/Images/Item_{id}";
+		}
+
+		/// <summary>
 		/// Get Direction from a position
 		/// </summary>
-		public static Vector2 DirectionFrom(this Vector2 From,Vector2 Source){
+		public static Vector2 DirectionFrom(this Vector2 From, Vector2 Source)
+		{
 			return Vector2.Normalize(From - Source);
 		}
 

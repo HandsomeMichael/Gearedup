@@ -7,7 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace Gearedup.Content.Items
+namespace Gearedup.Content
 {
     public abstract class ToggleItem : ModItem
     {
@@ -82,7 +82,7 @@ namespace Gearedup.Content.Items
         {
             if (!enabled) return;
             if (player == null || !player.active) return;
-            player.TryGetModPlayer<GearPlayer>(out GearPlayer modPlayer);
+            player.TryGetModPlayer(out GearPlayer modPlayer);
             if (modPlayer == null) return;
 
             UpdateEnable(modPlayer);

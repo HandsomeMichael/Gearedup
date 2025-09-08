@@ -348,7 +348,7 @@ namespace Gearedup.Content.Items
 				else if (npc.SpawnedFromStatue)
 				{
 					Vector2 vector = npc.Center - new Vector2(20f);
-					Terraria.Utils.PoofOfSmoke(vector);
+					Utils.PoofOfSmoke(vector);
 					npc.active = false;
 					NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, i);
 					NetMessage.SendData(MessageID.PoofOfSmoke, -1, -1, null, (int)vector.X, vector.Y);

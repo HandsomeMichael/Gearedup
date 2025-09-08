@@ -149,7 +149,9 @@ namespace Gearedup
 			return false;
 		}
 
-
+		[DefaultValue(true)]
+		[ReloadRequired]
+		public bool DyeProjectileLight;
 
 		[DefaultValue(true)]
 		[ReloadRequired]

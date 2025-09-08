@@ -112,7 +112,7 @@ namespace Gearedup.Content.Items
 		public override void UpdateAccessory(Player player, bool hideVisual)
 		{
 			if (player == null || !player.active) return;
-			player.TryGetModPlayer<GearPlayer>(out GearPlayer modPlayer);
+			player.TryGetModPlayer(out GearPlayer modPlayer);
 			if (modPlayer == null) return;
 
 			modPlayer.universalDye = Item.dye;

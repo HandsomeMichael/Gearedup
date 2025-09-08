@@ -1,40 +1,60 @@
+[ Geared Up ]
 
-[ Customize Weapon Now ]
+This mod adds small perk for your weapon and cool utilities for your playthrought
+Also adds accesory duplicator , endless ammo , endless throwing weapons , dyeable weapons and much more
 
-This mod adds cool tools and modular perks to gears in the game
-Also adds endless ammo , endless throwing weapons , dyeable weapons and much more
+It should be capable with most mod like Calamity <3
+Please report any bug you find because this is really early access and it would help me a lot gng
 
-It should capable with almost every mod
-Based on dynamic gear advancement mod
+Calamity integration :
 
-Content :
+- Accesories buff but more ingredients
+- Added more combinable accesories so your old accesories can be usefull a bit
+- Some recipe improvement that i added because i just wanted to
 
+Current Features :
 
-- 10 Cross-Mod Accesories ( Calamity Mod atm )
+- A few repurposed item and mechanic changes
+- Weapons have 1/20 chance to get small perk
+- The philosopher stone from that minecraft mod i saw
+- Catch any projectiles and shot it back using the new lunarian bug net !
+- Customize your weaponary with dyes , truly supports modded weapon !
+- Duplicate Accesory effect for your friend using accesory duplicator !
+- Use Loot Orb and get the ENTIRE content of boss bag + more !
+- Craft Any Endless Consumables Weaponary as QOL or somth idk
+- Quickly fall throught platform using Phasing Plate & upgrades
+- Use bottomless shimmer bucket to quickly shimmer item :D
+- Craft Any Endless Ammo for the beloved ranged class
+- New qol recipes that my friend told me about
+- Bucket of Cat Piss !
 
-Planned on :
+Idea Later :
 
-- Modular weapons perks
-- Customizable ammo packs
-- Customizable and reforgable consumable weapons
-- Customizable weapons ( name , dyes , lore )
-- Perks progressions
+- Fishing rod QOL
+- Stack unstackable item in an "imbued spacial chest"
 
-Not important stuff that i would import on :
-- Lunar Net, endgame item that allows it to catch any npcs when learned 100%
-- Cosmic Void, endgame item that could suck up projectiles and turn them into an item
-- Void Spreader, endgame item that could shoot any catched projectiles
-- Colored Myst, hardmode item that dye your projecties
-- Bytech Dye, Any dye at any time
-- Phase Plate, allows player to fall faster on platform. can be activated and deactivated on inventory
-- Teleportic Potion, allows player to teleport into already discovered place in the map
+Maybe people will ask :
 
-- usefull commands
-- stackable anything
-- respawn re zero
-- spelunker better render
+Q : My projectiles didnt dye itself ?
+- This mod has 2 modes to render projectiles. Graphically Correct and Legacy Fast
+- Go to mod config and you can see there is a list and a button to change which mode it should use
+- By default projectiles use Legacy Fast to Fastly render but sometimes it doesnt work correctly. 
+- So u can use Graphically Correct if you want
 
-- perk grant small bonuses
-- perk have durability tied by item rarity , item value , item damage , perk count
+Q : How to duplicate accesories ?
+- Craft Accesory duplicator and craft your duplicate in the recipe ui
 
-melee :
+Q : Why is there a suspiciously upside down T shaped Item ?
+- you dont need to know that
+
+Q : Isnt this Dyeable Anything ?
+- yeah and a few other of my mods combined
+
+Q : What does the Embodiment of Philosophy do ?
+- duplicates stuff at exquivelant cost, if its too complicated for you dont use it ig
+
+Credits & Referenced code are from :
+
+- Public Calamity Mod for Integration
+- Public Fargowiltas Mod for Integration
+- Public Fargowiltas Souls Mod for actuate platform method

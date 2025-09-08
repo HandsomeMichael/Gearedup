@@ -19,7 +19,7 @@ namespace Gearedup
 
         public override void OnConsumeItem(Item item, Player player)
         {
-            if (Main.LocalPlayer.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+            if (Main.LocalPlayer.TryGetModPlayer(out GearPlayer gp))
             {
                 if (gp.getBossBag)
                 {
@@ -32,12 +32,14 @@ namespace Gearedup
 
         public override void ModifyItemLoot(Item item, ItemLoot itemLoot)
         {
-            itemLoot.Add(ItemDropRule.NormalvsExpert(ModContent.ItemType<LootOrb>(), 1000, 500));
+            itemLoot.Add(new LeadingConditionRule(new Conditions.IsMasterMode())).OnSuccess(ItemDropRule.Common(ModContent.ItemType<LootOrb>(), 1000));
+            // itemLoot.Add(new LeadingConditionRule(Conditions.IsMasterMode),);
+            // itemLoot.Add(ItemDropRule.NormalvsExpert(ModContent.ItemType<LootOrb>(), 1000, 500));
         }
 
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         {
-            if (Main.LocalPlayer.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+            if (Main.LocalPlayer.TryGetModPlayer(out GearPlayer gp))
             {
                 if (gp.getBossBag)
                 {
@@ -128,7 +130,7 @@ namespace Gearedup
         private void OpenBossPatch(On_Player.orig_OpenBossBag orig, Player self, int type)
         {
 
-            if (self.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+            if (self.TryGetModPlayer(out GearPlayer gp))
             {
                 if (gp.getBossBag)
                 {
@@ -216,26 +218,36 @@ namespace Gearedup
         //     UpdateDBPlease();
         // }
 
-        public override void PostAddRecipes()
-        {
-            UpdateDBPlease();
-        }
-
-        public static void UpdateDBPlease()
+        public static void ResetDictionaries()
         {
             bossBagNewRule = new Dictionary<int, List<IItemDropRule>>();
             bossBagDisplayItem = new Dictionary<int, Dictionary<int, int>>();
             bossBagDisplayConditionedItem = new Dictionary<int, List<BossBagConditionDrop>>();
-
-            foreach (var item in ContentSamples.ItemsByType)
-            {
-                if (ItemID.Sets.BossBag[item.Key])
-                {
-                    RegisterDropsDB(item.Value);
-                }
-            }
-
         }
+
+        public static void UpdateDBSample(Item item)
+        {
+            if (ItemID.Sets.BossBag[item.type])
+            {
+                RegisterDropsDB(item);
+            }
+        }
+
+        // public static void UpdateDBPlease()
+        // {
+        //     bossBagNewRule = new Dictionary<int, List<IItemDropRule>>();
+        //     bossBagDisplayItem = new Dictionary<int, Dictionary<int, int>>();
+        //     bossBagDisplayConditionedItem = new Dictionary<int, List<BossBagConditionDrop>>();
+
+        //     foreach (var item in ContentSamples.ItemsByType)
+        //     {
+        //         if (ItemID.Sets.BossBag[item.Key])
+        //         {
+        //             RegisterDropsDB(item.Value);
+        //         }
+        //     }
+
+        // }
 
         public static void RegisterDropsDB(Item item)
         {
@@ -409,7 +421,7 @@ namespace Gearedup
                 bossBagNewRule[item.type].Add(ItemDropRule.Common(drop.Key, 1, drop.Value, stack));
                 // bossBagNewRule[item.type].Add(ItemDropRule.Common(ItemID.DirtBlock, 1, drop.Value, stack));
             }
-            
+
             // add empress custom drop
             if (item.type == ItemID.FairyQueenBossBag)
             {

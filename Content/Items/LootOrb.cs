@@ -11,7 +11,7 @@ namespace Gearedup.Content.Items
     {
         public void UpdateEnable(Player player)
         {
-            if (player.TryGetModPlayer<GearPlayer>(out GearPlayer GP))
+            if (player.TryGetModPlayer(out GearPlayer GP))
             {
                 GP.getBossBag = true;
             }
@@ -22,7 +22,7 @@ namespace Gearedup.Content.Items
             Item.width = 10;
             Item.height = 10;
             Item.rare = ItemRarityID.Expert;
-            Item.expert = true;
+            Item.master = true;
             Item.accessory = true;
         }
 
@@ -40,14 +40,19 @@ namespace Gearedup.Content.Items
         {
             UpdateEnable(player);
         }
+
         public override void AddRecipes()
         {
             CreateRecipe()
                 .AddIngredient(ItemID.DiamondRing)
-                .AddIngredient(ItemID.KingSlimeBossBag)
-                .AddIngredient(ItemID.EyeOfCthulhuBossBag)
-                .AddIngredient(ItemID.QueenBeeBossBag)
-                .AddIngredient(ItemID.DeerclopsBossBag)
+                .AddIngredient(ItemID.KingSlimeMasterTrophy)
+                .AddIngredient(ItemID.EyeofCthulhuMasterTrophy)
+                .AddIngredient(ItemID.QueenBeeMasterTrophy)
+                .AddIngredient(ItemID.DeerclopsMasterTrophy)
+                // .AddIngredient(ItemID.KingSlimeBossBag)
+                // .AddIngredient(ItemID.EyeOfCthulhuBossBag)
+                // .AddIngredient(ItemID.QueenBeeBossBag)
+                // .AddIngredient(ItemID.DeerclopsBossBag)
                 .AddTile(TileID.TinkerersWorkbench)
                 .Register();
         }

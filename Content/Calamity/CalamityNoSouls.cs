@@ -1,11 +1,9 @@
-using System.Collections.Generic;
 using Gearedup.Helper;
-using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Gearedup.Content.Items.CalamityNoFargo
+namespace Gearedup.Content.Calamity
 {
     public abstract class CalAccesory : ModItem
     {
@@ -46,29 +44,10 @@ namespace Gearedup.Content.Items.CalamityNoFargo
 
         }
 
-        // public override void ModifyTooltips(List<TooltipLine> tooltips)
-        // {
-
-        //     if (!UseTooltips) return;
-
-        //     if (CombinedTooltips != null)
-        //     {
-        //         foreach (var i in CombinedTooltips)
-        //         {
-        //             Gearedup.Get.calamityMod.Item_UpdateTooltipline(i, tooltips);
-        //         }
-        //     }
-        //     else
-        //     {
-        //         foreach (var i in Combined)
-        //         {
-        //             Gearedup.Get.calamityMod.Item_UpdateTooltipline(i, tooltips);
-        //         }
-        //     }
-        // }
         public override void AddRecipes()
         {
             if (Gearedup.Get.calamityMod == null) return;
+            // if (Gearedup.Get.fargoSoul != null) return;
 
             var recipe = Recipe.Create(Type);
             foreach (var i in Combined)
@@ -78,6 +57,14 @@ namespace Gearedup.Content.Items.CalamityNoFargo
             MoreRecipes(recipe);
             recipe.AddTile(TileID.TinkerersWorkbench);
             recipe.Register();
+        }
+
+        public override void UpdateVanity(Player player)
+        {
+            foreach (var i in Combined)
+            {
+                Gearedup.Get.calamityMod.Item_UpdateVanityAccessory(i, player);
+            }
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)
@@ -128,6 +115,10 @@ namespace Gearedup.Content.Items.CalamityNoFargo
         {
             "HeartoftheElements","ProfanedSoulArtifact","FungalClump","HowlsHeart"
         };
+        public override void MoreDefaults()
+        {
+            Item.rare = ItemRarityID.Expert;
+        }
         public override void MoreUpdate(Player player, bool hideVisual)
         {
             if (player.TryGetModPlayer(out GearPlayer gp))
@@ -136,11 +127,11 @@ namespace Gearedup.Content.Items.CalamityNoFargo
             }
 
             // duplicate bone helm because i dont fucking know how it works
-            player.ApplyEquipFunctional(ContentSamples.ItemsByType[ItemID.BoneHelm], hideVisual);
+            // player.ApplyEquipFunctional(ContentSamples.ItemsByType[ItemID.BoneHelm], hideVisual);
         }
         public override void MoreRecipes(Recipe recipe)
         {
-            recipe.AddIngredient(ItemID.BoneHelm);
+            // recipe.AddIngredient(ItemID.BoneHelm);
             recipe.AddModIngredient(Gearedup.Get.calamityMod, "RuinousSoul", 5);
             recipe.AddModIngredient(Gearedup.Get.calamityMod, "GalacticaSingularity", 5);
         }

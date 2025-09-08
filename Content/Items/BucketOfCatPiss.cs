@@ -20,7 +20,7 @@ namespace Gearedup.Content.Items
             // increased damage by 8%
             player.GetDamage(DamageClass.Generic) += 0.8f;
 
-            if (player.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+            if (player.TryGetModPlayer(out GearPlayer gp))
             {
                 gp.catPissed = true;
             }

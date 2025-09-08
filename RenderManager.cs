@@ -401,9 +401,9 @@ namespace Gearedup
         {
             Load_DrawTargets();
 
-            Terraria.On_Main.CheckMonoliths += DrawToTarget;
-            Terraria.On_Main.DrawProjectiles += DrawProjectilesPatch;
-            Terraria.On_Main.DrawNPCs += DrawNPCsPatch;
+            On_Main.CheckMonoliths += DrawToTarget;
+            On_Main.DrawProjectiles += DrawProjectilesPatch;
+            On_Main.DrawNPCs += DrawNPCsPatch;
         }
 
         private void DrawNPCsPatch(On_Main.orig_DrawNPCs orig, Main self, bool behindTiles)

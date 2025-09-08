@@ -13,6 +13,36 @@ using Terraria.UI;
 
 namespace Gearedup.Content.Endless
 {
+    /// <summary>
+    /// Prevent recursive craft to crash
+    /// </summary>
+    public class AccesoryDuplicatorMat : ModItem
+    {
+        public override string Texture => "Gearedup/Content/Endless/AccesoryDuplicator";
+        public override void SetDefaults()
+        {
+            Item.width = 10;
+            Item.height = 10;
+            Item.rare = ItemRarityID.Expert;
+            // Item.expert = true;
+            Item.accessory = true;
+        }
+
+        public override void ModifyTooltips(List<TooltipLine> tooltips)
+        {
+            tooltips.Add(new TooltipLine(Mod, "skibd", "Use this to craft and duplicate accesory\nDoes nothing on its own"));
+        }
+
+        public override void AddRecipes()
+        {
+            CreateRecipe()
+                .AddIngredient(ItemID.Bone, 25)
+                .AddIngredient<WhiteStar>(3)
+                .AddTile(TileID.TinkerersWorkbench)
+                .Register();
+        }
+    }
+
     public class AccesoryDuplicator : ModItem
     {
 
@@ -76,7 +106,7 @@ namespace Gearedup.Content.Endless
             Item.width = 10;
             Item.height = 10;
             Item.rare = ItemRarityID.Expert;
-            Item.expert = true;
+            // Item.expert = true;
             Item.accessory = true;
         }
 
@@ -162,14 +192,5 @@ namespace Gearedup.Content.Endless
         // {
         //     base.OnCraft(recipe);
         // }
-
-        public override void AddRecipes()
-        {
-            CreateRecipe()
-                .AddIngredient(ItemID.Bone, 25)
-                .AddIngredient<WhiteStar>(5)
-                .AddTile(TileID.TinkerersWorkbench)
-                .Register();
-        }
     }
 }

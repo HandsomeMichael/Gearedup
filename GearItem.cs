@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -17,95 +19,14 @@ using Terraria.ModLoader.IO;
 
 namespace Gearedup
 {
-    // public class ItemStat
-    // {
-    //     public Dictionary<string, int> stats;
-    //     public ushort durability;
-
-    //     public class RollVariety
-    //     {
-    //         public string roll;
-    //         public int minValue;
-    //         public int maxValue;
-    //         public float badMult;
-
-    //         /// <summary>
-    //         /// the higher , the lower the chance
-    //         /// </summary>
-    //         public byte weight;
-
-    //         public RollVariety()
-    //         {
-
-    //         }
-
-    //         public int GetRealValue(bool bad = false)
-    //         {
-    //             if (bad)
-    //             {
-    //                 return (int)(Main.rand.NextFloat(minValue, maxValue) * badMult);    
-    //             }
-    //             return (int)Main.rand.NextFloat(minValue, maxValue);
-    //         }
-    //     }
-
-    //     public RollVariety TryRoll(List<RollVariety> rolls, List<string> rolled)
-    //     {
-    //         // we do weighted roll
-    //         foreach (var item in rolls)
-    //         {
-    //             if (rolled.Contains(item.roll)) continue;
-
-    //             if (Main.rand.NextBool(item.weight))
-    //             {
-    //                 return item;
-    //             }
-    //         }
-    //         // if no shit happen then we randomly roll
-    //         return Main.rand.Next(rolls);
-    //     }
-
-    //     public bool RollStat(Item item, GearItem gi, int context)
-    //     {
-    //         List<string> rolled = new List<string>();
-    //         List<RollVariety> perkList = null;
-
-    //         if (item.DamageType == DamageClass.Melee)
-    //         {
-    //             perkList = new List<RollVariety>()
-    //             {
-    //                 // roll type, regular stats , bad prefix mult
-    //                 new RollVariety("damage",0.1f,1.5f) // bad prefix of this would get 50% more
-    //             };
-    //         }
-
-    //         // no valid perk available
-    //         if (perkList == null) return false;
-
-    //         // Regular Roll
-    //         if (context == 0)
-    //         {
-    //             // roll min and plus
-    //             string plus = Main.rand.Next(perkList);
-    //             perkList.Remove(plus);
-    //             string min = Main.rand.Next(perkList);
-
-    //         }
-
-
-
-    //         // succesfull
-    //         return true;
-
-    //     }
-
-    // }
     public class GearItem : GlobalItem
     {
         public override bool InstancePerEntity => true;
 
         // default to null , will initialize when actually applied
         public Dictionary<string, int> stats;
+
+        public int statsAbility;
 
         public string customName;
         public TypeID dye;
@@ -124,7 +45,7 @@ namespace Gearedup
         {
             if (dye.id is int dyeID)
             {
-                tooltips.Add(new TooltipLine(Mod, "DyeImbue", $"Imbued with {ContentSamples.ItemsByType[dyeID].Name} [i:{dyeID}]"));
+                tooltips.Add(new TooltipLine(Mod, "DyeImbue", $"Imbued with {ContentSamples.ItemsByType[dyeID].Name} [i:{dyeID}]\nThrow on water to clean it"){OverrideColor = Color.AntiqueWhite});
                 // tooltips.Add(new TooltipLine(Mod, "DyeTips",$"Press anything"));
             }
             if (!hasStats) return;
@@ -156,8 +77,8 @@ namespace Gearedup
         {
             if (hasStats && line.Name.Contains("GearStat_"))
             {
-                line.BaseScale *= 0.7f;
-                yOffset += 3;
+                line.BaseScale *= 0.8f;
+                yOffset -= 4;
 
                 // Utils.DrawInvBG(Main.spriteBatch, new Rectangle(
                 //     line.X,
@@ -173,15 +94,90 @@ namespace Gearedup
             return base.PreDrawTooltipLine(item, line, ref yOffset);
         }
 
+        public override void Update(Item item, ref float gravity, ref float maxFallSpeed)
+        {
+            if (item.wet && dye.id is int id)
+            {
+                if (id != 0)
+                {
+                    for (int a = 0; a < 30; a++)
+                    {
+                        Vector2 speed = Main.rand.NextVector2CircularEdge(1f, 1f);
+                        Dust dust = Dust.NewDustPerfect(item.Center, 182, speed * Main.rand.NextFloat(1f, 3f), Scale: 1.5f);
+                        dust.noGravity = true;
+                        dust.noLight = true;
+                        dust.shader = GameShaders.Armor.GetShaderFromItemId(id);
+                    }
+                    dye.SetAir();
+                    // how to sync item in world bruh
+                }
+            }
+        }
+
         public override void HoldItem(Item item, Player player)
         {
+            if (player.TryGetModPlayer<GearPlayer>(out GearPlayer gearPlayer))
+            {
+                gearPlayer.critDamage += GetStat("critDamage");
+            }
 
+            // armor penetration
+            player.GetArmorPenetration(DamageClass.Generic) += GetStatFlat("armorPen");
+
+            // stand still
+            if (player.IsStandingStillForSpecialEffects)
+            {
+                player.statDefense += GetStatFlat("standingDefense");
+            }
+
+            player.moveSpeed += GetStat("moveSpeed");
+
+            // item.ArmorPenetration += GetStatFlat("armorPen");
+        }
+
+        public override void UseItemFrame(Item item, Player player)
+        {
+            player.statDefense += GetStatFlat("defenseUsage");
+        }
+
+        public override void ModifyWeaponCrit(Item item, Player player, ref float crit)
+        {
+            crit += GetStat("crit");
+
+            if (player.IsStandingStillForSpecialEffects)
+            {
+                crit += GetStat("standingCrit");
+            }
         }
 
         public override void ModifyWeaponDamage(Item item, Player player, ref StatModifier damage)
         {
             damage += GetStat("damage");
+
+            if (player.IsStandingStillForSpecialEffects)
+            {
+                damage += GetStat("standingDamage");
+            }
         }
+
+        public override float UseSpeedMultiplier(Item item, Player player)
+        {
+            float speed = GetStat("speed");
+            if (speed > 0)
+            {
+                return 1f + speed;
+            }
+            return base.UseSpeedMultiplier(item, player);
+        }
+
+        public override void UpdateInventory(Item item, Player player)
+        {
+            // if (player.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+            // {
+            //     // gp.weight = (byte)Math.Min(((int)gp.weight) + item.rare, 250);
+            // }
+        }
+
 
         public float GetStat(string statName)
         {
@@ -204,12 +200,42 @@ namespace Gearedup
         public override void NetSend(Item item, BinaryWriter writer)
         {
             dye.NetSend(writer);
+            
+            if (stats == null || stats.Count <= 0)
+            {
+                // do not sync stats
+                writer.Write(false);
+            }
+            else
+            {
+                // try syncing
+                writer.Write(true);
+                writer.Write(stats.Count);
+                foreach (var i in stats)
+                {
+                    writer.Write(i.Key);
+                    writer.Write(i.Value);
+                }
+            }
         }
 
         public override void NetReceive(Item item, BinaryReader reader)
         {
             dye.NetReceive(reader);
             dye.ValidateAsItem();
+
+            // should sync
+            if (reader.ReadBoolean())
+            {
+                stats = new Dictionary<string, int>();
+                int count = reader.ReadInt32();
+                for (int i = 0; i < count; i++)
+                {
+                    string name = reader.ReadString();
+                    int value = reader.ReadInt32();
+                    stats.Add(name, value);
+                }
+            }
         }
 
         public override void SaveData(Item item, TagCompound tag)
@@ -285,19 +311,28 @@ namespace Gearedup
             if (dye.id.HasValue) { spriteBatch.BeginNormal(true); }
         }
 
-        // this doesnt do shi my gng 💔
-        public override void OnCreated(Item item, ItemCreationContext context)
+        public override void PostReforge(Item item)
         {
-            // 1/100 chance of getting perk
-            if (Main.rand.NextBool(100))
+            if (Main.rand.NextBool(20))
             {
-                RollPerk();
+                RollStatSystem.Get.TryRollStat(item, this);
+            }
+            else
+            {
+                stats = null;
             }
         }
 
-        public void RollPerk()
+        // this doesnt do shi my gng 💔
+        public override void OnCreated(Item item, ItemCreationContext context)
         {
-            
+            // RollStat.TryRollStat(item, this);
+
+            // 1/100 chance of getting perk
+            // if (Main.rand.NextBool(100))
+            // {
+            //     RollPerk();
+            // }
         }
     }
 
@@ -326,7 +361,7 @@ namespace Gearedup
         {
             if (Main.mouseItem != null)
             {
-                if (Main.mouseItem.TryGetGlobalItem<GearItem>(out GearItem git))
+                if (Main.mouseItem.TryGetGlobalItem(out GearItem git))
                 {
                     git.dye.SetTo(item);
                     // git.dye.ValidateAsItem();

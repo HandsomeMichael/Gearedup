@@ -10,6 +10,56 @@ using Terraria.ModLoader.IO;
 
 namespace Gearedup
 {
+    // public class PetGlobal : GlobalProjectile
+    // {
+    //     public bool resetStats;
+    //     public override bool InstancePerEntity => true;
+
+    //     public override void SendExtraAI(Projectile projectile, BitWriter bitWriter, BinaryWriter binaryWriter)
+    //     {
+    //         binaryWriter.Write(resetStats);
+    //     }
+
+    //     public override void ReceiveExtraAI(Projectile projectile, BitReader bitReader, BinaryReader binaryReader)
+    //     {
+    //         resetStats = binaryReader.ReadBoolean();
+    //     }
+
+    //     public override void PostAI(Projectile projectile)
+    //     {
+    //         if (projectile.owner != 255 && projectile.TryGetOwner(out Player owner))
+    //         {
+    //             if (owner.TryGetModPlayer(out GearPlayer gearPlayer))
+    //             {
+    //                 if (gearPlayer.heartsOfHero)
+    //                 {
+    //                     projectile.damage = 50;
+    //                     projectile.DamageType = DamageClass.Generic;
+    //                     projectile.penetrate = -1;
+    //                     // use local npc immune
+    //                     projectile.usesLocalNPCImmunity = true;
+    //                     projectile.localNPCHitCooldown = 20;
+    //                     projectile.netUpdate = true;
+    //                     resetStats = true;
+    //                 }
+    //                 else if (resetStats)
+    //                 {
+    //                     // reset all stats to normal
+    //                     resetStats = false;
+    //                     projectile.damage = 0;
+    //                     projectile.DamageType = DamageClass.Default;
+    //                     projectile.usesLocalNPCImmunity = false;
+    //                     projectile.netUpdate = true;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     public override bool AppliesToEntity(Projectile entity, bool lateInstantiation)
+    //     {
+    //         return Main.projPet[entity.type];
+    //     }
+    // }
     public class GearProjectile : GlobalProjectile
     {
         public int dye;
@@ -27,31 +77,44 @@ namespace Gearedup
             // dont do shit
             if (projectile == null || projectile.whoAmI <= -1 || !projectile.active) return;
 
-			// Inherit From Dyed Item
-			if (spawnSource is IEntitySource_WithStatsFromItem itemSource)
-			{
-				if (itemSource.Item.TryGetGlobalItem<GearItem>(out GearItem globalItem))
-				{
-					if (globalItem.dye.id is int dyeID && projectile.TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
-					{
-						// Main.NewText("success applied " + dyedItem.dye);
-						// globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
-						globalProj.dye = GameShaders.Armor.GetShaderIdFromItemId(dyeID);
+            // Modded stuff
+            if (projectile.ModProjectile != null)
+            {
+                // fungal heal increased life steal
+                if (projectile.ModProjectile.Mod.Name == "CalamityMod" && projectile.ModProjectile.Name == "FungalHeal")
+                {
+                    if (projectile.TryGetOwner(out Player player) && player.TryGetModPlayer<GearPlayer>(out GearPlayer gp) && gp.heartsOfHero)
+                    {
+                        projectile.ai[1] += 5;
+                    }
+                }
+            }
 
-						if (GearClientConfig.Get.IsItemRT(itemSource.Item))
-						{
-							globalProj.useRenderTarget = true;
-						}
-						else if (RenderManager.IsCustomDrawed(projectile))
-						{
-							globalProj.useRenderTarget = true;
-						}
-					}
-				}
-			}
+            // Inherit From Dyed Item
+            if (spawnSource is IEntitySource_WithStatsFromItem itemSource)
+            {
+                if (itemSource.Item.TryGetGlobalItem(out GearItem globalItem))
+                {
+                    if (globalItem.dye.id is int dyeID && projectile.TryGetGlobalProjectile(out GearProjectile globalProj))
+                    {
+                        // Main.NewText("success applied " + dyedItem.dye);
+                        // globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
+                        globalProj.dye = GameShaders.Armor.GetShaderIdFromItemId(dyeID);
+
+                        if (GearClientConfig.Get.IsItemRT(itemSource.Item))
+                        {
+                            globalProj.useRenderTarget = true;
+                        }
+                        else if (RenderManager.IsCustomDrawed(projectile))
+                        {
+                            globalProj.useRenderTarget = true;
+                        }
+                    }
+                }
+            }
 
             // Catched Projectile Behaviour
-			if (spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
+            if (spawnSource is EntitySource_ItemUse_WithAmmo ammoSource)
             {
                 if (ammoSource.AmmoItemIdUsed == ModContent.ItemType<CatchedProjectile>())
                 {
@@ -60,35 +123,35 @@ namespace Gearedup
                 }
             }
 
-			// Inherit Parents dye
-			if (spawnSource is EntitySource_Parent entitySource)
-			{
-				// Projectile owner
-				if (entitySource.Entity is Projectile projSource)
-				{
-					if (projSource.TryGetGlobalProjectile<GearProjectile>(out GearProjectile parentDyedProjectile))
-					{
-						if (parentDyedProjectile.dye > 0 && projectile.TryGetGlobalProjectile<GearProjectile>(out GearProjectile GearProjectile))
-						{
-							GearProjectile.dye = parentDyedProjectile.dye;
-							// if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
-							if (parentDyedProjectile.ShouldRenderTarget(projSource))
-							{
-								GearProjectile.useRenderTarget = true;
-							}
-						}
+            // Inherit Parents dye
+            if (spawnSource is EntitySource_Parent entitySource)
+            {
+                // Projectile owner
+                if (entitySource.Entity is Projectile projSource)
+                {
+                    if (projSource.TryGetGlobalProjectile(out GearProjectile parentDyedProjectile))
+                    {
+                        if (parentDyedProjectile.dye > 0 && projectile.TryGetGlobalProjectile(out GearProjectile GearProjectile))
+                        {
+                            GearProjectile.dye = parentDyedProjectile.dye;
+                            // if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
+                            if (parentDyedProjectile.ShouldRenderTarget(projSource))
+                            {
+                                GearProjectile.useRenderTarget = true;
+                            }
+                        }
 
-					}
-				}
+                    }
+                }
 
                 // Inherit Behaviour
-                
+
                 else if (entitySource.Entity is NPC npcSource)
                 {
                     // Inherit Brainwash from NPC Owner
-                    if (npcSource.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC bw))
+                    if (npcSource.TryGetGlobalNPC(out BrainWashedNPC bw))
                     {
-                        if (bw.ownedBy != -1 && projectile.TryGetGlobalProjectile<BrainWashedProj>(out BrainWashedProj bwr))
+                        if (bw.ownedBy != -1 && projectile.TryGetGlobalProjectile(out BrainWashedProj bwr))
                         {
                             bwr.ownedBy = bw.ownedBy;
                             projectile.hostile = true;
@@ -97,9 +160,9 @@ namespace Gearedup
                     }
 
                     // Inherit Dye From NPC Owner
-                    if (npcSource.TryGetGlobalNPC<GearNPCs>(out GearNPCs gearNPCs))
+                    if (npcSource.TryGetGlobalNPC(out GearNPCs gearNPCs))
                     {
-                        if (gearNPCs.dye > 0 && projectile.TryGetGlobalProjectile<GearProjectile>(out GearProjectile globalProj))
+                        if (gearNPCs.dye > 0 && projectile.TryGetGlobalProjectile(out GearProjectile globalProj))
                         {
                             globalProj.dye = gearNPCs.dye;
                             if (RenderManager.IsCustomDrawed(projectile))
@@ -109,7 +172,7 @@ namespace Gearedup
                         }
                     }
                 }
-			}
+            }
 
             // place our new code here
         }
@@ -118,8 +181,6 @@ namespace Gearedup
         {
             binaryWriter.Write(dye);
             binaryWriter.Write(useRenderTarget);
-
-            // bitWriter.WriteBit(useRenderTarget);
         }
 
         public override void ReceiveExtraAI(Projectile projectile, BitReader bitReader, BinaryReader binaryReader)
@@ -143,7 +204,7 @@ namespace Gearedup
             // very safe shit
             if (projectile.owner != 255 && projectile.friendly && projectile.TryGetOwner(out Player owner))
             {
-                if (owner.TryGetModPlayer<GearPlayer>(out GearPlayer gearPlayer))
+                if (owner.TryGetModPlayer(out GearPlayer gearPlayer))
                 {
                     if (gearPlayer.universalDye != 0)
                     {
@@ -163,7 +224,7 @@ namespace Gearedup
         {
             dyeValue = 0;
 
-            if (projectile.TryGetGlobalProjectile<GearProjectile>(out GearProjectile dyedProjectile))
+            if (projectile.TryGetGlobalProjectile(out GearProjectile dyedProjectile))
             {
                 dyeValue = dyedProjectile.dye;
                 return dyedProjectile.dye > 0;

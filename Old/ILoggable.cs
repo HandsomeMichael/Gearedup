@@ -1,4 +1,4 @@
-namespace Gearedup
+namespace Gearedup.Old
 {
     public interface ILoggable
     {

@@ -88,25 +88,25 @@ namespace Gearedup.Content.Items
 			// Large Smoke Gore spawn
 			for (int g = 0; g < 2; g++) {
 				var goreSpawnPosition = new Vector2(Projectile.position.X + Projectile.width / 2 - 24f, Projectile.position.Y + Projectile.height / 2 - 24f);
-				Gore gore = Gore.NewGoreDirect(Projectile.GetSource_FromThis(), goreSpawnPosition, default, Main.rand.Next(61, 64), 1f);
+				Gore gore = Gore.NewGoreDirect(Projectile.GetSource_FromThis(), goreSpawnPosition, default, Main.rand.Next(61, 64));
 				gore.scale = 1.5f;
 				gore.velocity.X += 1.5f;
 				gore.velocity.Y += 1.5f;
-				gore = Gore.NewGoreDirect(Projectile.GetSource_FromThis(), goreSpawnPosition, default, Main.rand.Next(61, 64), 1f);
+				gore = Gore.NewGoreDirect(Projectile.GetSource_FromThis(), goreSpawnPosition, default, Main.rand.Next(61, 64));
 				gore.scale = 1.5f;
 				gore.velocity.X -= 1.5f;
 				gore.velocity.Y += 1.5f;
-				gore = Gore.NewGoreDirect(Projectile.GetSource_FromThis(), goreSpawnPosition, default, Main.rand.Next(61, 64), 1f);
+				gore = Gore.NewGoreDirect(Projectile.GetSource_FromThis(), goreSpawnPosition, default, Main.rand.Next(61, 64));
 				gore.scale = 1.5f;
 				gore.velocity.X += 1.5f;
 				gore.velocity.Y -= 1.5f;
-				gore = Gore.NewGoreDirect(Projectile.GetSource_FromThis(), goreSpawnPosition, default, Main.rand.Next(61, 64), 1f);
+				gore = Gore.NewGoreDirect(Projectile.GetSource_FromThis(), goreSpawnPosition, default, Main.rand.Next(61, 64));
 				gore.scale = 1.5f;
 				gore.velocity.X -= 1.5f;
 				gore.velocity.Y -= 1.5f;
 			}
 
-            var npc = NPC.NewNPCDirect(Projectile.GetSource_ReleaseEntity("Suprise matafaka"),(int)Projectile.Center.X,(int)Projectile.Center.Y,(int)Projectile.ai[2]);
+            var npc = NewNPCDirect(Projectile.GetSource_ReleaseEntity("Suprise matafaka"),(int)Projectile.Center.X,(int)Projectile.Center.Y,(int)Projectile.ai[2]);
 
             // Reduce Stats by 50%
             npc.SpawnedFromStatue = true; // no loot
@@ -156,7 +156,7 @@ namespace Gearedup.Content.Items
 
         public override bool? CanHitNPC(Projectile projectile, NPC target)
         {
-            if (target.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC bw))
+            if (target.TryGetGlobalNPC(out BrainWashedNPC bw))
             {
                 if (bw.ownedBy != - 1 && bw.ownedBy == ownedBy)
                 {
@@ -185,7 +185,7 @@ namespace Gearedup.Content.Items
             if (ownedBy != -1)
             {
 
-                if (Main.player[ownedBy].TryGetModPlayer<GearPlayer>(out GearPlayer gr))
+                if (Main.player[ownedBy].TryGetModPlayer(out GearPlayer gr))
                 {
                     gr.haveCultFollowing = true;
                 }
@@ -200,7 +200,7 @@ namespace Gearedup.Content.Items
                     NPC target = Main.npc[i];
                     float newDist = target.Distance(Main.player[ownedBy].Center);
                     bool maiEnemi = true;
-                    if (target.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC brainWashed))
+                    if (target.TryGetGlobalNPC(out BrainWashedNPC brainWashed))
                     {
                         if (brainWashed.ownedBy == ownedBy)
                         {
@@ -277,7 +277,7 @@ namespace Gearedup.Content.Items
             {
                 NPC target = Main.npc[i];
                 bool maiEnemi = true;
-                if (i != npc.whoAmI && target.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC br))
+                if (i != npc.whoAmI && target.TryGetGlobalNPC(out BrainWashedNPC br))
                 {
                     if (br.ownedBy == ownedBy)
                     {
@@ -287,7 +287,7 @@ namespace Gearedup.Content.Items
                 if (i != npc.whoAmI && maiEnemi && target.active && (!target.friendly || NPCID.Sets.TakesDamageFromHostilesWithoutBeingFriendly[target.type]))
                 {
                     Rectangle targetRect = target.Hitbox;
-                    NPC.GetMeleeCollisionData(hitbox, i, ref specialHitSetter, ref damageMultiplier, ref targetRect);
+                    GetMeleeCollisionData(hitbox, i, ref specialHitSetter, ref damageMultiplier, ref targetRect);
 
                     if (hitbox.Intersects(targetRect))
                     {
@@ -381,11 +381,11 @@ namespace Gearedup.Content.Items
             {
                 if (entitySource.Entity is NPC parent)
                 {
-                    if (parent.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC br))
+                    if (parent.TryGetGlobalNPC(out BrainWashedNPC br))
                     {
                         if (br.ownedBy != -1)
                         {
-                            if (npc.TryGetGlobalNPC<BrainWashedNPC>(out BrainWashedNPC npcBr))
+                            if (npc.TryGetGlobalNPC(out BrainWashedNPC npcBr))
                             {
                                 npcBr.ownedBy = br.ownedBy;
                             }
