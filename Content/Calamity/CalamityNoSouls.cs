@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Gearedup.Helper;
+using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -98,22 +99,23 @@ namespace Gearedup.Content.Items.CalamityNoFargo
 
         public override void MoreUpdate(Player player, bool hideVisual)
         {
-            if (player.TryGetModPlayer<GearPlayer>(out GearPlayer gp))
+            if (player.TryGetModPlayer(out GearPlayer gp))
             {
-                gp.primateGift = true;   
+                gp.primateGift = true;
             }
         }
         public override void MoreDefaults()
         {
-            Item.rare = ItemRarityID.Expert;
+            Item.rare = ItemRarityID.Master;
             Item.defense = 2;
-            Item.expert = true;
+            Item.master = true;
         }
 
         public override void MoreRecipes(Recipe recipe)
         {
             recipe.AddModIngredient(Gearedup.Get.calamityMod, "FungalSymbiote");
             recipe.AddModIngredient(Gearedup.Get.calamityMod, "CryonicBar", 15);
+
             recipe.AddIngredient(ItemID.SoulofFright, 10);
             recipe.AddIngredient(ItemID.SoulofMight, 10);
             recipe.AddIngredient(ItemID.SoulofSight, 10);
@@ -124,11 +126,23 @@ namespace Gearedup.Content.Items.CalamityNoFargo
     {
         public override string[] Combined => new string[]
         {
-            "HeartoftheElements","FungalClump","HowlsHeart"
+            "HeartoftheElements","ProfanedSoulArtifact","FungalClump","HowlsHeart"
         };
+        public override void MoreUpdate(Player player, bool hideVisual)
+        {
+            if (player.TryGetModPlayer(out GearPlayer gp))
+            {
+                gp.heartsOfHero = true;
+            }
+
+            // duplicate bone helm because i dont fucking know how it works
+            player.ApplyEquipFunctional(ContentSamples.ItemsByType[ItemID.BoneHelm], hideVisual);
+        }
         public override void MoreRecipes(Recipe recipe)
         {
-            recipe.AddIngredient(ItemID.LunarBar, 10);
+            recipe.AddIngredient(ItemID.BoneHelm);
+            recipe.AddModIngredient(Gearedup.Get.calamityMod, "RuinousSoul", 5);
+            recipe.AddModIngredient(Gearedup.Get.calamityMod, "GalacticaSingularity", 5);
         }
     }
     

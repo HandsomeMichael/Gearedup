@@ -65,12 +65,12 @@ namespace Gearedup.Content.Overwrite
             {
                 if (Calamity.Version.ToString() == Version)
                 {
-                    Gearedup.Log("{ " + this.FullName + " } Module imported perfectly",true);
+                    Gearedup.Log("{ " + FullName + " } Module imported perfectly",true);
                     return true;
                 }
                 else
                 {
-                    Gearedup.Log("{ " + this.FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version,true);
+                    Gearedup.Log("{ " + FullName + " } Dont support calamity version " + Calamity.Version.ToString() + " only " + Version,true);
                     return false;
                 }
             }
