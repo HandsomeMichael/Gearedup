@@ -46,9 +46,10 @@ namespace Gearedup
                     // tooltips.Add(new TooltipLine(Mod, "fullbag", "Will receive all of boss drop") { OverrideColor = Color.AntiqueWhite });
 
                     // var displayDrop = BossBagPatchSystem.bossBagDisplayItem[item.type];
-                    
-                    if (BossBagPatchSystem.bossBagDisplayItem.TryGetValue(item.type,out Dictionary<int,int> displayDrop) && displayDrop.Count > 0)
+
+                    if (BossBagPatchSystem.bossBagDisplayItem.TryGetValue(item.type, out Dictionary<int, int> displayDrop) && displayDrop.Count > 0)
                     {
+                        bool haveDoubleMats = false;
                         string displayed = "Will Always Drop : \n";
                         int i = 0;
                         foreach (var drops in displayDrop)
@@ -59,9 +60,14 @@ namespace Gearedup
                                 displayed += "\n";
                                 i = 0;
                             }
+                            if (drops.Key > 10)
+                            {
+                                haveDoubleMats = true;
+                            }
                             displayed += $"[i/s{drops.Value}:{drops.Key}]";
                         }
                         tooltips.Add(new TooltipLine(Mod, "items", displayed) { OverrideColor = Color.AntiqueWhite });
+                        if (Main.LocalPlayer.luck > 0f && haveDoubleMats) tooltips.Add(new TooltipLine(Mod, "items", $"Will drop {Math.Round(Main.LocalPlayer.luck*100f)}% more materials") { OverrideColor = Color.AntiqueWhite });
                     }
                     else
                     {
@@ -96,6 +102,7 @@ namespace Gearedup
         public static Dictionary<int, List<IItemDropRule>> bossBagNewRule;
         public static Dictionary<int, Dictionary<int,int>> bossBagDisplayItem;
         public static Dictionary<int, List<BossBagConditionDrop>> bossBagDisplayConditionedItem;
+        public static Dictionary<int, float> npcItemIncrease;
 
         public struct BossBagConditionDrop
         {
@@ -117,7 +124,45 @@ namespace Gearedup
             // bossBagNewRule = new Dictionary<int, List<IItemDropRule>>();
             // bossBagDisplayItem = new Dictionary<int, Dictionary<int, int>>();
             On_Player.OpenBossBag += OpenBossPatch;
+            //On_NPC.NPCLoot_DropItems += DropPatch;
         }
+
+        // Was about to make dynamic drop rates, but someone alread did it
+
+        // Pity system mod : 
+        // real g : https://steamcommunity.com/sharedfiles/filedetails/?id=3527851845
+        // This one doesnt even fucking coded right lil cuh : https://steamcommunity.com/sharedfiles/filedetails/?id=3564421948
+
+        // private void DropPatch(On_NPC.orig_NPCLoot_DropItems orig, NPC self, Player closestPlayer)
+        // {
+        //     // DropAttemptInfo dropAttemptInfo = default(DropAttemptInfo);
+        //     // dropAttemptInfo.player = closestPlayer;
+        //     // dropAttemptInfo.npc = self;
+        //     // dropAttemptInfo.IsExpertMode = Main.expertMode;
+        //     // dropAttemptInfo.IsMasterMode = Main.masterMode;
+        //     // dropAttemptInfo.IsInSimulation = false;
+        //     // dropAttemptInfo.rng = Main.rand;
+
+        //     if (closestPlayer != null && closestPlayer.active && !closestPlayer.dead && closestPlayer.TryGetModPlayer(out GearPlayer gp) && gp.getBossBag)
+        //     {
+        //         DropAttemptInfo dropAttemptInfo = new()
+        //         {
+        //             player = closestPlayer,
+        //             npc = self,
+        //             IsExpertMode = Main.expertMode,
+        //             IsMasterMode = Main.masterMode,
+        //             IsInSimulation = false,
+        //             rng = Main.rand,
+        //         };
+        //         var rules = bossBagNewRule[type];
+        //         for (int i = 0; i < rules.Count; i++)
+        //         {
+        //             ResolveRule(rules[i], info);
+        //         }
+        //     }
+
+        //     orig(self, closestPlayer);
+        // }
 
         public override void Unload()
         {
@@ -406,19 +451,22 @@ namespace Gearedup
                     bossBagDisplayItem[item.type].Add(drop.Key, drop.Value);
                 }
 
-                int stack = drop.Value;
+                //int stack = drop.Value;
                 Item itemSample = ContentSamples.ItemsByType[drop.Key];
 
                 // add atleast 3 more item to the stack
                 if (itemSample.maxStack > 10 && drop.Value > 3)
                 {
                     // if you get 49 materials, you will get 7 more
-                    stack += Math.Max(drop.Value / 7, 3);
-                    Gearedup.Log("- Adding drop material type at stack : " + stack, true);
+                    //stack += Math.Max(drop.Value / 7, 3);
+                    Gearedup.Log("- Perfectly adding material rule", true);
+                    bossBagNewRule[item.type].Add(new DropLuckBasedStack(drop.Key, drop.Value, 3, 1f));
                 }
-
-                Gearedup.Log("- Perfectly adding rule  " + itemSample.Name, true);
-                bossBagNewRule[item.type].Add(ItemDropRule.Common(drop.Key, 1, drop.Value, stack));
+                else
+                {
+                    Gearedup.Log("- Perfectly adding rule  " + itemSample.Name, true);
+                    bossBagNewRule[item.type].Add(ItemDropRule.Common(drop.Key, 1, drop.Value, drop.Value));   
+                }
                 // bossBagNewRule[item.type].Add(ItemDropRule.Common(ItemID.DirtBlock, 1, drop.Value, stack));
             }
 

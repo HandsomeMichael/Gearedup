@@ -22,7 +22,7 @@ namespace Gearedup.Content.Catched
     // }
     public class CatchedNPC : ModItem
     {
-        public override string Texture => "Gearedup/Content/Placeholder";
+        public override string Texture => "Gearedup/Content/Catched/CatchedSoul";
         public TypeID npcType;
         // public TypeID dyeID;
         public bool notIntended;
@@ -198,15 +198,15 @@ namespace Gearedup.Content.Catched
             }
             else
             {
-                if ((npcType.mod == null || npcType.mod == "") && (npcType.name == null || npcType.name == ""))
+                if (npcType.InvalidData())
                 {
                     tooltips.Add(new TooltipLine(Mod, "ModsReviewer",
-                    " You need to actually catch npc using the special bug net instead of using some cheat ahh mod for this gng "+
-                    "\nSame with the endless ammo need to be crafted and all the other suspiciously cannon shaped item") { OverrideColor = Color.Red });
+                    "Emptied out soul due to unwelcomed forces"+
+                    "\nDoes absolutely nothing") { OverrideColor = Color.AntiqueWhite });
                 }
                 else
                 {
-                    tooltips.Add(new TooltipLine(Mod, "Unloaded", "This item didnt loaded properly \n" + $"ID : [{npcType.mod} : {npcType.name}] ") { OverrideColor = Color.Red });
+                    tooltips.Add(new TooltipLine(Mod, "Unloaded", "This entity didnt manifest properly \n" + $"Name : [{npcType.mod}\nFrom : {npcType.name}] ") { OverrideColor = Color.LightPink });
                 }
             }
         }

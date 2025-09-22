@@ -13,8 +13,23 @@ using Terraria.UI;
 
 namespace Gearedup
 {
+	
 	public partial class Gearedup : Mod
 	{
+		public class CurrentRunned
+		{
+			public int npcAI;
+			public int projAI;
+			//public int playerUpdate;
+
+			public void Reset()
+			{
+				npcAI = -1;
+				projAI = -1;
+				//playerUpdate = -1;
+			}
+		}
+
 		// get instances
 		public static Gearedup Get => ModContent.GetInstance<Gearedup>();
 		public static string DotTexture => "Gearedup/Content/Dot";
@@ -25,6 +40,8 @@ namespace Gearedup
 		// cross mod ig
 		public Mod calamityMod;
 		public Mod fargoSoul;
+
+		public static CurrentRunned runned;
 
 		public static void Log(string context, bool error = false)
 		{
@@ -64,14 +81,20 @@ namespace Gearedup
 		public override void Load()
 		{
 			errors = new List<string>();
+			runned = new CurrentRunned();
 
-			On_ItemSlot.DrawItemIcon += ItemSlot_DrawItemIcon;
 			On_Item.NewItem_Inner += Item_NewItem_Inner;
-			On_Main.GetProjectileDesiredShader += ShaderPatch;
-			// Terraria.On_Projectile.NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float += ProjPatch;
-			On_PlayerDrawLayers.DrawPlayer_27_HeldItem += ShittyPatch;
+			On_Projectile.AI += RunnedProj;
+			On_NPC.AI += RunnedNPC;
 
-			if (GearClientConfig.Get.DyeProjectileDust) { On_Dust.NewDust += DustPatch; }
+			// client only patch
+			if (!Main.dedServ)
+			{
+				On_ItemSlot.DrawItemIcon += ItemSlot_DrawItemIcon;
+				On_Main.GetProjectileDesiredShader += ShaderPatch;
+				On_PlayerDrawLayers.DrawPlayer_27_HeldItem += ShittyPatch;
+				//if (GearClientConfig.Get.DyeSupport_Dust) { On_Dust.NewDust += DustPatch; }
+			}
 
 			calamityMod = LoadMod("CalamityMod", "Recipes, npcs , projectiles patches");
 			fargoSoul = LoadMod("Fargowiltasoul", "Recipes patches i guess idk");
@@ -79,7 +102,21 @@ namespace Gearedup
 			// thoriumMod = ModLoader.GetMod("ThoriumMod"); 
 		}
 
-		public override void PostSetupContent()
+		private void RunnedNPC(On_NPC.orig_AI orig, NPC self)
+		{
+			runned.npcAI = self.whoAmI;
+			orig(self);
+			runned.npcAI = -1;
+        }
+
+		private void RunnedProj(On_Projectile.orig_AI orig, Projectile self)
+		{
+			runned.projAI = self.whoAmI;
+			orig(self);
+			runned.projAI = -1;
+        }
+
+        public override void PostSetupContent()
 		{
 			// calamityMod = LoadMod("CalamityMod", "Recipes, npcs , projectiles patches");
 			// fargoSoul = LoadMod("Fargowiltasoul", "Recipes patches I guess idk");
@@ -100,6 +137,7 @@ namespace Gearedup
 		public override void Unload()
 		{
 			errors = null;
+			runned = null;
 		}
 
 		private int Item_NewItem_Inner(On_Item.orig_NewItem_Inner orig, IEntitySource source, int x, int y, int width, int height, Item itemToClone, int type, int stack, bool noBroadcast, int pfix, bool noGrabDelay, bool reverseLookup)
@@ -159,11 +197,11 @@ namespace Gearedup
 		{
 
 			// new method
-
 			int i = orig(position, width, height, type, speedX, speedY, alpha, newColor, scale);
-			if (ProjectileAITrack.currentAI != -1)
+
+			if (runned.projAI != -1)
 			{
-				var projectile = Main.projectile[ProjectileAITrack.currentAI];
+				var projectile = Main.projectile[runned.projAI];
 
 				if (projectile != null && projectile.active && projectile.timeLeft >= 1)
 				{
@@ -210,7 +248,7 @@ namespace Gearedup
 						DrawData cloneData = drawinfo.DrawDataCache[i];
 						cloneData.shader = shader;
 
-						if (GearClientConfig.Get.DyeOverlapItemLayer)
+						if (GearClientConfig.Get.DyeItem_OverlapLayer)
 						{
 							drawinfo.DrawDataCache.Add(cloneData);
 						}
@@ -226,12 +264,18 @@ namespace Gearedup
 		private int ShaderPatch(On_Main.orig_GetProjectileDesiredShader orig, Projectile proj)
 		{
 
-			if (proj.active && proj.TryGetGlobalProjectile(out GearProjectile dyedProjectile))
+			if (proj.active)
 			{
-				// Don't use shader again if it tried to use render target methods
-				if (dyedProjectile.dye > 0 && !dyedProjectile.ShouldRenderTarget(proj))
+				if (proj.ModProjectile != null && GearClientConfig.Get.DyeRender_ProjectileModGraphics == DyeGraphics.Off) return orig(proj);
+				if (proj.ModProjectile == null && GearClientConfig.Get.DyeRender_ProjectileVanillaGraphics == DyeGraphics.Off) return orig(proj);
+
+				if (proj.TryGetGlobalProjectile(out GearProjectile dyedProjectile))
 				{
-					return dyedProjectile.dye;
+					// Don't use shader again if it tried to use render target methods
+					if (dyedProjectile.dye > 0 && RenderManager.IsCustomDrawed(proj))
+					{
+						return dyedProjectile.dye;
+					}
 				}
 			}
 			return orig(proj);
@@ -241,6 +285,16 @@ namespace Gearedup
 
 	public class SlimShady : ModSystem
 	{
+
+        public override void PreUpdateEntities()
+        {
+			// manually resets 
+			Gearedup.runned.Reset();
+        }
+
+        public override void PostUpdateNPCs() => Gearedup.runned.npcAI = -1;
+		public override void PostUpdateProjectiles() => Gearedup.runned.projAI = -1;
+
 		public override void OnWorldLoad()
 		{
 			var errors = (List<string>)Mod.Call("GetErrors");
@@ -259,8 +313,8 @@ namespace Gearedup
 			{
 				//ProjectileLightDye.Get?.AddUColoredDye(item.Value);
 				BossBagPatchSystem.RegisterDropsDB(item.Value);
-			}   
-        }
+			}
+		}
 
 		public override void PostDrawInterface(SpriteBatch spriteBatch)
 		{

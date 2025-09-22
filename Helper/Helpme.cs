@@ -22,17 +22,29 @@ namespace Gearedup.Helper
         {
             return item.GetGlobalItem<GearItem>();
         }
+		
+		/// <summary>
+		/// Check if this type has overriden its method
+		/// </summary>
+		/// <param name="type">the type</param>
+		/// <param name="methodName">the method name</param>
+		/// <returns></returns>
+		public static bool IsMethodOverridden(this Type type, string methodName)
+		{
+			var method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+			return method != null && method.GetBaseDefinition().DeclaringType != method.DeclaringType;
+		}
 
 		public static string GetFormatTime(int frameCount)
-        {
-            int totalSeconds = frameCount / 60;
-            int minutes = totalSeconds / 60;
-            int seconds = totalSeconds % 60;
-            int milliseconds = (frameCount % 60) * 1000 / 60; // Convert frames to milliseconds
+		{
+			int totalSeconds = frameCount / 60;
+			int minutes = totalSeconds / 60;
+			int seconds = totalSeconds % 60;
+			int milliseconds = (frameCount % 60) * 1000 / 60; // Convert frames to milliseconds
 
-            // Use string interpolation to format the time
-            return $"{minutes:D2}:{seconds:D2}:{milliseconds:D3}";
-        }
+			// Use string interpolation to format the time
+			return $"{minutes:D2}:{seconds:D2}:{milliseconds:D3}";
+		}
 
 		public static bool HasAny(this int[] array, int[] array2)
 		{
@@ -392,45 +404,57 @@ namespace Gearedup.Helper
 			return stack;
 		}
 
+		// Removed due to already existing class
+		
 		/// <summary>
 		/// a shorter short hand for calling Vector2.Distance ( i am the most lazy coder ever )
 		/// </summary>
-		public static float Distance(this Vector2 pos,Vector2 to) => Vector2.Distance(pos,to);
+		// public static float Distance(this Vector2 pos,Vector2 to) => Vector2.Distance(pos,to);
 
 		/// <summary>
 		/// Delete item from player inventory
 		/// </summary>
-		public static void DeleteItem(this Player player, int id, int amount = 1) {
+		public static void DeleteItem(this Player player, int id, int amount = 1)
+		{
 			int deleted = 0;
-			foreach(var item in player.inventory) {
-				if (deleted >= amount) {
+			foreach (var item in player.inventory)
+			{
+				if (deleted >= amount)
+				{
 					break;
 				}
-				if (item != null && item.type == id) {
-					if (amount == 1) {
-						if (item.stack > 1) {item.stack -= 1;}
-						else {item.TurnToAir();}
+				if (item != null && item.type == id)
+				{
+					if (amount == 1)
+					{
+						if (item.stack > 1) { item.stack -= 1; }
+						else { item.TurnToAir(); }
 						deleted = amount;
 						break;
 					}
-					else {
-						if (item.stack == (amount - deleted)) {
+					else
+					{
+						if (item.stack == (amount - deleted))
+						{
 							deleted += item.stack;
 							item.TurnToAir();
 							break;
 						}
-						else if (item.stack < (amount - deleted)) {
+						else if (item.stack < (amount - deleted))
+						{
 							deleted += item.stack;
 							item.TurnToAir();
 						}
-						else if (item.stack > (amount - deleted)) {
+						else if (item.stack > (amount - deleted))
+						{
 							int a = amount - deleted;
 							deleted += item.stack;
 							item.stack -= a;
 						}
 					}
 				}
-				if (deleted >= amount) {
+				if (deleted >= amount)
+				{
 					break;
 				}
 			}

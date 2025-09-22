@@ -19,7 +19,7 @@ namespace Gearedup.Content.Endless
     {
         // i didnt come up with the name, its from my cat kayy
         internal TypeID throwType;
-        public override string Texture => "Gearedup/Content/Placeholder";
+        //public override string Texture => "Gearedup/Content/Placeholder";
 
         public override void SetStaticDefaults()
         {
@@ -167,37 +167,40 @@ namespace Gearedup.Content.Endless
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
+
             if (throwType.id is int id)
             {
-                foreach (TooltipLine tt in tooltips)
-                {
-                    if (tt.Mod == "Terraria" && tt.Name == "ItemName")
-                    {
-                        var item = ContentSamples.ItemsByType[id];
-                        tt.Text = $"Endless {item.AffixName()} {item.Name}";
-                        break;
-                    }
-                }
+
             }
             else
             {
-                foreach (TooltipLine tt in tooltips)
-                {
-                    if (tt.Mod == "Terraria" && tt.Name == "ItemName")
-                    {
-                        tt.Text = "Unloaded Endless Throwables";
-                        break;
-                    }
-                }
-
                 tooltips.Insert(1, new TooltipLine(Mod, "tips", $"Unloaded item ( gone wrong ) ( gone sexual ) \n {throwType.mod}:{throwType.name}"));
             }
+            // if (throwType.id is int id)
+            // {
+            //     foreach (TooltipLine tt in tooltips)
+            //     {
+            //         if (tt.Mod == "Terraria" && tt.Name == "ItemName")
+            //         {
+            //             var item = ContentSamples.ItemsByType[id];
+            //             tt.Text = $"Endless {item.AffixName()} {item.Name}";
+            //             break;
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     foreach (TooltipLine tt in tooltips)
+            //     {
+            //         if (tt.Mod == "Terraria" && tt.Name == "ItemName")
+            //         {
+            //             tt.Text = "Unloaded Endless Throwables";
+            //             break;
+            //         }
+            //     }
+            //     tooltips.Insert(1, new TooltipLine(Mod, "tips", $"Unloaded item ( gone wrong ) ( gone sexual ) \n {throwType.mod}:{throwType.name}"));
+            // }
         }
-
-        // public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
-        // {
-        //     return base.PreDrawInInventory(spriteBatch, position, frame, drawColor, itemColor, origin, scale);
-        // }
 
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
@@ -211,6 +214,14 @@ namespace Gearedup.Content.Endless
                 ItemSlot.DrawItemIcon(drawItem, 31, spriteBatch, position, drawItem.scale, 32f, Color.White);
                 return false;
             }
+
+            // if data is not invalid, put a question mark on
+            else if (!throwType.InvalidData())
+            {
+                // redraw the shi
+                spriteBatch.Draw(ModContent.Request<Texture2D>(Texture).Value,position,null,drawColor,0f,origin,1f,SpriteEffects.None,0f);
+                EndlessLoader.DrawUnloaded(spriteBatch, position);
+            }
             return true;
         }
 
@@ -219,53 +230,12 @@ namespace Gearedup.Content.Endless
             if (throwType.id is int id)
             {
                 var drawItem = ContentSamples.ItemsByType[id];
-                Main.DrawItemIcon(spriteBatch, drawItem, Item.position, lightColor, drawItem.scale);
+                Main.DrawItemIcon(spriteBatch, drawItem, Item.Bottom - Main.screenPosition, lightColor, drawItem.scale);
                 return false;
             }
             return true;
         }
 
-        public override void Load()
-        {
-            On_Main.MouseText_DrawItemTooltip_GetLinesInfo += PatchTooltip;
-        }
-
-        private void PatchTooltip(On_Main.orig_MouseText_DrawItemTooltip_GetLinesInfo orig, Item item, ref int yoyoLogo, ref int researchLine, float oldKB, ref int numLines, string[] toolTipLine, bool[] preFixLine, bool[] badPreFixLine, string[] toolTipNames, out int prefixlineIndex)
-        {
-            int resetNetID = 0;
-            int resetTypeIDToo = 0;
-            if (item.ModItem != null)
-            {
-                if (item.ModItem is EndlessThrowable throwable)
-                {
-                    if (throwable.throwType.id is int id)
-                    {
-                        resetNetID = item.netID;
-                        item.netID = id;
-                    }
-                }
-                else if (item.ModItem is AccesoryDuplicator accesoryDuplicator)
-                {
-                    if (accesoryDuplicator.duplicate.id is int id)
-                    {
-                        resetTypeIDToo = item.type;
-                        resetNetID = item.netID;
-                        item.type = id;
-                        item.netID = id;
-                    }
-                }
-            }
-
-            orig(item, ref yoyoLogo, ref researchLine, oldKB, ref numLines, toolTipLine, preFixLine, badPreFixLine, toolTipNames, out prefixlineIndex);
-
-            if (resetNetID != 0)
-            {
-                item.netID = resetNetID;
-            }
-            if (resetTypeIDToo != 0)
-            {
-                item.type = resetTypeIDToo;
-            }
-        }
+        // Moved to EndlessLoader
     }
 }

@@ -113,7 +113,8 @@ namespace Gearedup
 
         public override void PostAI(NPC npc)
         {
-            if (npc.TryGetGlobalNPC(out BrainWashedNPC globalBW))
+            
+            if (GearServerConfig.Get.Content_DeityStaff && npc.TryGetGlobalNPC(out BrainWashedNPC globalBW))
             {
                 if (globalBW.ownedBy != -1 && Main.player[globalBW.ownedBy] != null && Main.player[globalBW.ownedBy].active)
                 {
@@ -123,6 +124,7 @@ namespace Gearedup
                     }
                 }
             }
+
             if (dye > 0 && !Main.dedServ && npc.active && npc.life > 0)
             {
                 RenderManager.Get.AddTarget_NPC(dye, npc);
@@ -139,7 +141,6 @@ namespace Gearedup
                 dyeValue = dyeEntity.dye;
                 return dyeEntity.dye > 0;
             }
-
 
             return false;
         }
@@ -164,7 +165,7 @@ namespace Gearedup
         {
             // if (dye == 0 && npc.townNPC && Main.rand.NextBool(10))
             // {
-                
+
             //     CombatText.NewText(npc.Hitbox, Color.White, Language);
             // }
 

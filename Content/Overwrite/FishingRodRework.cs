@@ -22,7 +22,6 @@ namespace Gearedup.Content.Overwrite
                 ItemSlot.DrawItemIcon(bait, 31, Main.spriteBatch, projectile.Center - Main.screenPosition + new Vector2(0,projectile.height), 1f, 32f, Color.White);
             }
         }
-
         
     }
 }

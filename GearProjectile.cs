@@ -63,7 +63,7 @@ namespace Gearedup
     public class GearProjectile : GlobalProjectile
     {
         public int dye;
-        public bool useRenderTarget;
+        //public bool useRenderTarget;
 
         public override bool InstancePerEntity => true;
 
@@ -101,14 +101,19 @@ namespace Gearedup
                         // globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
                         globalProj.dye = GameShaders.Armor.GetShaderIdFromItemId(dyeID);
 
-                        if (GearClientConfig.Get.IsItemRT(itemSource.Item))
+                        if (GearClientConfig.Get.IsItemFancyGraphics(itemSource.Item))
                         {
-                            globalProj.useRenderTarget = true;
+                            RenderManager.projectileForceFancy[projectile.type] = true;
                         }
-                        else if (RenderManager.IsCustomDrawed(projectile))
-                        {
-                            globalProj.useRenderTarget = true;
-                        }
+                        // Legacy Code
+                        // if (GearClientConfig.Get.IsItemRT(itemSource.Item))
+                        // {
+                        //     globalProj.useRenderTarget = true;
+                        // }
+                        // else if (RenderManager.IsCustomDrawed(projectile))
+                        // {
+                        //     globalProj.useRenderTarget = true;
+                        // }
                     }
                 }
             }
@@ -135,10 +140,16 @@ namespace Gearedup
                         {
                             GearProjectile.dye = parentDyedProjectile.dye;
                             // if (DyeRenderer.IsCustomDrawed(Main.projectile[hasil]))
-                            if (parentDyedProjectile.ShouldRenderTarget(projSource))
+
+                            // inherit fancy graphics
+                            if (RenderManager.projectileForceFancy[projSource.type])
                             {
-                                GearProjectile.useRenderTarget = true;
+                                RenderManager.projectileForceFancy[projectile.type] = true;
                             }
+                            // if (parentDyedProjectile.ShouldRenderTarget(projSource))
+                            // {
+                            //     GearProjectile.useRenderTarget = true;
+                            // }
                         }
 
                     }
@@ -148,27 +159,16 @@ namespace Gearedup
 
                 else if (entitySource.Entity is NPC npcSource)
                 {
-                    // Inherit Brainwash from NPC Owner
-                    if (npcSource.TryGetGlobalNPC(out BrainWashedNPC bw))
-                    {
-                        if (bw.ownedBy != -1 && projectile.TryGetGlobalProjectile(out BrainWashedProj bwr))
-                        {
-                            bwr.ownedBy = bw.ownedBy;
-                            projectile.hostile = true;
-                            projectile.friendly = true;
-                        }
-                    }
-
                     // Inherit Dye From NPC Owner
                     if (npcSource.TryGetGlobalNPC(out GearNPCs gearNPCs))
                     {
                         if (gearNPCs.dye > 0 && projectile.TryGetGlobalProjectile(out GearProjectile globalProj))
                         {
                             globalProj.dye = gearNPCs.dye;
-                            if (RenderManager.IsCustomDrawed(projectile))
-                            {
-                                globalProj.useRenderTarget = true;
-                            }
+                            // if (RenderManager.IsCustomDrawed(projectile))
+                            // {
+                            //     globalProj.useRenderTarget = true;
+                            // }
                         }
                     }
                 }
@@ -180,24 +180,24 @@ namespace Gearedup
         public override void SendExtraAI(Projectile projectile, BitWriter bitWriter, BinaryWriter binaryWriter)
         {
             binaryWriter.Write(dye);
-            binaryWriter.Write(useRenderTarget);
+            //binaryWriter.Write(useRenderTarget);
         }
 
         public override void ReceiveExtraAI(Projectile projectile, BitReader bitReader, BinaryReader binaryReader)
         {
             dye = binaryReader.ReadInt32();
-            useRenderTarget = binaryReader.ReadBoolean();
+            //useRenderTarget = binaryReader.ReadBoolean();
         }
 
-        public bool ShouldRenderTarget(Projectile projectile)
-        {
-            // If no other possible render target spawn then we just despawn them
-            // if (!GearClientConfig.Get.DyeRenderTargetsModded && (GearClientConfig.Get.DyeRenderTargetItemsList == null || GearClientConfig.Get.DyeRenderTargetItemsList.Count <= 0))
-            // {
-            //     return false;
-            // }
-            return useRenderTarget;
-        }
+        // public bool ShouldRenderTarget(Projectile projectile)
+        // {
+        //     // If no other possible render target spawn then we just despawn them
+        //     // if (!GearClientConfig.Get.DyeRenderTargetsModded && (GearClientConfig.Get.DyeRenderTargetItemsList == null || GearClientConfig.Get.DyeRenderTargetItemsList.Count <= 0))
+        //     // {
+        //     //     return false;
+        //     // }
+        //     return useRenderTarget;
+        // }
 
         public override void PostAI(Projectile projectile)
         {
@@ -214,7 +214,8 @@ namespace Gearedup
             }
 
             // add render progress
-            if (dye > 0 && ShouldRenderTarget(projectile) && !Main.dedServ)
+            //if (dye > 0 && ShouldRenderTarget(projectile) && !Main.dedServ)
+            if (dye > 0 && RenderManager.IsCustomDrawed(projectile) && !Main.dedServ)
             {
                 RenderManager.Get.AddTarget_Proj(dye, projectile);
             }
@@ -233,12 +234,13 @@ namespace Gearedup
             return false;
         }
 
+        // Should be moved to optimal detour later
         public override bool PreDraw(Projectile projectile, ref Color lightColor)
         {
             // If redrawen projectile is not capturing, we hid it
             if (!RenderManager.Get.isCapturing)
             {
-                if (ShouldRenderTarget(projectile)) { return false; }
+                if (RenderManager.IsCustomDrawed(projectile)) { return false; }
             }
             return base.PreDraw(projectile, ref lightColor);
         }

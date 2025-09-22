@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Tar;
 using System.IO;
-using Gearedup.Content.Calamity;
+using Gearedup.Content.Crossmod;
 using Gearedup.Content.Items;
+using Gearedup.Content.Programming;
 using Gearedup.Helper;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Xna.Framework;
@@ -95,6 +96,30 @@ namespace Gearedup
         // 	mana.Base = exampleManaCrystals * ExampleManaCrystal.ManaPerCrystal;
         // 	// Alternatively:  mana = StatModifier.Default with { Base = exampleManaCrystals * ExampleManaCrystal.ManaPerCrystal };
         // }
+
+        public override void PostUpdateEquips()
+        {
+            if (GearServerConfig.Get.Content_LustruousChest && Player.chest != -1)
+            {
+                Tile tile = Framing.GetTileSafely(Player.chestX, Player.chestY);
+                if (tile.TileType == ModContent.TileType<LustruousChestTile>())
+                {
+                    foreach (var item in Main.chest[Player.chest].item)
+                    {
+                        if (!item.IsAir)
+                        {
+                            // increase all max stack by 9999
+                            item.AllowReforgeForStackableItem = true;
+                            item.maxStack = 9999;
+                        }
+                    }
+                }
+            }
+            // if (Player.chest != -1)
+            // {
+            //     Main.chest[Player.chest].
+            // }
+        }
 
         public override void PostUpdateBuffs()
         {
@@ -225,26 +250,27 @@ namespace Gearedup
                     }
                 }
 
-                if (target.TryGetGlobalNPC<GearNPCs>(out GearNPCs gn))
-                {
-                    if (gn.doubleLoot)
-                    {
-                        // try dropping twice
-                        DropAttemptInfo info = new()
-                        {
-                            player = Player,
-                            npc = target,
-                            IsExpertMode = Main.expertMode,
-                            IsMasterMode = Main.masterMode,
-                            IsInSimulation = false,
-                            rng = Main.rand,
-                        };
-                        var prevLuck = Player.luck;
-                        Player.luck = Player.luckMaximumCap * 2f; // idk if this will work or not
-                        Main.ItemDropSolver.TryDropping(info);
-                        Player.luck = prevLuck;
-                    }
-                }
+                //not really for working, moved  to GearDrops.cs
+                // if (target.TryGetGlobalNPC<GearNPCs>(out GearNPCs gn))
+                // {
+                //     if (gn.doubleLoot)
+                //     {
+                //         // try dropping twice
+                //         DropAttemptInfo info = new()
+                //         {
+                //             player = Player,
+                //             npc = target,
+                //             IsExpertMode = Main.expertMode,
+                //             IsMasterMode = Main.masterMode,
+                //             IsInSimulation = false,
+                //             rng = Main.rand,
+                //         };
+                //         var prevLuck = Player.luck;
+                //         Player.luck = Player.luckMaximumCap * 2f; // idk if this will work or not
+                //         Main.ItemDropSolver.TryDropping(info);
+                //         Player.luck = prevLuck;
+                //     }
+                // }
             }
 
             if (catPissed)
@@ -341,7 +367,7 @@ namespace Gearedup
 
         public override void OnHitByNPC(NPC npc, Player.HurtInfo hurtInfo)
         {
-            if (haveCultFollowing)
+            if (haveCultFollowing && GearServerConfig.Get.Content_DeityStaff)
             {
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {
@@ -358,7 +384,7 @@ namespace Gearedup
 
         public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo)
         {
-            if (haveCultFollowing)
+            if (haveCultFollowing && GearServerConfig.Get.Content_DeityStaff)
             {
                 for (int i = 0; i < Main.maxNPCs; i++)
                 {

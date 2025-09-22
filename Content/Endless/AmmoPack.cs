@@ -16,6 +16,11 @@ namespace Gearedup.Content.Endless
 {
     public class AmmoPack : ModItem
     {
+        public static int GetReqStack(Item item)
+        {
+            return Math.Min(item.maxStack, 3996) / 2;
+        }
+
         // i didnt come up with the name, its from my cat kayy
         internal TypeID ammoType;
 
@@ -76,46 +81,67 @@ namespace Gearedup.Content.Endless
                 Mod.Call("Error", $"Failed to reload defaults for ammo type: {ammoType.mod}.{ammoType.name}");
             }
         }
-
+        public override bool CanRightClick() => true;
+        public override void RightClick(Player player)
+        {
+            if (ammoType.id is int id)
+            {
+                player.QuickSpawnItem(player.GetSource_FromThis(), id, GetReqStack(ContentSamples.ItemsByType[id]));
+                Item.TurnToAir();
+            }
+        }
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
             if (ammoType.id is int id)
             {
-                tooltips.Add(new TooltipLine(Mod, "extract",$"Can be [i:{ItemID.Extractinator}] extracted into [i:{id}] ammo"));
-
-                foreach (TooltipLine tt in tooltips)
-                {
-                    if (tt.Mod == "Terraria" && tt.Name == "ItemName")
-                    {
-                        tt.Text = "Endless " + ContentSamples.ItemsByType[id].Name + " Pack";
-                        return;
-                    }
-                }
+                //tooltips.Add(new TooltipLine(Mod, "extract", $"Can be [i:{ItemID.Extractinator}] extracted into [i:{id}] ammo"));
+                tooltips.Add(new TooltipLine(Mod, "extract", $"Right-click this to convert it back to [i/s{GetReqStack(ContentSamples.ItemsByType[id])}:{id}] ammo"));
             }
             else
             {
-                foreach (TooltipLine tt in tooltips)
+                if (ammoType.InvalidData())
                 {
-                    if (tt.Mod == "Terraria" && tt.Name == "ItemName")
-                    {
-                        tt.Text = "Empty Magical Pack";
-                        break;
-                    }
+                    tooltips.Add(new TooltipLine(Mod, "noValue", $"No duplicated ammo properties found\nExtract this for some [i:{ItemID.FallenStar}] fallen star"));
                 }
-
-                tooltips.Insert(1, new TooltipLine(Mod, "tips", "Does nothing on its own..."));
-                //tooltips.Add(new TooltipLine(Mod, "tips", "Does nothing on its own..."));
+                else
+                {
+                    tooltips.Add(new TooltipLine(Mod, "noMods", $"No matching ammo properties\nName : {ammoType.name}\nFrom : {ammoType.mod}"));
+                }
             }
+
+            //     foreach (TooltipLine tt in tooltips)
+            //     {
+            //         if (tt.Mod == "Terraria" && tt.Name == "ItemName")
+            //         {
+            //             tt.Text = "Endless " + ContentSamples.ItemsByType[id].Name + " Pack";
+            //             return;
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     foreach (TooltipLine tt in tooltips)
+            //     {
+            //         if (tt.Mod == "Terraria" && tt.Name == "ItemName")
+            //         {
+            //             tt.Text = "Empty Magical Pack";
+            //             break;
+            //         }
+            //     }
+
+            //     tooltips.Insert(1, new TooltipLine(Mod, "tips", "Does nothing on its own..."));
+            //     //tooltips.Add(new TooltipLine(Mod, "tips", "Does nothing on its own..."));
+            // }
         }
 
-        public override void ExtractinatorUse(int extractinatorBlockType, ref int resultType, ref int resultStack)
-        {
-            if (ammoType.id is int id)
-            {
-                resultStack = Math.Min(ContentSamples.ItemsByType[id].maxStack, 3996) / 2;
-                resultType = id;
-            }
-        }
+        // public override void ExtractinatorUse(int extractinatorBlockType, ref int resultType, ref int resultStack)
+        // {
+        //     if (ammoType.id is int id)
+        //     {
+        //         resultStack = Math.Min(ContentSamples.ItemsByType[id].maxStack, 3996) / 2;
+        //         resultType = id;
+        //     }
+        // }
 
         // public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         // {
@@ -143,6 +169,12 @@ namespace Gearedup.Content.Endless
                 }
 
                 Helpme.DrawInventory(spriteBatch, position, drawColor, texture, 0, scale);
+            }
+            else if (!ammoType.InvalidData())
+            {
+                // redraw the shi
+                // spriteBatch.Draw(ModContent.Request<Texture2D>(Texture).Value,position,null,drawColor,0f,origin,1f,SpriteEffects.None,0f);
+                EndlessLoader.DrawUnloaded(spriteBatch, position);
             }
         }
     }

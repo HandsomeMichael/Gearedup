@@ -1,6 +1,6 @@
-displayName = Geared Up [ Alpha ]
+displayName = Geared Up [ Lebronic ]
 author = Lasthue
-version = 0.2.2
+version = 0.2.8
 homepage = https://github.com/HandsomeMichael/Gearedup
 hideCode = false
 hideResources = false

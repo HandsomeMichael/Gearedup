@@ -26,12 +26,15 @@ Current Features :
 - Use bottomless shimmer bucket to quickly shimmer item :D
 - Craft Any Endless Ammo for the beloved ranged class
 - New qol recipes that my friend told me about
+- The Lustruous Chest...
 - Bucket of Cat Piss !
 
 Idea Later :
 
 - Fishing rod QOL
 - Stack unstackable item in an "imbued spacial chest"
+- Change how philosopher stone works
+- Change how rendertarget does it shits
 
 Maybe people will ask :
 

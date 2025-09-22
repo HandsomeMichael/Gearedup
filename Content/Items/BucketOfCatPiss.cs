@@ -31,8 +31,9 @@ namespace Gearedup.Content.Items
             CreateRecipe()
                 .AddIngredient(ItemID.EmptyBucket)
                 .AddIngredient(ItemID.BottomlessHoneyBucket)
-                .AddIngredient(ItemID.HallowedBar, 10)
-                .AddIngredient(ItemID.RangerEmblem)
+                .AddIngredient(ItemID.LightShard, 2)
+                .AddIngredient(ItemID.DarkShard, 2)
+                .AddIngredient(ItemID.AvengerEmblem)
                 .AddIngredient(ItemID.PoopBlock, 15)
                 .AddTile(TileID.TinkerersWorkbench)
                 .Register();

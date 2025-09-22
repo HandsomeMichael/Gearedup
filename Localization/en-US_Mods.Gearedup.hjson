@@ -50,12 +50,12 @@ Items: {
 		DisplayName: Staff of Deitic
 		Tooltip:
 			'''
-			Summons a deitic staff that points to nearby enemy
-			Right-Click to summon catched npc that follow it
-			Summoned npc might still prey other player
-			There can only be one deitic staff to control all
+			Summons and befriend catched npcs
+			Right-click to unsummon all catched npcs
+			Summoned npcs will take every damage you take
+			Summoned npcs will die if you die
+			'call me son of a deity' 
 			'''
-		Brainwash: "Spawned npcs will "
 	}
 
 	SuperBugNet: {
@@ -333,17 +333,23 @@ Items: {
 	}
 
 	PlayerTeleporter: {
-		DisplayName: Fate Ribbon
-		Tooltip:
-			'''
-			Teleports designated player to you
-			Currently assigned to {0}
-			'''
+		DisplayName: Fated Ribbon of Telegraph
+		Tooltip: ""
 	}
 
 	AccesoryDuplicatorMat: {
-		DisplayName: Accesory Duplicator Mat
+		DisplayName: Accesory Duplicator
 		Tooltip: ""
+	}
+
+	LustruousChest: {
+		DisplayName: Lustruous Chest
+		Tooltip: This is a modded chest
+	}
+
+	LustruousKey: {
+		DisplayName: Lustruous Key
+		Tooltip: This is a modded key
 	}
 }
 
@@ -365,6 +371,7 @@ Stat: {
 	debuff: "{0} Damage on most debuffed entity"
 	wet: "{0} Damage on submerged entity"
 	team: "{0} Damage on opposing team"
+	superBuff: "{0}% Debuff duration on enemies"
 	friendlyFire: Grant friendly fire
 	nokb: No knockback
 	unicorn: Scale damage on speed
@@ -386,6 +393,7 @@ Stat: {
 	jammed: "{0} Chance to jam"
 	backfire: "{0} Chance to backfire user"
 	overheat: Builds up jamming heat when used
+	noAmmo: Does not consume ammo
 	# mining
 	miner: "{0} Mining speed on ores"
 	range: "{0} Mining range"
@@ -400,6 +408,7 @@ Projectiles: {
 	NightThingProj.DisplayName: Night Thing Proj
 	DyeSprayerProj.DisplayName: Dye Sprayer Proj
 	JumbleBulletProjectile.DisplayName: Jumble Bullet Projectile
+	DeiticStaffProj.DisplayName: Deitic Staff Proj
 }
 
 Configs: {
@@ -501,6 +510,51 @@ Configs: {
 			Label: Dye Projectile Light
 			Tooltip: ""
 		}
+
+		DyeRender_NPCToggle: {
+			Label: Dye Render_ N P C Toggle
+			Tooltip: ""
+		}
+
+		DyeRender_ProjectileVanillaGraphics: {
+			Label: Dye Render_ Projectile Vanilla Graphics
+			Tooltip: ""
+		}
+
+		DyeRender_ProjectileModGraphics: {
+			Label: Dye Render_ Projectile Mod Graphics
+			Tooltip: ""
+		}
+
+		DyeRender_ItemForceFancyGraphics: {
+			Label: Dye Render_ Item Force Fancy Graphics
+			Tooltip: ""
+		}
+
+		DyeSupport_Light: {
+			Label: Dye Support_ Light
+			Tooltip: ""
+		}
+
+		DyeItem_UsePlayerShader: {
+			Label: Dye Item_ Use Player Shader
+			Tooltip: ""
+		}
+
+		DyeItem_OverlapLayer: {
+			Label: Dye Item_ Overlap Layer
+			Tooltip: ""
+		}
+
+		DyeItem_ShowDyePreview: {
+			Label: Dye Item_ Show Dye Preview
+			Tooltip: ""
+		}
+
+		DyeItem_FancyName: {
+			Label: Dye Item_ Fancy Name
+			Tooltip: ""
+		}
 	}
 
 	GearServerConfig: {
@@ -511,6 +565,7 @@ Configs: {
 			DyeGears: Dye Gears Header
 			CatchedEntities: Catched Entities Header
 			Debug: Debug Header
+			Experimental: Experimental Header
 		}
 
 		AllowAmmoPack: {
@@ -592,6 +647,133 @@ Configs: {
 			Label: Debug Mode
 			Tooltip: ""
 		}
+
+		Endless_AmmoPack: {
+			Label: Endless_ Ammo Pack
+			Tooltip: ""
+		}
+
+		Endless_Throwable: {
+			Label: Endless_ Throwable
+			Tooltip: ""
+		}
+
+		Endless_DuplicateAccesory: {
+			Label: Endless_ Duplicate Accesory
+			Tooltip: ""
+		}
+
+		Catched_SuperBugNetObtainable: {
+			Label: Catched_ Super Bug Net Obtainable
+			Tooltip: ""
+		}
+
+		Catched_Projectile: {
+			Label: Catched_ Projectile
+			Tooltip: ""
+		}
+
+		Catched_ProjectileAsAmmo: {
+			Label: Catched_ Projectile As Ammo
+			Tooltip: ""
+		}
+
+		Catched_NPCs: {
+			Label: Catched_ N P Cs
+			Tooltip: ""
+		}
+
+		Catched_Bosses: {
+			Label: Catched_ Bosses
+			Tooltip: ""
+		}
+
+		DyeItem_Toggle: {
+			Label: Dye Item_ Toggle
+			Tooltip: ""
+		}
+
+		DyeItem_ConsumeOnUse: {
+			Label: Dye Item_ Consume On Use
+			Tooltip: ""
+		}
+
+		Content_DeityStaff: {
+			Label: Content_ Deity Staff
+			Tooltip: ""
+		}
+
+		Content_PhilosopherStone: {
+			Label: Content_ Philosopher Stone
+			Tooltip: ""
+		}
+
+		Content_LustruousChest: {
+			Label: Content_ Lustruous Chest
+			Tooltip: ""
+		}
+
+		WGLoader: {
+			Label: W G Loader
+			Tooltip: ""
+		}
+	}
+
+	DyeGraphics: {
+		Tooltip: ""
+		Off.Label: Off
+		Fast.Label: Fast
+		Auto.Label: Auto
+		Fancy.Label: Fancy
+	}
+
+	OptimizeConfig: {
+		DisplayName: Optimize Config
+
+		Headers: {
+			BasicOptimization: Basic Optimization Header
+			Advanced: Advanced Header
+		}
+
+		Opti_ShowOwnProjectileOnly: {
+			Label: Opti_ Show Own Projectile Only
+			Tooltip: ""
+		}
+
+		Opti_ReduceCombatText: {
+			Label: Opti_ Reduce Combat Text
+			Tooltip: ""
+		}
+
+		Opti_ImproveCombatText: {
+			Label: Opti_ Improve Combat Text
+			Tooltip: ""
+		}
+
+		Opti_ReduceDust: {
+			Label: Opti_ Reduce Dust
+			Tooltip: ""
+		}
+
+		DyeStress_Proj: {
+			Label: Dye Stress_ Proj
+			Tooltip: ""
+		}
+
+		DyeStress_NPC: {
+			Label: Dye Stress_ N P C
+			Tooltip: ""
+		}
+
+		CombatTextStress: {
+			Label: Combat Text Stress
+			Tooltip: ""
+		}
+
+		DustStress: {
+			Label: Dust Stress
+			Tooltip: ""
+		}
 	}
 }
 
@@ -613,3 +795,12 @@ Buffs: {
 		DisplayName: Truth Demise
 	}
 }
+
+Tiles: {
+	LustruousChestTile: {
+		MapEntry0: Mods.Gearedup.Tiles.LustruousChestTile.MapEntry0
+		MapEntry1: Mods.Gearedup.Tiles.LustruousChestTile.MapEntry1
+	}
+}
+
+NPCs.TheCat.DisplayName: The Cat

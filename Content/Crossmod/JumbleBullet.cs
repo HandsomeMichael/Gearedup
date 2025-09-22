@@ -4,7 +4,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Gearedup.Content.Calamity
+namespace Gearedup.Content.Crossmod
 {
     public class JumbleBullet : ModItem
     {

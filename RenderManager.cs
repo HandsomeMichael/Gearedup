@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Graphics.Shaders;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace Gearedup
@@ -267,6 +268,7 @@ namespace Gearedup
             {
                 Gearedup.Log("-- Capturing " + npc.FullName);
                 Main.instance.DrawNPC(npc.whoAmI, false);
+                // Main.DrawWallOfFish(); //what the fuck does this even mean dawg
             }
             spriteBatch.End();
 
@@ -395,7 +397,35 @@ namespace Gearedup
 
     public class RenderManager : ModSystem
     {
+
+        // frame flags my beloved
+        public static bool[] projectileForceFancy;
         public static RenderManager Get => ModContent.GetInstance<RenderManager>();
+
+        public override void PostAddRecipes()
+        {
+            projectileForceFancy = new bool[ProjectileLoader.ProjectileCount];
+
+            // detect if a projectile override predraw
+            int i;
+            for (i = ProjectileID.Count; i < ContentSamples.ProjectilesByType.Count; i++)
+            {
+                var proj = ContentSamples.ProjectilesByType[i];
+                if (proj.ModProjectile != null)
+                {
+                    if (proj.ModProjectile.GetType().IsMethodOverridden("PreDraw"))
+                    {
+                        projectileForceFancy[i] = true;
+                    }
+                    else
+                    {
+                        Mod.Logger.Info($"[DyeRender] Unassigned [{proj.ModProjectile.Mod.Name}:{proj.ModProjectile.Name}] projectile ");            
+                    }
+                }
+            }
+            int projCount = ProjectileLoader.ProjectileCount - ProjectileID.Count;
+            Mod.Logger.Info($"[DyeRender] Assigned {i} / {projCount} projectile as fancy");
+        }
 
         public override void Load()
         {
@@ -462,20 +492,43 @@ namespace Gearedup
         /// <returns></returns>
         public static bool IsCustomDrawed(Projectile projectile)
         {
-            if (GearClientConfig.Get.DyeRenderTargetsAll) return true;
-            if (GearClientConfig.Get.DyeRenderTargetsModded && projectile.ModProjectile != null) return true;
-            if (GearClientConfig.Get.DyeRenderTargetProjectileList.Count > 0)
+            if (projectile.ModProjectile != null)
             {
-                foreach (var item in GearClientConfig.Get.DyeRenderTargetProjectileList)
+                switch (GearClientConfig.Get.DyeRender_ProjectileModGraphics)
                 {
-                    if (item.Type == projectile.type)
-                    {
-                        return true;
-                    }
+                    case DyeGraphics.Off: return false;
+                    case DyeGraphics.Fast: return false;
+                    case DyeGraphics.Fancy: return true;
+                    case DyeGraphics.Auto: return projectileForceFancy[projectile.type];
+                    default: return false;
                 }
             }
+            else
+            {
+                switch (GearClientConfig.Get.DyeRender_ProjectileVanillaGraphics)
+                {
+                    case DyeGraphics.Off: return false;
+                    case DyeGraphics.Fast: return false;
+                    case DyeGraphics.Fancy: return true;
+                    case DyeGraphics.Auto: return projectileForceFancy[projectile.type];
+                    default: return false;
+                }
+            }
+            // Legacy Code
+                // if (GearClientConfig.Get.DyeRenderTargetsAll) return true;
+                // if (GearClientConfig.Get.DyeRenderTargetsModded && projectile.ModProjectile != null) return true;
+                // if (GearClientConfig.Get.DyeRenderTargetProjectileList.Count > 0)
+                // {
+                //     foreach (var item in GearClientConfig.Get.DyeRenderTargetProjectileList)
+                //     {
+                //         if (item.Type == projectile.type)
+                //         {
+                //             return true;
+                //         }
+                //     }
+                // }
 
-            return false;
+                //return false;
         }
 
         /// <summary>

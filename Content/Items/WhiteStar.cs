@@ -1,3 +1,5 @@
+using System;
+using Gearedup.Content.Endless;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
@@ -73,6 +75,24 @@ namespace Gearedup.Content.Items
 
             return true;
         }
+
+        // public override bool CanRightClick()
+        // {
+		// 	return Main.mouseItem != null && Main.mouseItem.type == ModContent.ItemType<AmmoPack>();
+        // }
+
+        // public override void RightClick(Player player)
+        // {
+		// 	if (Main.mouseItem.ModItem is AmmoPack amm)
+		// 	{
+		// 		if (amm.ammoType.id is int id)
+		// 		{
+		// 			player.QuickSpawnItem(Item.GetSource_FromThis(), id, Math.Min(Main.mouseItem.maxStack, 3996) / 2);
+		// 			CombatText.NewText(player.Hitbox, Color.White, "Extracted " + Main.mouseItem.Name);
+		// 			Main.mouseItem.TurnToAir();
+		// 		}
+		// 	}
+        // }
 
 		public override void PostUpdate()
 		{

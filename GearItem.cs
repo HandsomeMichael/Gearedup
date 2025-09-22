@@ -16,6 +16,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
 
 namespace Gearedup
 {
@@ -45,7 +46,7 @@ namespace Gearedup
         {
             if (dye.id is int dyeID)
             {
-                tooltips.Add(new TooltipLine(Mod, "DyeImbue", $"Imbued with {ContentSamples.ItemsByType[dyeID].Name} [i:{dyeID}]\nThrow on water to clean it"){OverrideColor = Color.AntiqueWhite});
+                tooltips.Add(new TooltipLine(Mod, "DyeImbue", $"Imbued with {ContentSamples.ItemsByType[dyeID].Name} [i:{dyeID}]\nThrow on water to clean it") { OverrideColor = Color.AntiqueWhite });
                 // tooltips.Add(new TooltipLine(Mod, "DyeTips",$"Press anything"));
             }
             if (!hasStats) return;
@@ -75,6 +76,16 @@ namespace Gearedup
 
         public override bool PreDrawTooltipLine(Item item, DrawableTooltipLine line, ref int yOffset)
         {
+            // draw fancy name
+            if (GearClientConfig.Get.DyeItem_FancyName && dye.id is int id && line.Mod == "Terraria" && line.Name == "ItemName")
+            {
+                Main.spriteBatch.BeginDyeShaderByItem(id, item, true, true);
+				Utils.DrawBorderString(Main.spriteBatch, line.Text, new Vector2(line.X, line.Y), Color.White, 1);
+				Main.spriteBatch.BeginNormal(true,true);
+
+                return false;
+            }
+
             if (hasStats && line.Name.Contains("GearStat_"))
             {
                 line.BaseScale *= 0.8f;
@@ -264,7 +275,7 @@ namespace Gearedup
         {
             if (dye.id is int id)
             {
-                Entity entityShader = GearClientConfig.Get.DyeItemPlayerShader ? Main.LocalPlayer : item;
+                Entity entityShader = GearClientConfig.Get.DyeItem_UsePlayerShader ? Main.LocalPlayer : item;
 
                 DrawData data = new DrawData
                 {
@@ -291,7 +302,7 @@ namespace Gearedup
         {
             if (dye.id is int id)
             {
-                Entity entityShader = GearClientConfig.Get.DyeItemPlayerShader ? Main.LocalPlayer : item;
+                Entity entityShader = GearClientConfig.Get.DyeItem_UsePlayerShader ? Main.LocalPlayer : item;
                 DrawData data = new DrawData
                 {
                     position = item.position - Main.screenPosition,
@@ -353,7 +364,7 @@ namespace Gearedup
         // If not you know
         public override bool ConsumeItem(Item item, Player player)
         {
-            return GearServerConfig.Get.AllowDyeConsumed;
+            return GearServerConfig.Get.DyeItem_ConsumeOnUse;
         }
         
         // Apply Dyes

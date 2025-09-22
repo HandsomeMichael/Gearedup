@@ -23,71 +23,66 @@ namespace Gearedup
 
 		[DefaultValue(true)]
 		[ReloadRequired]
-		public bool AllowAmmoPack;
+		public bool Endless_AmmoPack;
 
 		[DefaultValue(true)]
 		[ReloadRequired]
-		public bool AllowEndlessThrowables;
+		public bool Endless_Throwable;
 
 		[DefaultValue(true)]
 		[ReloadRequired]
-		public bool AllowSuperBugNet;
+		public bool Endless_DuplicateAccesory;
 
 		[DefaultValue(true)]
 		[ReloadRequired]
-		public bool AllowSuperBugNet_Projectile;
+		public bool Catched_SuperBugNetObtainable;
 
 		[DefaultValue(true)]
-		[ReloadRequired]
-		public bool AllowSuperBugNet_NPCs;
+		public bool Catched_Projectile;
 
 		[DefaultValue(true)]
-		[ReloadRequired]
-		public bool AllowSuperBugNet_Bosses;
+		public bool Catched_ProjectileAsAmmo;
 
 		[DefaultValue(true)]
-		[ReloadRequired]
-		public bool AllowDeveloGun;
+		public bool Catched_NPCs;
 
 		[DefaultValue(true)]
-		[ReloadRequired]
-		public bool AllowDeveloGun_Brainwash;
+		public bool Catched_Bosses;
 
 		[Header("DyeGears")]
 
 		[DefaultValue(true)]
-		public bool AllowWeaponDye;
+		public bool DyeItem_Toggle;
 
 		[DefaultValue(false)]
-		public bool AllowDyeConsumed;
+		public bool DyeItem_ConsumeOnUse;
+
+		[Header("Experimental")]
+
+		[DefaultValue(false)]
+		[ReloadRequired]
+		public bool Content_DeityStaff;
 
 		[DefaultValue(true)]
-		public bool WaterRemoveDye;
-
-		[Header("CatchedEntities")]
-
-		[DefaultValue(false)]
-		public bool CatchNPCStats;
-
-		[DefaultValue(false)]
-		public bool CatchProjectileDamage;
-
-		[DefaultValue(100f)]
-		[Range(0f, 100f)]
-		public float CatchProjectileDamageScale;
+		[ReloadRequired]
+		public bool Content_PhilosopherStone;
 
 		[DefaultValue(true)]
-		public bool CatchProjectileAmmo;
+		[ReloadRequired]
+		public bool Content_LustruousChest;
+
+		[DefaultValue(true)]
+		public bool WGLoader;
 
 		[Header("Debug")]
 		[DefaultValue(false)]
 		public bool DebugMode;
 
-        public override void OnChanged()
-        {
+		public override void OnChanged()
+		{
 			// if (GearServerConfig.Get != null)
 			// 	BossBagPatchSystem.UpdateDBPlease();
-        }
+		}
 	}
 
 	public class GearClientConfig : ModConfig
@@ -99,47 +94,42 @@ namespace Gearedup
 		// deprecated i think
 		// public static void SaveConfig() => typeof(ConfigManager).GetMethod("Save", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[1] { Get });
 
-		[Header("Optifine")]
-		public bool Opti_DisableRenderTargetBullshit;
-		public bool Opti_DisableSomeShaderShit;
-		public bool Opti_ShowOwnCombatTextOnly;
-		public bool Opti_ShowOwnProjectileOnly;
-		public bool Opti_ReduceCombatText;
-		public bool Opti_ReduceDust;
-
 		[Header("GearDye")]
 
-		[DefaultValue(false)]
-		public bool DyeRenderTargetsAll;
-
-		[DefaultValue(false)]
-		public bool DyeRenderTargetsModded;
-
 		[DefaultValue(true)]
-		public bool DyeRenderTargetsToggle;
+		public bool DyeRender_NPCToggle;
+
+		[DefaultValue(DyeGraphics.Auto)]
+		[DrawTicks]
+		public DyeGraphics DyeRender_ProjectileVanillaGraphics;
+
+		[DefaultValue(DyeGraphics.Auto)]
+		[DrawTicks]
+		public DyeGraphics DyeRender_ProjectileModGraphics;
 
 		// [JsonDefaultListValue("{\"name\": \"GoldBar\"}")]
-		public List<ItemDefinition> DyeRenderTargetItemsList = new List<ItemDefinition>();
+		public List<ItemDefinition> DyeRender_ItemForceFancyGraphics;
+		//new List<ItemDefinition>();
 
-		// [JsonDefaultListValue("{\"name\": \"GoldBar\"}")]
-		public List<ProjectileDefinition> DyeRenderTargetProjectileList = new List<ProjectileDefinition>();
+		// // [JsonDefaultListValue("{\"name\": \"GoldBar\"}")]
+		// public List<ProjectileDefinition> DyeRenderTargetProjectileList = new List<ProjectileDefinition>();
 
-		public void AddItemRT(Item item)
+		// public void AddItemRT(Item item)
+		// {
+		// 	DyeRenderTargetItemsList.Add(new ItemDefinition(item.type));
+		// 	SaveChanges();
+		// }
+		// public void AddProjectileRT(Projectile projectile)
+		// {
+		// 	DyeRenderTargetProjectileList.Add(new ProjectileDefinition(projectile.type));
+		// }
+		public bool IsItemFancyGraphics(Item item)
 		{
-			DyeRenderTargetItemsList.Add(new ItemDefinition(item.type));
-			SaveChanges();
-		}
-		public void AddProjectileRT(Projectile projectile)
-		{
-			DyeRenderTargetProjectileList.Add(new ProjectileDefinition(projectile.type));
-		}
-		public bool IsItemRT(Item item)
-		{
-			if (DyeRenderTargetItemsList == null) return false;
-			if (DyeRenderTargetItemsList.Count <= 0) return false;
+			if (DyeRender_ItemForceFancyGraphics == null) return false;
+			if (DyeRender_ItemForceFancyGraphics.Count <= 0) return false;
 			if (item is null || item.IsAir) return false;
 
-			foreach (var rt in DyeRenderTargetItemsList)
+			foreach (var rt in DyeRender_ItemForceFancyGraphics)
 			{
 				if (rt != null && item.type == rt.Type)
 				{
@@ -149,28 +139,34 @@ namespace Gearedup
 			return false;
 		}
 
-		[DefaultValue(true)]
+		[DefaultValue(false)]
 		[ReloadRequired]
-		public bool DyeProjectileLight;
+		public bool DyeSupport_Light;
 
-		[DefaultValue(true)]
-		[ReloadRequired]
-		public bool DyeProjectileDust;
+		// ts doesnt really need a setting
+		
+		// [DefaultValue(true)]
+		// [ReloadRequired]
+		// public bool DyeSupport_Dust;
 
 		[DefaultValue(false)]
-		public bool DyeItemPlayerShader;
+		public bool DyeItem_UsePlayerShader;
 
 		[DefaultValue(false)]
-		public bool DyeOverlapItemLayer;
+		public bool DyeItem_OverlapLayer;
 
 		[DefaultValue(true)]
-		public bool DyeItemDyeDye;
+		public bool DyeItem_ShowDyePreview;
 
 		[DefaultValue(true)]
-		public bool DyeItemName;
-
-		[Header("Debug")]
-		[DefaultValue(false)]
-		public bool Debug_ItemID;
+		public bool DyeItem_FancyName;
+	}
+	
+	public enum DyeGraphics
+	{
+		Off,
+		Fast,
+		Auto,
+		Fancy
 	}
 }

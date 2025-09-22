@@ -3,7 +3,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Gearedup.Content.Calamity
+namespace Gearedup.Content.Crossmod
 {
     public abstract class CalAccesory : ModItem
     {
@@ -15,6 +15,11 @@ namespace Gearedup.Content.Calamity
         public override void Load()
         {
             Gearedup.Log("[ Cal Accesory Module ] Loading CalAccesory : "+Name);
+        }
+
+        public override bool IsLoadingEnabled(Mod mod)
+        {
+            return ModLoader.HasMod("CalamityMod");
         }
 
         public virtual string[] Combined => [];
@@ -81,7 +86,7 @@ namespace Gearedup.Content.Calamity
     {
         public override string[] Combined => new string[]
         {
-            "LuxorsGift","AmidiasSpark","GladiatorsLocket","UnstableGraniteCore"
+            "LuxorsGift","AmidiasSpark","GladiatorsLocket","UnstableGraniteCore","TrinketofChi"
         };
 
         public override void MoreUpdate(Player player, bool hideVisual)
@@ -113,7 +118,7 @@ namespace Gearedup.Content.Calamity
     {
         public override string[] Combined => new string[]
         {
-            "HeartoftheElements","ProfanedSoulArtifact","FungalClump","HowlsHeart"
+            "HeartoftheElements","ProfanedSoulArtifact","DaawnlightSpiritOrigin","FungalClump","HowlsHeart","WulfrumBattery"
         };
         public override void MoreDefaults()
         {

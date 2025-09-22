@@ -34,6 +34,8 @@ namespace Gearedup
 
 
             Legend = 50,// 1 / 100
+            LegendPreHarmode = 51,
+            LegendHardmode = 52,
             Lunarian = 100
         }
 
@@ -74,6 +76,7 @@ namespace Gearedup
 
         public bool ReqNoChannel(Item item) => !item.channel;
         public bool ReqMelee(Item item) => item.DamageType == DamageClass.Melee;
+        public bool ReqNoMelee(Item item) => item.DamageType != DamageClass.Melee;
         public bool ReqCMelee(Item item) => !item.channel && item.DamageType == DamageClass.Melee;
         public bool ReqRanged(Item item) => item.DamageType == DamageClass.Ranged;
         public bool ReqCRanged(Item item) => !item.channel && item.DamageType == DamageClass.Ranged;
@@ -97,7 +100,7 @@ namespace Gearedup
             return true;
         }
 
-        public static bool ReqAmmo(Item item) => item.ammo > 0;
+        public static bool ReqUseAmmo(Item item) => item.useAmmo > 0;
 
         // progression based
         // public static bool ReqHardmode(Item item) => Main.hardMode;
@@ -112,6 +115,16 @@ namespace Gearedup
             {
                 otherStat.minValue += 5;
                 otherStat.maxValue += 7;
+            }
+        }
+
+        public static void Amplify_Sup(Item item, bool bad, RollStat self, RollStat otherStat)
+        {
+            // increase by 2x to non static prefix
+            if (otherStat.maxValue != 0)
+            {
+                otherStat.minValue *= 2;
+                otherStat.maxValue *= 2;
             }
         }
 
@@ -137,14 +150,26 @@ namespace Gearedup
                 new RollStat(RareID.None, "crit", 5, 10, ReqNoSummon),
                 new RollStat(RareID.None, "critDamage", 5, 10, ReqNoSummon),
                 new RollStat(RareID.None, "speed", 7, 10, ReqNoChannel),
+                new RollStat(RareID.None,"moveSpeed",2,6),
 
-                //common
+                //common defense
                 new RollStat(RareID.CommonPrehardmode, "defenseUsage", 1, 3),
                 new RollStat(RareID.CommonHardmode, "defenseUsage", 2, 5),
-
+                new RollStat(RareID.CommonPrehardmode, "standingDefense", 2, 5),
+                new RollStat(RareID.CommonHardmode, "standingDefense", 4, 8),
+                // hardmode common
+                new RollStat(RareID.CommonHardmode, "debuff", 8, 20),
+                new RollStat(RareID.CommonHardmode, "wet", 8, 15),
+                // general common 
+                new RollStat(RareID.Common, "standingSpeed", 10, 15,ReqNoChannel) {preventRoll = ["speed"]},
+                new RollStat(RareID.Common, "standingDamage", 7, 12,ReqLessOnTools) {preventRoll = ["damage"]},
+                new RollStat(RareID.Common, "standingCrit", 8, 15,ReqNoSummon) {preventRoll = ["crit"]},
                 // rare
                 new RollStat(RareID.RarePrehardmode, "armorPen", 1, 2,ReqNoSummon),
-                new RollStat(RareID.CommonHardmode, "armorPen", 1, 4)
+                new RollStat(RareID.CommonHardmode, "armorPen", 1, 4),
+                // legend
+                new RollStat(RareID.Legend, "trueExecute", 3, 10),
+                new RollStat(RareID.Legend, "noAmmo") {requirement = ReqUseAmmo}
             };
 
             // BAD STATS
@@ -156,11 +181,13 @@ namespace Gearedup
                 new RollStat(RareID.None, "critDamage", 6, 9, ReqNoSummon),
                 new RollStat(RareID.NonePrehardmode, "speed", 8, 10, ReqNoChannel),
                 new RollStat(RareID.NoneHardmode, "speed", 8, 15, ReqNoChannel),
+                new RollStat(RareID.None,"moveSpeed",2,6),
 
                 // common
                 new RollStat(RareID.Common, "armorPen", 1, 2),
 
                 // legendary
+                new RollStat(RareID.Legend, "friendlyFire", Amplify_Sup){requirement = ReqNoMelee},
                 new RollStat(RareID.Legend, "nokb", Amplify_KB){requirement = ReqNoSummon}
             };
         }
@@ -196,8 +223,21 @@ namespace Gearedup
                     }
                     else if (!Main.rand.NextBool((int)roll.rare)) continue;
 
-                    if (roll.rare == RareID.CommonHardmode && !Main.hardMode) continue;
-                    if (roll.rare == RareID.CommonPrehardmode && Main.hardMode) continue;
+                    switch (roll.rare)
+                    {
+                        case RareID.CommonHardmode: if (!Main.hardMode) continue; break;
+                        case RareID.CommonPrehardmode: if (Main.hardMode) continue; break;
+                        case RareID.RareHarmode: if (!Main.hardMode) continue; break;
+                        case RareID.RarePrehardmode: if (Main.hardMode) continue; break;
+                        case RareID.LegendHardmode: if (!Main.hardMode) continue; break;
+                        case RareID.LegendPreHarmode: if (Main.hardMode) continue; break;
+                        default: break;
+                    }
+                    // if (roll.rare == RareID.CommonHardmode && !Main.hardMode) continue;
+                    // if (roll.rare == RareID.CommonPrehardmode && Main.hardMode) continue;
+
+                    // if (roll.rare == RareID.RarePrehardmode && !Main.hardMode) continue;
+                    // if (roll.rare == RareID.RareHarmode && Main.hardMode) continue;
                 }
 
                 if (roll.requirement != null)

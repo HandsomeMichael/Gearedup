@@ -8,27 +8,6 @@ using Terraria.ModLoader.IO;
 
 namespace Gearedup.Content.Perks
 {
-
-    /// <summary>
-    /// Represents the class of a gear perk, which determines what type of gear it can be applied to.
-    /// </summary>
-    public static class GearReqID
-    {
-        public const byte None = 0;
-        public const byte Melee = 1;
-        public const byte Ranged = 2;
-        public const byte Magic = 3;
-        public const byte Summon = 4;
-        public const byte Bow = 5;
-        public const byte Gun = 6;
-        public const byte Rocket = 7;
-        public const byte Axe = 8;
-        public const byte Pickaxe = 9;
-        public const byte Hammer = 10;
-        public const byte Dartgun = 11;
-        public const byte Yoyo = 12;
-    }
-
     public class GearPerk : ModItem
     {
 

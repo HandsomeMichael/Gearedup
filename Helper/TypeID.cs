@@ -23,6 +23,11 @@ namespace Gearedup.Helper
 
         public bool IsVanilla => mod == "Terraria";
 
+        public bool InvalidData()
+        {
+            return mod == null || mod == "" || name == null || name == "";
+        }
+
         public TypeID(Item item)
         {
             SetTo(item);
@@ -117,7 +122,7 @@ namespace Gearedup.Helper
         public bool ValidateAsItem(bool ignoreError = false)
         {
             id = null;
-            if (mod == null || name == null || mod == "" || name == "")
+            if (InvalidData())
             {
                 return false;
             }
@@ -147,7 +152,7 @@ namespace Gearedup.Helper
         public bool ValidateAsNPC()
         {
             id = null;
-            if (mod == null || name == null || mod == "" || name == "")
+            if (InvalidData())
             {
                 return false;
             }
@@ -171,7 +176,7 @@ namespace Gearedup.Helper
         public bool ValidateAsProjectile()
         {
             id = null;
-            if (mod == null || name == null || mod == "" || name == "")
+            if (InvalidData())
             {
                 return false;
             }

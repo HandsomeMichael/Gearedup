@@ -28,7 +28,7 @@ namespace Gearedup.Content.Items
 		
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-			Entity entityShader = GearClientConfig.Get.DyeItemPlayerShader ? Main.LocalPlayer : Item;
+			Entity entityShader = GearClientConfig.Get.DyeItem_UsePlayerShader ? Main.LocalPlayer : Item;
 
 			DrawData data = new DrawData
 			{
@@ -37,7 +37,9 @@ namespace Gearedup.Content.Items
 				sourceRect = frame,
 				texture = TextureAssets.Item[Item.type].Value
 			};
-			spriteBatch.BeginDyeShaderByItem(ItemID.RainbowDye, entityShader, true, true, data);
+
+			spriteBatch.BeginDyeShaderByItem(ItemID.SolarDye, entityShader, true, true, data);
+
             return base.PreDrawInInventory(spriteBatch, position, frame, drawColor, itemColor, origin, scale);
         }
 
@@ -95,7 +97,7 @@ namespace Gearedup.Content.Items
 
 		public override void RightClick(Player player)
 		{
-			if (GearServerConfig.Get.AllowSuperBugNet_NPCs && GearServerConfig.Get.AllowSuperBugNet_Projectile)
+			if (GearServerConfig.Get.Catched_NPCs && GearServerConfig.Get.Catched_Projectile)
 			{
 				bugMode++;
 				if (bugMode > 2)
@@ -119,7 +121,7 @@ namespace Gearedup.Content.Items
 		{
 			if (altCoolDown > 0) altCoolDown--;
 			// if any of these are false. we do bugMode 0
-			if (!GearServerConfig.Get.AllowSuperBugNet_NPCs || !GearServerConfig.Get.AllowSuperBugNet_Projectile)
+			if (!GearServerConfig.Get.Catched_NPCs || !GearServerConfig.Get.Catched_Projectile)
 			{
 				bugMode = 0;
 			}
@@ -127,9 +129,9 @@ namespace Gearedup.Content.Items
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips)
 		{
-			bool canNPC = GearServerConfig.Get.AllowSuperBugNet_NPCs;
-			bool canBoss = GearServerConfig.Get.AllowSuperBugNet_Bosses;
-			bool canProj = GearServerConfig.Get.AllowSuperBugNet_Projectile;
+			bool canNPC = GearServerConfig.Get.Catched_NPCs;
+			bool canBoss = GearServerConfig.Get.Catched_Bosses;
+			bool canProj = GearServerConfig.Get.Catched_Projectile;
 
 			if (canNPC)
 			{
@@ -341,7 +343,7 @@ namespace Gearedup.Content.Items
 			}
 			else
 			{
-				if (npc.type == 687)
+				if (npc.type == NPCID.BoundTownSlimeYellow)
 				{
 					TryTeleportingCaughtMysticFrog(npc);
 				}
@@ -356,7 +358,7 @@ namespace Gearedup.Content.Items
 				else
 				{
                     var source = Main.player[who].GetSource_CatchEntity(npc);
-                    int itemWhoAmI = 0;
+                    int itemWhoAmI = -1;
                     if (npc.catchItem > 0)
                     {
                         itemWhoAmI = Item.NewItem(source,
@@ -382,7 +384,7 @@ namespace Gearedup.Content.Items
 							//catchType.SetTo(npc,Main.item[itemWhoAmI]);
 						}
                     }
-					NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemWhoAmI, 1f);
+					if (itemWhoAmI != -1) NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemWhoAmI, 1f);
 					npc.active = false;
 					NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, i);
 				}
@@ -394,7 +396,7 @@ namespace Gearedup.Content.Items
 		{
             // Check
 			if (Main.netMode == NetmodeID.MultiplayerClient)return false;
-			if (npc.type != 687)return false;
+			if (npc.type != NPCID.BoundTownSlimeYellow) return false;
 
 			Vector2 chosenTile = Vector2.Zero;
 			Point point = npc.Center.ToTileCoordinates();
@@ -440,16 +442,16 @@ namespace Gearedup.Content.Items
 		void TryCatching()
 		{
 			// uhh what
-			if (GearServerConfig.Get.AllowSuperBugNet_NPCs && (bugMode == 2 || bugMode == 0))
+			if (GearServerConfig.Get.Catched_NPCs && (bugMode == 2 || bugMode == 0))
 			{
 				foreach (var npc in Main.ActiveNPCs)
 				{
 					if (npc != null && CheckCollide(npc.Hitbox) )
 					{
-						if (npc.boss && !GearServerConfig.Get.AllowSuperBugNet_Bosses)
+						if (npc.boss && !GearServerConfig.Get.Catched_Bosses)
 						{
-							if (Projectile.owner == Main.myPlayer)
-								Gearedup.Log($"[SBN] Passed on {npc.TypeName} boss ");
+							// if (Projectile.owner == Main.myPlayer)
+							// 	Gearedup.Log($"[SBN] Passed on {npc.TypeName} boss ");
 							continue;
 						}
 						CatchNPC(npc,Projectile.owner);
@@ -458,7 +460,7 @@ namespace Gearedup.Content.Items
 			}
 
 			// might move this function around global proj
-			if (GearServerConfig.Get.AllowSuperBugNet_Projectile && (bugMode == 2 || bugMode == 1))
+			if (GearServerConfig.Get.Catched_Projectile && (bugMode == 2 || bugMode == 1))
 			{
 				foreach (var proj in Main.ActiveProjectiles)
 				{

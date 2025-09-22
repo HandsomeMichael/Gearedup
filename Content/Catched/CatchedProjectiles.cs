@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Gearedup.Content.Items;
@@ -14,7 +15,7 @@ namespace Gearedup.Content.Catched
 {
     public class CatchedProjectile : ModItem
     {
-        public override string Texture => "Gearedup/Content/Placeholder";
+        public override string Texture => "Gearedup/Content/Catched/CatchedSoul";
         public TypeID catchType;
         public bool notIntended;
 
@@ -22,6 +23,7 @@ namespace Gearedup.Content.Catched
         {
             return projectile.ownerHitCheck || projectile.isAPreviewDummy || projectile.minion;
         }
+
         public void ReloadTypes(Projectile projectile = null)
         {
             Item.SetNameOverride(Lang.GetProjectileName(catchType.id.Value).Value);
@@ -29,12 +31,18 @@ namespace Gearedup.Content.Catched
             if (projectile != null)
             {
                 Item.shoot = projectile.type;
+                Item.damage = Math.Min(projectile.damage / 2, 80); // max to 80 damage
+                Item.DamageType = projectile.DamageType;
                 // reduce damage overtime
-                if (GearServerConfig.Get.CatchProjectileDamage)
-                {
-                    Item.damage = projectile.damage;// / 2;
-                    Item.DamageType = projectile.DamageType;
-                }
+                // if (GearServerConfig.Get.CatchProjectileDamage)
+                // {
+                //     Item.damage = projectile.damage;// / 2;
+                //     Item.DamageType = projectile.DamageType;
+                // }
+                // else
+                // {
+                //     Item.damage = 10;
+                // }
             }
         }
 
@@ -58,29 +66,37 @@ namespace Gearedup.Content.Catched
             catchType.Save(tag);
             // we need to save this chud
 
-            tag.Add("damage", Item.damage);
-            // For some reason this crashes the game
-            // for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
-            // {
-            //     var dmg = DamageClassLoader.GetDamageClass(i);
-            //     tag.Add("saveDamageType", dmg.DisplayName.Value);
-            // }
+            tag.Add("projectileDamage", Item.damage);
+
+            if (Item.DamageType != null)
+            {
+                tag.Add("saveDamageType", Item.DamageType.Name);
+            }
+            else
+            {
+                tag.Add("saveDamageType", "");
+            }
         }
         public override void LoadData(TagCompound tag)
         {
             catchType.Load(tag);
 
             // if you change language i guess you fucked up
-            Item.damage = tag.GetInt("damage");
-            // string text = tag.GetString("saveDamageType");
-            // for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
-            // {
-            //     var dmg = DamageClassLoader.GetDamageClass(i);
-            //     if (dmg.DisplayName.Value == text)
-            //     {
-            //         Item.DamageType = dmg;
-            //     }
-            // }
+            Item.damage = tag.GetInt("projectileDamage");
+            
+            string text = tag.GetString("saveDamageType");
+
+            if (text != "")
+            {
+                for (int i = 0; i < DamageClassLoader.DamageClassCount; i++)
+                {
+                    var dmg = DamageClassLoader.GetDamageClass(i);
+                    if (dmg.Name == text)
+                    {
+                        Item.DamageType = dmg;
+                    }
+                }
+            }
 
             if (catchType.ValidateAsProjectile())
             {
@@ -101,6 +117,12 @@ namespace Gearedup.Content.Catched
             return false;
         }
 
+        public override void OnStack(Item source, int numToTransfer)
+        {
+            source.damage = Math.Max(source.damage, Item.damage);
+            Item.damage = Math.Max(source.damage, Item.damage);
+        }
+
         public override void SetDefaults()
         {
             Item.damage = 1;
@@ -114,6 +136,7 @@ namespace Gearedup.Content.Catched
             Item.width = 12;
             Item.height = 12;
             Item.noUseGraphic = true;
+
             // Item.shoot = proj;
             Item.shootSpeed = 11f;
         }
@@ -138,7 +161,7 @@ namespace Gearedup.Content.Catched
 
             if (catchType.id == null || catchType.id.Value <= 0)
             {
-                tooltips.Add(new TooltipLine(Mod, "Penis", $"This item didnt load properly gng 💔 \n item id : {catchType.mod} / {catchType.name}") { OverrideColor = Color.Red });
+                tooltips.Add(new TooltipLine(Mod, "Penis", $"This item didnt load properly gng\nName : {catchType.mod}\nFrom : {catchType.name}") { OverrideColor = Color.Red });
             }
 
             // if (catchType.unloaded)
@@ -161,10 +184,10 @@ namespace Gearedup.Content.Catched
             if (catchType.id is int validID)
             {
                 Item.shoot = validID;
-                if (GearServerConfig.Get.CatchProjectileAmmo &&
+                if (GearServerConfig.Get.Catched_ProjectileAsAmmo &&
                 player.HeldItem != null &&
-                player.HeldItem.type != ModContent.ItemType<DeveloGun>()
-                && player.HeldItem.useAmmo > 0)
+                //player.HeldItem.type != ModContent.ItemType<DeveloGun>()&&
+                 player.HeldItem.useAmmo > 0)
                 {
                     Item.ammo = player.HeldItem.useAmmo;
                 }
