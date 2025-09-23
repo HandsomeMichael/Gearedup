@@ -15,6 +15,7 @@ namespace Gearedup
     {
         public override bool IsLoadingEnabled(Mod mod)
         {
+            if (ModLoader.HasMod("DyeableLightPets")) return false;
             return !Main.dedServ && GearClientConfig.Get.DyeSupport_Light;
         }
         public Color? color;
@@ -24,6 +25,7 @@ namespace Gearedup
             color = null;
         }
     }
+
     /// <summary>
     /// referenced from
     /// https://github.com/alfuwu/DyeableLightPets/blob/master/DyeableLightPets.cs
@@ -31,7 +33,12 @@ namespace Gearedup
     public class ProjectileLightDye : ModSystem
     {
         public static ProjectileLightDye Get => GearClientConfig.Get.DyeSupport_Light ? ModContent.GetInstance<ProjectileLightDye>() : null;
-        public override bool IsLoadingEnabled(Mod mod) => GearClientConfig.Get.DyeSupport_Light;
+        public override bool IsLoadingEnabled(Mod mod)
+        {
+            if (ModLoader.HasMod("DyeableLightPets")) return false;
+            return GearClientConfig.Get.DyeSupport_Light;
+        }
+        
         public RenderTarget2D target;
         public List<int> uColoredDye;
         public Dictionary<int, int> dyeToItemID;

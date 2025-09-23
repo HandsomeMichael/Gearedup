@@ -6,5 +6,4 @@ hideCode = false
 hideResources = false
 includeSource = true
 buildIgnore = *.csproj, *.user, obj\*, bin\*, .vs\*, Old\*, *csbak
-weakReferences = CalamityMod
 sortAfter = FargowiltasSouls, Fargowiltas, CalamityMod

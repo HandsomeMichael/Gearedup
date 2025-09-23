@@ -514,21 +514,6 @@ namespace Gearedup
                     default: return false;
                 }
             }
-            // Legacy Code
-                // if (GearClientConfig.Get.DyeRenderTargetsAll) return true;
-                // if (GearClientConfig.Get.DyeRenderTargetsModded && projectile.ModProjectile != null) return true;
-                // if (GearClientConfig.Get.DyeRenderTargetProjectileList.Count > 0)
-                // {
-                //     foreach (var item in GearClientConfig.Get.DyeRenderTargetProjectileList)
-                //     {
-                //         if (item.Type == projectile.type)
-                //         {
-                //             return true;
-                //         }
-                //     }
-                // }
-
-                //return false;
         }
 
         /// <summary>

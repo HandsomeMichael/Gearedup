@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 
@@ -24,6 +25,10 @@ namespace Gearedup
 		[DefaultValue(true)]
 		[ReloadRequired]
 		public bool Endless_AmmoPack;
+
+		[DefaultValue(false)]
+		[ReloadRequired]
+		public bool Endless_AmmoPack_Gearable;
 
 		[DefaultValue(true)]
 		[ReloadRequired]
@@ -107,8 +112,9 @@ namespace Gearedup
 		[DrawTicks]
 		public DyeGraphics DyeRender_ProjectileModGraphics;
 
-		// [JsonDefaultListValue("{\"name\": \"GoldBar\"}")]
+		// [JsonDefaultListValue("{\"name\": \"TerraBlade\"}")]
 		public List<ItemDefinition> DyeRender_ItemForceFancyGraphics;
+		
 		//new List<ItemDefinition>();
 
 		// // [JsonDefaultListValue("{\"name\": \"GoldBar\"}")]

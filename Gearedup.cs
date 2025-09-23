@@ -93,7 +93,8 @@ namespace Gearedup
 				On_ItemSlot.DrawItemIcon += ItemSlot_DrawItemIcon;
 				On_Main.GetProjectileDesiredShader += ShaderPatch;
 				On_PlayerDrawLayers.DrawPlayer_27_HeldItem += ShittyPatch;
-				//if (GearClientConfig.Get.DyeSupport_Dust) { On_Dust.NewDust += DustPatch; }
+				On_Dust.NewDust += DustPatch;
+				// if (GearClientConfig.Get.DyeSupport_Dust) { On_Dust.NewDust += DustPatch; }
 			}
 
 			calamityMod = LoadMod("CalamityMod", "Recipes, npcs , projectiles patches");
@@ -193,7 +194,7 @@ namespace Gearedup
 		}
 
 		// We patch creation of dust
-		private int DustPatch(On_Dust.orig_NewDust orig, Vector2 position, int width, int height, int type, float speedX, float speedY, int alpha, Color newColor, float scale)
+		public static int DustPatch(On_Dust.orig_NewDust orig, Vector2 position, int width, int height, int type, float speedX, float speedY, int alpha, Color newColor, float scale)
 		{
 
 			// new method
@@ -232,7 +233,7 @@ namespace Gearedup
 
 			// int? shaderNum = heldItem.GetGlobalItem<GearItem>().dye.id;//GetShader(heldItem);
 
-			if (heldItem.TryGetGlobalItem(out GearItem gi))
+			if (GearItem.CanGeared(heldItem) && heldItem.TryGetGlobalItem(out GearItem gi))
 			{
 				if (gi.dye.id is int dyeID)
 				{
@@ -272,7 +273,7 @@ namespace Gearedup
 				if (proj.TryGetGlobalProjectile(out GearProjectile dyedProjectile))
 				{
 					// Don't use shader again if it tried to use render target methods
-					if (dyedProjectile.dye > 0 && RenderManager.IsCustomDrawed(proj))
+					if (dyedProjectile.dye > 0 && !RenderManager.IsCustomDrawed(proj))
 					{
 						return dyedProjectile.dye;
 					}

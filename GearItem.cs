@@ -36,6 +36,12 @@ namespace Gearedup
 
         public static bool CanGeared(Item item)
         {
+            // ammo pack can be gearedup
+            if (GearServerConfig.Get.Endless_AmmoPack_Gearable && item.type == ModContent.ItemType<AmmoPack>())
+            {
+                return true;
+            }
+
             return (item.maxStack == 1 && item.damage > 0 && item.useTime > 0 && item.useAnimation > 0) ||
             item.type == ModContent.ItemType<EndlessThrowable>(); // endlless throwable can be geared up
         }
@@ -370,9 +376,9 @@ namespace Gearedup
         // Apply Dyes
         public override void RightClick(Item item, Player player)
         {
-            if (Main.mouseItem != null)
+            if (Main.mouseItem != null && !Main.mouseItem.IsAir)
             {
-                if (Main.mouseItem.TryGetGlobalItem(out GearItem git))
+                if (GearItem.CanGeared(Main.mouseItem) && Main.mouseItem.TryGetGlobalItem(out GearItem git))
                 {
                     git.dye.SetTo(item);
                     // git.dye.ValidateAsItem();

@@ -7,13 +7,8 @@ Generic: {
 
 Items: {
 	TestWeapon: {
-		DisplayName: Test Weapon
-		Tooltip:
-			'''
-			Template of an item
-			Replacing this tooltip is duty 
-			It's snowing on Mt.Fuji
-			'''
+		DisplayName: Test Weapon C# Dev++
+		Tooltip: The rotting body hidden beside my blue bed is uncanny
 	}
 
 	ExamplePerk: {
@@ -411,372 +406,6 @@ Projectiles: {
 	DeiticStaffProj.DisplayName: Deitic Staff Proj
 }
 
-Configs: {
-	GearClientConfig: {
-		DisplayName: Gear Client Config
-
-		Headers: {
-			Optifine: Optifine Header
-			GearDye: Gear Dye Header
-			Debug: Debug Header
-		}
-
-		Opti_DisableRenderTargetBullshit: {
-			Label: Opti_ Disable Render Target Bullshit
-			Tooltip: ""
-		}
-
-		Opti_DisableSomeShaderShit: {
-			Label: Opti_ Disable Some Shader Shit
-			Tooltip: ""
-		}
-
-		Opti_ShowOwnCombatTextOnly: {
-			Label: Opti_ Show Own Combat Text Only
-			Tooltip: ""
-		}
-
-		Opti_ShowOwnProjectileOnly: {
-			Label: Opti_ Show Own Projectile Only
-			Tooltip: ""
-		}
-
-		Opti_ReduceCombatText: {
-			Label: Opti_ Reduce Combat Text
-			Tooltip: ""
-		}
-
-		Opti_ReduceDust: {
-			Label: Opti_ Reduce Dust
-			Tooltip: ""
-		}
-
-		DyeRenderTargetsAll: {
-			Label: Dye Render Targets All
-			Tooltip: ""
-		}
-
-		DyeRenderTargetsModded: {
-			Label: Dye Render Targets Modded
-			Tooltip: ""
-		}
-
-		DyeRenderTargetsToggle: {
-			Label: Dye Render Targets Toggle
-			Tooltip: ""
-		}
-
-		DyeRenderTargetItemsList: {
-			Label: Dye Render Target Items List
-			Tooltip: ""
-		}
-
-		DyeRenderTargetProjectileList: {
-			Label: Dye Render Target Projectile List
-			Tooltip: ""
-		}
-
-		DyeProjectileDust: {
-			Label: Dye Projectile Dust
-			Tooltip: ""
-		}
-
-		DyeItemPlayerShader: {
-			Label: Dye Item Player Shader
-			Tooltip: ""
-		}
-
-		DyeOverlapItemLayer: {
-			Label: Dye Overlap Item Layer
-			Tooltip: ""
-		}
-
-		DyeItemDyeDye: {
-			Label: Dye Item Dye Dye
-			Tooltip: ""
-		}
-
-		DyeItemName: {
-			Label: Dye Item Name
-			Tooltip: ""
-		}
-
-		Debug_ItemID: {
-			Label: Debug_ Item I D
-			Tooltip: ""
-		}
-
-		DyeProjectileLight: {
-			Label: Dye Projectile Light
-			Tooltip: ""
-		}
-
-		DyeRender_NPCToggle: {
-			Label: Dye Render_ N P C Toggle
-			Tooltip: ""
-		}
-
-		DyeRender_ProjectileVanillaGraphics: {
-			Label: Dye Render_ Projectile Vanilla Graphics
-			Tooltip: ""
-		}
-
-		DyeRender_ProjectileModGraphics: {
-			Label: Dye Render_ Projectile Mod Graphics
-			Tooltip: ""
-		}
-
-		DyeRender_ItemForceFancyGraphics: {
-			Label: Dye Render_ Item Force Fancy Graphics
-			Tooltip: ""
-		}
-
-		DyeSupport_Light: {
-			Label: Dye Support_ Light
-			Tooltip: ""
-		}
-
-		DyeItem_UsePlayerShader: {
-			Label: Dye Item_ Use Player Shader
-			Tooltip: ""
-		}
-
-		DyeItem_OverlapLayer: {
-			Label: Dye Item_ Overlap Layer
-			Tooltip: ""
-		}
-
-		DyeItem_ShowDyePreview: {
-			Label: Dye Item_ Show Dye Preview
-			Tooltip: ""
-		}
-
-		DyeItem_FancyName: {
-			Label: Dye Item_ Fancy Name
-			Tooltip: ""
-		}
-	}
-
-	GearServerConfig: {
-		DisplayName: Gear Server Config
-
-		Headers: {
-			Content: Content Header
-			DyeGears: Dye Gears Header
-			CatchedEntities: Catched Entities Header
-			Debug: Debug Header
-			Experimental: Experimental Header
-		}
-
-		AllowAmmoPack: {
-			Label: Allow Ammo Pack
-			Tooltip: ""
-		}
-
-		AllowEndlessThrowables: {
-			Label: Allow Endless Throwables
-			Tooltip: ""
-		}
-
-		AllowSuperBugNet: {
-			Label: Allow Super Bug Net
-			Tooltip: ""
-		}
-
-		AllowSuperBugNet_Projectile: {
-			Label: Allow Super Bug Net_ Projectile
-			Tooltip: ""
-		}
-
-		AllowSuperBugNet_NPCs: {
-			Label: Allow Super Bug Net_ N P Cs
-			Tooltip: ""
-		}
-
-		AllowSuperBugNet_Bosses: {
-			Label: Allow Super Bug Net_ Bosses
-			Tooltip: ""
-		}
-
-		AllowDeveloGun: {
-			Label: Allow Develo Gun
-			Tooltip: ""
-		}
-
-		AllowDeveloGun_Brainwash: {
-			Label: Allow Develo Gun_ Brainwash
-			Tooltip: ""
-		}
-
-		AllowWeaponDye: {
-			Label: Allow Weapon Dye
-			Tooltip: ""
-		}
-
-		AllowDyeConsumed: {
-			Label: Allow Dye Consumed
-			Tooltip: ""
-		}
-
-		WaterRemoveDye: {
-			Label: Water Remove Dye
-			Tooltip: ""
-		}
-
-		CatchNPCStats: {
-			Label: Catch N P C Stats
-			Tooltip: ""
-		}
-
-		CatchProjectileDamage: {
-			Label: Catch Projectile Damage
-			Tooltip: ""
-		}
-
-		CatchProjectileDamageScale: {
-			Label: Catch Projectile Damage Scale
-			Tooltip: ""
-		}
-
-		CatchProjectileAmmo: {
-			Label: Catch Projectile Ammo
-			Tooltip: ""
-		}
-
-		DebugMode: {
-			Label: Debug Mode
-			Tooltip: ""
-		}
-
-		Endless_AmmoPack: {
-			Label: Endless_ Ammo Pack
-			Tooltip: ""
-		}
-
-		Endless_Throwable: {
-			Label: Endless_ Throwable
-			Tooltip: ""
-		}
-
-		Endless_DuplicateAccesory: {
-			Label: Endless_ Duplicate Accesory
-			Tooltip: ""
-		}
-
-		Catched_SuperBugNetObtainable: {
-			Label: Catched_ Super Bug Net Obtainable
-			Tooltip: ""
-		}
-
-		Catched_Projectile: {
-			Label: Catched_ Projectile
-			Tooltip: ""
-		}
-
-		Catched_ProjectileAsAmmo: {
-			Label: Catched_ Projectile As Ammo
-			Tooltip: ""
-		}
-
-		Catched_NPCs: {
-			Label: Catched_ N P Cs
-			Tooltip: ""
-		}
-
-		Catched_Bosses: {
-			Label: Catched_ Bosses
-			Tooltip: ""
-		}
-
-		DyeItem_Toggle: {
-			Label: Dye Item_ Toggle
-			Tooltip: ""
-		}
-
-		DyeItem_ConsumeOnUse: {
-			Label: Dye Item_ Consume On Use
-			Tooltip: ""
-		}
-
-		Content_DeityStaff: {
-			Label: Content_ Deity Staff
-			Tooltip: ""
-		}
-
-		Content_PhilosopherStone: {
-			Label: Content_ Philosopher Stone
-			Tooltip: ""
-		}
-
-		Content_LustruousChest: {
-			Label: Content_ Lustruous Chest
-			Tooltip: ""
-		}
-
-		WGLoader: {
-			Label: W G Loader
-			Tooltip: ""
-		}
-	}
-
-	DyeGraphics: {
-		Tooltip: ""
-		Off.Label: Off
-		Fast.Label: Fast
-		Auto.Label: Auto
-		Fancy.Label: Fancy
-	}
-
-	OptimizeConfig: {
-		DisplayName: Optimize Config
-
-		Headers: {
-			BasicOptimization: Basic Optimization Header
-			Advanced: Advanced Header
-		}
-
-		Opti_ShowOwnProjectileOnly: {
-			Label: Opti_ Show Own Projectile Only
-			Tooltip: ""
-		}
-
-		Opti_ReduceCombatText: {
-			Label: Opti_ Reduce Combat Text
-			Tooltip: ""
-		}
-
-		Opti_ImproveCombatText: {
-			Label: Opti_ Improve Combat Text
-			Tooltip: ""
-		}
-
-		Opti_ReduceDust: {
-			Label: Opti_ Reduce Dust
-			Tooltip: ""
-		}
-
-		DyeStress_Proj: {
-			Label: Dye Stress_ Proj
-			Tooltip: ""
-		}
-
-		DyeStress_NPC: {
-			Label: Dye Stress_ N P C
-			Tooltip: ""
-		}
-
-		CombatTextStress: {
-			Label: Combat Text Stress
-			Tooltip: ""
-		}
-
-		DustStress: {
-			Label: Dust Stress
-			Tooltip: ""
-		}
-	}
-}
-
 NPCInteraction: {
 	OnDye: {
 		Chat1: Why you do this to me.
@@ -791,16 +420,339 @@ NPCInteraction: {
 
 Buffs: {
 	TruthDemise: {
-		Description: Mods.Gearedup.Buffs.TruthDemise.Description
+		Description: Decreased max health, uncurable
 		DisplayName: Truth Demise
 	}
 }
 
 Tiles: {
 	LustruousChestTile: {
-		MapEntry0: Mods.Gearedup.Tiles.LustruousChestTile.MapEntry0
-		MapEntry1: Mods.Gearedup.Tiles.LustruousChestTile.MapEntry1
+		MapEntry0: Lustruous Chest
+		MapEntry1: Locked Lustruous Chest
 	}
 }
 
 NPCs.TheCat.DisplayName: The Cat
+
+Configs: {
+	OptimizeConfig: {
+		DustStress: {
+			Tooltip: ""
+			Label: Dust Stress
+		}
+
+		CombatTextStress: {
+			Tooltip: ""
+			Label: Combat Text Stress
+		}
+
+		DyeStress_NPC: {
+			Tooltip: ""
+			Label: Dye Stress_ N P C
+		}
+
+		DyeStress_Proj: {
+			Tooltip: ""
+			Label: Dye Stress_ Proj
+		}
+
+		Headers: {
+			Advanced: Advanced Header
+			BasicOptimization: Basic Optimization Header
+		}
+
+		Opti_ReduceDust: {
+			Tooltip: ""
+			Label: Opti_ Reduce Dust
+		}
+
+		Opti_ImproveCombatText: {
+			Tooltip: ""
+			Label: Opti_ Improve Combat Text
+		}
+
+		Opti_ReduceCombatText: {
+			Tooltip: ""
+			Label: Opti_ Reduce Combat Text
+		}
+
+		Opti_ShowOwnProjectileOnly: {
+			Tooltip: ""
+			Label: Opti_ Show Own Projectile Only
+		}
+
+		DisplayName: Optimize Config
+	}
+
+	GearServerConfig: {
+		DebugMode: {
+			Tooltip: Enable debug mode for developers or mod creators
+			Label: Debug Mode
+		}
+
+		Headers: {
+			Debug: Debug
+			Experimental: Experimental
+			DyeGears: Dye Gears
+			Content: Content / Items
+		}
+
+		WGLoader: {
+			Tooltip: ""
+			Label: W G Loader
+		}
+
+		Content_LustruousChest: {
+			Tooltip:
+				'''
+				Lustruous chest allows player to store any items as if they can be stacked
+				Disabling this will turn lustruous chest into a regular chest and remove its recipe
+				'''
+			Label: Enable Lustruous Chest
+		}
+
+		Content_PhilosopherStone: {
+			Tooltip:
+				'''
+				Embodiment Of Philosophy is a complicated kinda fair and cool item duplication method
+				If you wish for all the player to grind items mercilessly , disable this
+				[ Enabled by Default ]
+				'''
+			Label: Enable Embodiment Of Philosophy
+		}
+
+		Content_DeityStaff: {
+			Tooltip:
+				'''
+				Deitic staff is a post any endgame weapon that allows player to control catched entities
+				If there is too many people on the server, might disable this so it does not get abused
+				[ Enabled by Default ]
+				'''
+			Label: Enable Deitic Staff
+		}
+
+		DyeItem_ConsumeOnUse: {
+			Tooltip:
+				'''
+				When enabled applying a dye to a weapon will consume the dye itself
+				Enable if you dont want to grind for more dyes
+				[ Disabled by Default ]
+				'''
+			Label: Consume Dye Upon Use
+		}
+
+		DyeItem_Toggle: {
+			Tooltip:
+				'''
+				Allow any player to dye a weapon
+				Disable if there is too many people use fancy dyed weapon and lag ur game
+				[ Enabled by Default ]
+				'''
+			Label: Allow Weapon Dye
+		}
+
+		Catched_Bosses: {
+			Tooltip:
+				'''
+				Lunarian Bugnet will be allowed to catch bosses
+				Disable if you want a lil more balance , me personally dont care bcs its post post endgame
+				[ Enabled by Default ]
+				'''
+			Label: Allow Lunarian Bugnet Catch Bosses
+		}
+
+		Catched_NPCs: {
+			Tooltip:
+				'''
+				Lunarian Bugnet will be allowed to catch NPCs
+				Pokemon materialized in terraria real
+				[ Enabled by Default ]
+				'''
+			Label: Allow Lunarian Bugnet Catch NPCs
+		}
+
+		Catched_ProjectileAsAmmo: {
+			Tooltip:
+				'''
+				Catched projectile from Lunarian Bugnet will be able to be used by any weapon as their ammo
+				This mean you can catch cultist fireball and use your shotgun to shoot it back at him
+				[ Enabled by Default ]
+				'''
+			Label: Allow Catched Projectile as Ammo
+		}
+
+		Catched_Projectile: {
+			Tooltip:
+				'''
+				Lunarian Bugnet will be allowed to catch projectile
+				Despite this seemingly op, its kinda hard to catch enemy projectile
+				[ Enabled by Default ]
+				'''
+			Label: Allow Lunarian Bugnet Catch Projectile
+		}
+
+		Catched_SuperBugNetObtainable: {
+			Tooltip:
+				'''
+				This will make lunarian bugnet obtainable in post post endgame
+				Will support calamity & fargo souls endgame
+				[ Enabled by Default ]
+				'''
+			Label: Lunarian Bugnet Obtainable
+		}
+
+		Endless_DuplicateAccesory: {
+			Tooltip:
+				'''
+				Accesory duplicator can duplicate most accesory properties
+				Duplicated accesory itself cannot be crafted or use as anything else
+				This item is obtainable in hardmode as an easy way to share accesories to friends
+				[ Enabled by Default ]
+				'''
+			Label: Enable Accesory Duplicator
+		}
+
+		Endless_Throwable: {
+			Tooltip:
+				'''
+				Throwable can be crafted to an endless variant, simillar to endless musket pouch
+				Endless throwable can also be reforged , dyed , and other stuff
+				[ Enabled by Default ]
+				'''
+			Label: Enable Endless Throwable
+		}
+
+		Endless_AmmoPack: {
+			Tooltip:
+				'''
+				Any ammo can be crafted into an endless variant, simillar to endless musket pouch
+				The recipes require items based on the progression for balance i guess
+				[ Enabled by Default ]
+				'''
+			Label: Enable Endless Ammo Pack
+		}
+
+		DisplayName: Gear Server Config
+
+		Endless_AmmoPack_Gearable: {
+			Label: Allow Endless Ammo Pack Customizable
+			Tooltip: 
+			'''
+			Ammo pack will be able to be customizable
+			This mean it can be dyed , perks and stuff
+			[ Disabled by Default ]
+			'''
+		}
+	}
+
+	GearClientConfig: {
+		DyeItem_FancyName: {
+			Tooltip:
+				'''
+				Dyed gear will have their display name to be dyed too
+				[ Disabled by Default ]
+				'''
+			Label: Dyed gear have fancy colored name
+		}
+
+		DyeItem_ShowDyePreview: {
+			Tooltip:
+				'''
+				When hovering dye , their tooltips will display the player and the item after it applies
+				Usefull if you want to know how dye would look like without you crafting it
+				[ Enabled by Default ]
+				'''
+			Label: Dye will preview its effect
+		}
+
+		DyeItem_OverlapLayer: {
+			Tooltip:
+				'''
+				Overlay player item layer to prevent any somehow missing redrawn layer from player
+				Try disabling or enabling if you see any lags or visual deprencities when swinging a REGULAR sword
+				[ Disabled by Default ]
+				'''
+			Label: Dyed Item overlap Layer
+		}
+
+		DyeItem_UsePlayerShader: {
+			Tooltip:
+				'''
+				Use player as shader context during drawing phase
+				Try disabling or enabling and then use the item if you see dyed gear have weird visuals
+				[ Disabled by Default ]
+				'''
+			Label: Dyed Gear use Player Shader
+		}
+
+		DyeSupport_Light: {
+			Tooltip:
+				'''
+				Make light comes from dyed projectiles match their dye color
+				Will not work if 'Dyeable Light Pets' mod enabled because it does the same thing ( i stole their code in an evil way )
+				[ Disabled by Default]
+				'''
+			Label: Dyed Gear Support Light Engine
+		}
+
+		DyeRender_ItemForceFancyGraphics: {
+			Tooltip:
+				'''
+				Item registered here will use fancy graphics because fast graphics doesnt work for them
+				Only works if the projectile graphic is set to AUTO.
+				'''
+			Label: Dyed Gear Graphics
+		}
+
+		DyeRender_ProjectileModGraphics: {
+			Tooltip:
+				'''
+				The graphic quality of every modded projectile
+
+				[ Off ] : Does not apply dye to modded projectiles
+				[ Fast ] : Use a faster method for better performance, althought might not properly apply dye
+				[ Auto ] : Automatically use Fast or Fancy depending on modded projectiles data and known conditions
+				[ Fancy ] : Use a more accurate way to display a dyed modded projectile
+
+				[ Auto By Default ]
+				'''
+			Label: Modded Dyed Projectile Graphics
+		}
+
+		DyeRender_ProjectileVanillaGraphics: {
+			Tooltip:
+				'''
+				The graphic quality of every vanilla projectile
+
+				[ Off ] : Does not apply dye to vanilla projectiles
+				[ Fast ] : Use a faster method for better performance, althought might not properly apply dye
+				[ Auto ] : Automatically use Fast or Fancy depending on vanilla projectiles data and known conditions
+				[ Fancy ] : Use a more accurate way to display a dyed vanilla projectile
+
+				[ Auto By Default ]
+				'''
+			Label: Vanilla Dyed Projectile Graphics
+		}
+
+		DyeRender_NPCToggle: {
+			Tooltip:
+				'''
+				Disable to make NPCs cannot be dyed for better performance
+				Server and other user will still see dyed npcs, only you cant
+				[ Enabled by Default ]
+				'''
+			Label: NPC Can be Dyed
+		}
+
+		Headers.GearDye: Gear Dye
+		DisplayName: Gear Client Config
+	}
+
+	DyeGraphics: {
+		Fancy.Label: Fancy
+		Auto.Label: Auto
+		Fast.Label: Fast
+		Off.Label: Off
+		Tooltip: ""
+	}
+}

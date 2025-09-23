@@ -1,5 +1,6 @@
 using System.IO;
 using Gearedup.Content.Catched;
+using Gearedup.Content.Endless;
 using Gearedup.Content.Items;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -93,27 +94,19 @@ namespace Gearedup
             // Inherit From Dyed Item
             if (spawnSource is IEntitySource_WithStatsFromItem itemSource)
             {
-                if (itemSource.Item.TryGetGlobalItem(out GearItem globalItem))
+                if (GearItem.CanGeared(itemSource.Item) && itemSource.Item.TryGetGlobalItem(out GearItem globalItem))
                 {
                     if (globalItem.dye.id is int dyeID && projectile.TryGetGlobalProjectile(out GearProjectile globalProj))
                     {
                         // Main.NewText("success applied " + dyedItem.dye);
                         // globalProj.dye = (short)ContentSamples.ItemsByType[dyeID].dye;
+
                         globalProj.dye = GameShaders.Armor.GetShaderIdFromItemId(dyeID);
 
-                        if (GearClientConfig.Get.IsItemFancyGraphics(itemSource.Item))
+                        if (!RenderManager.projectileForceFancy[projectile.type])
                         {
-                            RenderManager.projectileForceFancy[projectile.type] = true;
+                            RenderManager.projectileForceFancy[projectile.type] = GearClientConfig.Get.IsItemFancyGraphics(itemSource.Item);
                         }
-                        // Legacy Code
-                        // if (GearClientConfig.Get.IsItemRT(itemSource.Item))
-                        // {
-                        //     globalProj.useRenderTarget = true;
-                        // }
-                        // else if (RenderManager.IsCustomDrawed(projectile))
-                        // {
-                        //     globalProj.useRenderTarget = true;
-                        // }
                     }
                 }
             }
@@ -125,6 +118,25 @@ namespace Gearedup
                 {
                     projectile.hostile = false;
                     projectile.friendly = true;
+                }
+
+                // Copy GearItem
+                if (GearServerConfig.Get.Endless_AmmoPack_Gearable && ammoSource.AmmoItemIdUsed == ModContent.ItemType<AmmoPack>())
+                {
+                    Item newAmmo = ammoSource.Player.ChooseAmmo(ammoSource.Item);
+                    if (newAmmo.type == ammoSource.AmmoItemIdUsed)
+                    {
+                        if (newAmmo.TryGetGlobalItem(out GearItem gear))
+                        {
+                            if (gear.dye.id is int dye)
+                            {
+                                if (projectile.TryGetGlobalProjectile(out GearProjectile GearProjectile))
+                                {
+                                    GearProjectile.dye = dye;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
